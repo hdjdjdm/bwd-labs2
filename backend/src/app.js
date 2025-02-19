@@ -4,6 +4,7 @@ const morgan = require('morgan');
 const routes = require('./routes');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swaggerConfig');
+const errorMiddleware = require('./middleware/errorMiddleware');
 
 const app = express();
 
@@ -14,5 +15,7 @@ app.use(morgan('[:method] :url'));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/api', routes)
+
+app.use(errorMiddleware);
 
 module.exports = app;
