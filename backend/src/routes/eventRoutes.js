@@ -12,4 +12,6 @@ router.put('/:id', EventController.updateEvent);
 
 router.delete('/:id', EventController.deleteEvent);
 
+router.patch('/:id/restore', EventController.restoreEvent);
+
 module.exports = router;

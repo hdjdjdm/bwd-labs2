@@ -23,9 +23,13 @@ const User = sequelize.define('User', {
     createdAt: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
+    },
+    deletedAt: {
+        type: Sequelize.DATE,
+        allowNull: true,
     }
 }, {
-    timestamps: false
+    paranoid: true
 })
 
 User.associate = (models) => {

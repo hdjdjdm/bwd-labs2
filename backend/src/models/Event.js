@@ -24,9 +24,13 @@ const Event = sequelize.define('Event', {
     createdBy: {
         type: Sequelize.INTEGER,
         allowNull: false,
+    },
+    deletedAt: {
+        type: Sequelize.DATE,
+        allowNull: true,
     }
 }, {
-    timestamps: false
+    paranoid: true
 });
 
 Event.associate = (models) => {

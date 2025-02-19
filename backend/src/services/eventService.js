@@ -10,9 +10,12 @@ class EventService {
         }
     }
     
-    static async getAllEvents() {
+    static async getAllEvents(includeDeleted) {
         try {
-            const events = await Event.findAll();
+            const events = await Event.findAll({
+                paranoid: !includeDeleted
+            });
+
             return events;
         } catch (e) {
             throw new Error('Error get events: ' + e.message);
@@ -53,6 +56,20 @@ class EventService {
             return { message: `Event with id ${id} deleted successfully` };
         } catch (e) {
             throw new Error('Error deleting event: ' + e.message);
+        }
+    }
+
+    static async restoreEvent(id) {
+        try {
+            const event = await Event.findByPk(id, { paranoid: false });
+            if (!event) {
+                throw new Error(`Event with id ${id} not found`);
+            }
+    
+            await event.restore();
+            return { message: `Event with id ${id} restore successfully` };
+        } catch (e) {
+            throw new Error('Error restoring event: ' + e.message);
         }
     }
 }

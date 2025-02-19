@@ -18,7 +18,8 @@ class EventController {
     
     static async getAllEvents(req, res) {
         try {
-            const users = await EventService.getAllEvents();
+            const includeDeleted = req.query.includeDeleted === 'true';
+            const users = await EventService.getAllEvents(includeDeleted);
             res.status(200).json(users);
         } catch (e) {
             res.status(500).json({ message: e.message });
@@ -60,6 +61,16 @@ class EventController {
         try {
             const { id } = req.params;
             const result = await EventService.deleteEvent(id);
+            return res.status(200).json(result);
+        } catch (e) {
+            return res.status(500).json({ message: e.message });
+        }
+    }
+
+    static async restoreEvent(req, res) {
+        try {
+            const { id } = req.params;
+            const result = await EventService.restoreEvent(id);
             return res.status(200).json(result);
         } catch (e) {
             return res.status(500).json({ message: e.message });
