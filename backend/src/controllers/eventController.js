@@ -1,5 +1,5 @@
-const EventService = require("../services/eventService");
-const { ValidationError, NotFoundError } = require("../utils/errors");
+import EventService from "../services/eventService.js";
+import { ValidationError, NotFoundError } from "../utils/errors.js";
 
 class EventController {
     static async createEvent(req, res, next) {
@@ -19,8 +19,8 @@ class EventController {
     static async getAllEvents(req, res, next) {
         try {
             const includeDeleted = req.query.includeDeleted === 'true';
-            const users = await EventService.getAllEvents(includeDeleted);
-            res.status(200).json(users);
+            const events = await EventService.getAllEvents(includeDeleted);
+            res.status(200).json(events);
         } catch (e) {
             next(e);
         }
@@ -47,7 +47,7 @@ class EventController {
             const updateData = req.body;
 
             if (!Object.keys(updateData).length) {
-                throw new ValidationError('No data provided for update');
+                throw new ValidationError('No data provided for update'); //todo add validation 
             }
 
             const updatedEvent = await EventService.updateEvent(id, updateData);
@@ -60,7 +60,7 @@ class EventController {
     static async deleteEvent(req, res, next) {
         try {
             const { id } = req.params;
-            const result = await EventService.deleteEvent(id);
+            const result = await EventService.deleteEvent(id); // Валидация на integer "null" и т.д.
             return res.status(200).json(result);
         } catch (e) {
             next(e);
@@ -78,4 +78,4 @@ class EventController {
     }
 }
 
-module.exports = EventController;
+export default EventController;

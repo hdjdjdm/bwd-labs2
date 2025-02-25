@@ -1,5 +1,6 @@
-const express = require('express');
-const EventController = require('../controllers/eventController');
+import express from 'express';
+import EventController from '../controllers/eventController.js';
+
 const router = express.Router();
 
 /**
@@ -162,4 +163,4 @@ router.delete('/:id', EventController.deleteEvent);
  */
 router.patch('/:id/restore', EventController.restoreEvent);
 
-module.exports = router;
+export default router;

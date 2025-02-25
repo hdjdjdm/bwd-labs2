@@ -1,10 +1,9 @@
-const { Sequelize } = require('sequelize');
-const sequelize = require('../config/db');
+import { Sequelize } from 'sequelize';
+import { sequelize } from '../config/db.js';
+import User from './User.js';
+import Event from './Event.js';
 
-const models = {
-    User: require('./User'),
-    Event: require('./Event'),
-};
+const models = { User, Event };
 
 Object.keys(models).forEach(modelName => {
     if (models[modelName].associate) {
@@ -12,4 +11,5 @@ Object.keys(models).forEach(modelName => {
     }
 });
 
-module.exports = { sequelize, ...models };
+export default models;
+export { sequelize, models }

@@ -1,4 +1,4 @@
-const { Event } = require('../models');
+import Event from '../models/Event.js';
 
 class EventService {
     static async createEvent(data) {
@@ -74,4 +74,4 @@ class EventService {
     }
 }
 
-module.exports = EventService;
+export default EventService;

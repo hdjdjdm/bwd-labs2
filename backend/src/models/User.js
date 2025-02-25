@@ -1,5 +1,5 @@
-const { Sequelize } = require('sequelize');
-const { sequelize } = require('../config/db');
+import Sequelize from 'sequelize';
+import { sequelize } from '../config/db.js'
 
 const User = sequelize.define('User', {
     id: {
@@ -20,10 +20,6 @@ const User = sequelize.define('User', {
             isEmail: true,
         }
     },
-    createdAt: {
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.NOW,
-    },
     deletedAt: {
         type: Sequelize.DATE,
         allowNull: true,
@@ -35,4 +31,4 @@ const User = sequelize.define('User', {
 User.associate = (models) => {
     User.hasMany(models.Event, { foreignKey: 'createdBy' });
 };
-module.exports = User;
+export default User;
