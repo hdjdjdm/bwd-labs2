@@ -1,5 +1,5 @@
-const { Sequelize } = require('sequelize');
-const { sequelize } = require('../config/db');
+import Sequelize from 'sequelize';
+import { sequelize } from '../config/db.js';
 
 const Event = sequelize.define('Event', {
     id: {
@@ -36,4 +36,4 @@ const Event = sequelize.define('Event', {
 Event.associate = (models) => {
     Event.belongsTo(models.User, { foreignKey: 'createdBy' });
 };
-module.exports = Event;
+export default Event;

@@ -1,10 +1,10 @@
-const express = require('express');
-const cors = require('cors');
-const morgan = require('morgan');
-const routes = require('./routes');
-const swaggerUi = require('swagger-ui-express');
-const swaggerSpec = require('./config/swaggerConfig');
-const errorMiddleware = require('./middleware/errorMiddleware');
+import express from 'express';
+import cors from 'cors';
+import morgan from 'morgan';
+import routes from './routes/index.js';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './config/swaggerConfig.js';
+import errorMiddleware from './middleware/errorMiddleware.js';
 
 const app = express();
 
@@ -18,4 +18,4 @@ app.use('/api', routes)
 
 app.use(errorMiddleware);
 
-module.exports = app;
+export default app;

@@ -1,10 +1,10 @@
-const express = require('express');
-const eventsRouter = require('./eventRoutes');
-const usersRouter = require('./userRoutes');
+import express from 'express';
+import eventsRouter from './eventRoutes.js';
+import usersRouter from './userRoutes.js'
 
 const router = express.Router();
 
 router.use('/events', eventsRouter);
 router.use('/users', usersRouter);
 
-module.exports = router;
+export default router;

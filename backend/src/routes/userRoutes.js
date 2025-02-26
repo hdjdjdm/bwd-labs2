@@ -1,5 +1,6 @@
-const express = require('express');
-const UserController = require('../controllers/userController');
+import express from 'express';
+import UserController from '../controllers/userController.js';
+
 const router = express.Router();
 
 /**
@@ -54,4 +55,50 @@ router.get('/', UserController.getAllUsers);
  */
 router.post('/', UserController.createUser);
 
-module.exports = router;
+/**
+ * @swagger
+ * /users/{id}:
+ *   delete:
+ *     summary: Soft delete an user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the user to delete
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
+router.delete('/:id', UserController.deleteUser);
+
+/**
+ * @swagger
+ * /users/{id}/restore:
+ *   patch:
+ *     summary: Restore a soft-deleted user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the user to restore
+ *     responses:
+ *       200:
+ *         description: User restored successfully
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
+router.patch('/:id/restore', UserController.restoreUser);
+
+export default router;

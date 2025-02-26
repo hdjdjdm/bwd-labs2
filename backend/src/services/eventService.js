@@ -1,4 +1,6 @@
-const { Event } = require('../models');
+import models from '../models/index.js';
+import { NotFoundedError, ServerError } from '../utils/errors.js';
+const { Event } = models;
 
 class EventService {
     static async createEvent(data) {
@@ -6,28 +8,32 @@ class EventService {
             const event = await Event.create(data);
             return event;
         } catch (e) {
-            throw new Error('Error creating event: ' + e.message);
+            throw new ServerError('Error creating event: ' + e.message);
         }
     }
     
-    static async getAllEvents(includeDeleted) {
+    static async getAllEvents(withDeleted) {
         try {
             const events = await Event.findAll({
-                paranoid: !includeDeleted
+                paranoid: !withDeleted
             });
 
             return events;
         } catch (e) {
-            throw new Error('Error get events: ' + e.message);
+            throw new ServerError('Error get events: ' + e.message);
         }
     }
 
     static async getEvent(id) {
         try {
             const event = await Event.findByPk(id);
+            if (!event) {
+                throw new NotFoundedError(`Event with ID ${id} not found.`);
+            }
+            
             return event;
         } catch (e) {
-            throw new Error('Error get events: ' + e.message);
+            throw new ServerError('Error get event: ' + e.message);
         }
     }
 
@@ -35,13 +41,13 @@ class EventService {
         try {
             const event = await Event.findByPk(id);
             if (!event) {
-                throw new Error(`Event with id ${id} not found`);
+                throw new NotFoundedError(`Event with id ${id} not found`);
             }
 
             await event.update(updateData);
             return event;
         } catch (e) {
-            throw new Error('Error updating event: ' + e.message);
+            throw new ServerError('Error updating event: ' + e.message);
         }
     }
 
@@ -49,13 +55,13 @@ class EventService {
         try {
             const event = await Event.findByPk(id);
             if (!event) {
-                throw new Error(`Event with id ${id} not found`);
+                throw new NotFoundedError(`Event with id ${id} not found`);
             }
     
             await event.destroy();
             return { message: `Event with id ${id} deleted successfully` };
         } catch (e) {
-            throw new Error('Error deleting event: ' + e.message);
+            throw new ServerError('Error deleting event: ' + e.message);
         }
     }
 
@@ -63,15 +69,15 @@ class EventService {
         try {
             const event = await Event.findByPk(id, { paranoid: false });
             if (!event) {
-                throw new Error(`Event with id ${id} not found`);
+                throw new NotFoundedError(`Event with id ${id} not found`);
             }
     
             await event.restore();
             return { message: `Event with id ${id} restore successfully` };
         } catch (e) {
-            throw new Error('Error restoring event: ' + e.message);
+            throw new ServerError('Error restoring event: ' + e.message);
         }
     }
 }
 
-module.exports = EventService;
+export default EventService;
