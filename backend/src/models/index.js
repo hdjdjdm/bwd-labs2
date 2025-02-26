@@ -1,4 +1,3 @@
-import { Sequelize } from 'sequelize';
 import { sequelize } from '../config/db.js';
 import User from './User.js';
 import Event from './Event.js';

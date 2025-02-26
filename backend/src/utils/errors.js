@@ -1,15 +1,15 @@
-class ValidationError extends Error {
+class ValidError extends Error {
     constructor(message) {
         super(message);
-        this.name = 'ValidationError';
+        this.name = 'ValidError';
         this.statusCode = 400;
     }
 }
 
-class NotFoundError extends Error {
+class NotFoundedError extends Error {
     constructor(message) {
         super(message);
-        this.name = 'NotFoundError';
+        this.name = 'NotFoundedError';
         this.statusCode = 404;
     }
 }
@@ -22,4 +22,4 @@ class ServerError extends Error {
     }
 }
 
-export { ValidationError, NotFoundError, ServerError };
+export { ValidError, NotFoundedError, ServerError };

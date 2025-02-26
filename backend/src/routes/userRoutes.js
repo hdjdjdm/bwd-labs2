@@ -76,7 +76,7 @@ router.post('/', UserController.createUser);
  *       500:
  *         description: Internal server error
  */
-router.delete('/', UserController.deleteUser);
+router.delete('/:id', UserController.deleteUser);
 
 /**
  * @swagger

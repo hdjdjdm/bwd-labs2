@@ -20,6 +20,11 @@ const User = sequelize.define('User', {
             isEmail: true,
         }
     },
+    // createdAt: {
+    //     type: Sequelize.DATE,
+    //     defaultValue: Sequelize.NOW,
+    //     allowNull: false,
+    // },
     deletedAt: {
         type: Sequelize.DATE,
         allowNull: true,
