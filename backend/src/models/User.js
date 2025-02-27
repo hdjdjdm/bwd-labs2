@@ -1,4 +1,5 @@
 import Sequelize from 'sequelize';
+import bcrypt from 'bcryptjs';
 import { sequelize } from '../config/db.js'
 
 const User = sequelize.define('User', {
@@ -20,6 +21,10 @@ const User = sequelize.define('User', {
             isEmail: true,
         }
     },
+    password: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
     // createdAt: {
     //     type: Sequelize.DATE,
     //     defaultValue: Sequelize.NOW,
@@ -32,6 +37,16 @@ const User = sequelize.define('User', {
 }, {
     paranoid: true
 })
+
+User.beforeCreate(async (user) => {
+    const hashedPassword = await bcrypt.hash(user.password, 10);
+    user.password = hashedPassword;
+});
+
+User.beforeUpdate(async (user) => {
+    const hashedPassword = await bcrypt.hash(user.password, 10);
+    user.password = hashedPassword;
+});
 
 User.associate = (models) => {
     User.hasMany(models.Event, { foreignKey: 'createdBy' });

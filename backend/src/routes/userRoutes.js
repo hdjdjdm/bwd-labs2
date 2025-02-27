@@ -1,5 +1,6 @@
 import express from 'express';
 import UserController from '../controllers/userController.js';
+import jwtAuthMiddleware from '../middleware/jwtAuthMiddleware.js';
 
 const router = express.Router();
 
@@ -22,7 +23,7 @@ const router = express.Router();
  *       500:
  *         description: Server error
  */
-router.get('/', UserController.getAllUsers);
+router.get('/', jwtAuthMiddleware, UserController.getAllUsers);
 
 /**
   * @swagger
@@ -53,7 +54,7 @@ router.get('/', UserController.getAllUsers);
  *       500:
  *         description: Server error
  */
-router.post('/', UserController.createUser);
+router.post('/', jwtAuthMiddleware, UserController.createUser);
 
 /**
  * @swagger
@@ -76,7 +77,7 @@ router.post('/', UserController.createUser);
  *       500:
  *         description: Internal server error
  */
-router.delete('/:id', UserController.deleteUser);
+router.delete('/:id', jwtAuthMiddleware, UserController.deleteUser);
 
 /**
  * @swagger
@@ -99,6 +100,6 @@ router.delete('/:id', UserController.deleteUser);
  *       500:
  *         description: Internal server error
  */
-router.patch('/:id/restore', UserController.restoreUser);
+router.patch('/:id/restore', jwtAuthMiddleware, UserController.restoreUser);
 
 export default router;

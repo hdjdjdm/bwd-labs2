@@ -6,17 +6,20 @@ class UserController {
         try {
             let { name, email } = req.body; 
     
-            name = name.trim();
-            email = email.trim();
-    
             if (!name || !email) {
                 throw new ValidError('Name and email cannot be empty.');
             }
-    
+
+            if (typeof name !== 'string' || name.trim() === '') {
+                throw new ValidError('Name must be a non-empty string');
+            }
+            name = name.trim();
+
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
                 throw new ValidError('Invalid email format.');
             }
+            email = email.trim();
     
             const user = await UserService.createUser({ name, email });
             return res.status(201).json(user);
