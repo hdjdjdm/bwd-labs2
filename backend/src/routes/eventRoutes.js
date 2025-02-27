@@ -1,5 +1,9 @@
 import express from 'express';
+import passport from 'passport';
 import EventController from '../controllers/eventController.js';
+import jwtAuthMiddleware from '../middleware/jwtAuthMiddleware.js';
+import { checkLevelAccess } from '../middleware/authMiddleware.js';
+import ROLES from '../constants/roles.js';
 
 const router = express.Router();
 
@@ -9,6 +13,31 @@ const router = express.Router();
  *   name: Events
  *   description: API for managing events
  */
+
+/**
+ * @swagger
+ * /events:
+ *   get:
+ *     summary: Get all events
+ *     tags: [Events]
+ *     parameters:
+ *       - in: query
+ *         name: withDeleted
+ *         schema:
+ *           type: boolean
+ *         description: Include soft-deleted events
+ *       - in: query
+ *         name: hardDelete
+ *         schema:
+ *           type: boolean
+ *         description: Hard delete event
+ *     responses:
+ *       200:
+ *         description: List of events
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/', EventController.getAllEvents);
 
 /**
  * @swagger
@@ -37,27 +66,7 @@ const router = express.Router();
  *       500:
  *         description: Internal server error
  */
-router.post('/', EventController.createEvent);
-
-/**
- * @swagger
- * /events:
- *   get:
- *     summary: Get all events
- *     tags: [Events]
- *     parameters:
- *       - in: query
- *         name: includeDeleted
- *         schema:
- *           type: boolean
- *         description: Include soft-deleted events
- *     responses:
- *       200:
- *         description: List of events
- *       500:
- *         description: Internal server error
- */
-router.get('/', EventController.getAllEvents);
+router.post('/', jwtAuthMiddleware, EventController.createEvent);
 
 /**
  * @swagger
@@ -80,7 +89,7 @@ router.get('/', EventController.getAllEvents);
  *       500:
  *         description: Internal server error
  */
-router.get('/:id', EventController.getEvent);
+router.get('/:id', jwtAuthMiddleware, EventController.getEvent);
 
 /**
  * @swagger
@@ -115,7 +124,7 @@ router.get('/:id', EventController.getEvent);
  *       500:
  *         description: Internal server error
  */
-router.put('/:id', EventController.updateEvent);
+router.put('/:id', jwtAuthMiddleware, checkLevelAccess(ROLES.ADMIN, true), EventController.updateEvent);
 
 /**
  * @swagger
@@ -138,7 +147,7 @@ router.put('/:id', EventController.updateEvent);
  *       500:
  *         description: Internal server error
  */
-router.delete('/:id', EventController.deleteEvent);
+router.delete('/:id', jwtAuthMiddleware, checkLevelAccess(ROLES.ADMIN, true), EventController.deleteEvent);
 
 /**
  * @swagger
@@ -161,6 +170,6 @@ router.delete('/:id', EventController.deleteEvent);
  *       500:
  *         description: Internal server error
  */
-router.patch('/:id/restore', EventController.restoreEvent);
+router.patch('/:id/restore', jwtAuthMiddleware, checkLevelAccess(ROLES.ADMIN, true), EventController.restoreEvent);
 
 export default router;

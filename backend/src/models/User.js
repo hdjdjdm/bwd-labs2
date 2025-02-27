@@ -1,5 +1,7 @@
 import Sequelize from 'sequelize';
+import bcrypt from 'bcryptjs';
 import { sequelize } from '../config/db.js'
+import ROLES from '../constants/roles.js'
 
 const User = sequelize.define('User', {
     id: {
@@ -20,6 +22,15 @@ const User = sequelize.define('User', {
             isEmail: true,
         }
     },
+    password: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
+    role: {
+        type: Sequelize.ENUM(Object.values(ROLES)),
+        allowNull: false,
+        defaultValue: ROLES.USER
+    },
     // createdAt: {
     //     type: Sequelize.DATE,
     //     defaultValue: Sequelize.NOW,
@@ -32,6 +43,16 @@ const User = sequelize.define('User', {
 }, {
     paranoid: true
 })
+
+User.beforeCreate(async (user) => {
+    const hashedPassword = await bcrypt.hash(user.password, 10);
+    user.password = hashedPassword;
+});
+
+User.beforeUpdate(async (user) => {
+    const hashedPassword = await bcrypt.hash(user.password, 10);
+    user.password = hashedPassword;
+});
 
 User.associate = (models) => {
     User.hasMany(models.Event, { foreignKey: 'createdBy' });

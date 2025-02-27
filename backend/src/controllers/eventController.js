@@ -5,7 +5,7 @@ import { ValidError, NotFoundedError } from "../utils/errors.js";
 class EventController {
     static async createEvent(req, res, next) {
         try {
-            const { title, description, date, createdBy } = req.body;
+            let { title, description, date, createdBy } = req.body;
             
             if (!title || !createdBy) {
                 throw new ValidError('Title and creator are required');
@@ -14,10 +14,12 @@ class EventController {
             if (typeof title !== 'string' || title.trim() === '') {
                 throw new ValidError('Title must be a non-empty string');
             }
+            title = title.trim();
 
             if (description && typeof description !== 'string') {
                 throw new ValidError('Description must be a string');
             }
+            description = description.trim();
 
             if (date) {
                 const parsedDate = Date.parse(date);
@@ -44,7 +46,7 @@ class EventController {
     
     static async getAllEvents(req, res, next) {
         try {
-            const withDeleted = req.query.withDeleted === 'true' || req.query.withDeleted === '1';
+            const withDeleted = req.query.hardDelete === 'true' || req.query.hardDelete === '1';
             const events = await EventService.getAllEvents(withDeleted);
             res.status(200).json(events);
         } catch (e) {
@@ -75,13 +77,31 @@ class EventController {
             if (!Number.isInteger(id) || id <= 0) {
                 throw new ValidError("Invalid event ID. It must be a positive integer.");
             }
-    
-            if (updateData.title !== undefined && (typeof updateData.title !== 'string' || updateData.title.trim() === '')) {
-                throw new ValidError('Title must be a non-empty string.');
+
+            const allowedFields = ['title', 'description', 'date'];
+            for (const key in updateData) {
+                if (!allowedFields.includes(key)) {
+                    throw new ValidError(`Field '${key}' cannot be updated.`);
+                }
             }
     
-            if (updateData.description !== undefined && typeof updateData.description !== 'string') {
-                throw new ValidError('Description must be a string.');
+            if (updateData.title != null) {
+                if (typeof updateData.title !== 'string' || updateData.title.trim() === '') {
+                    throw new ValidError('Title must be a non-empty string.');
+                }
+                updateData.title = updateData.title.trim();
+            } else {
+                delete updateData.title;
+            }
+    
+            if (updateData.description) {
+                if (typeof updateData.description !== 'string') {
+                    throw new ValidError('Description must be a string.');
+                }
+                updateData.description = updateData.description.trim();
+                if (updateData.description === '') {
+                    throw new ValidError('Description must not be an empty string.');
+                }
             }
     
             if (updateData.date) {
@@ -101,12 +121,13 @@ class EventController {
     static async deleteEvent(req, res, next) {
         try {
             const id = Number(req.params.id);
+            const hardDelete = req.query.withDeleted === 'true' || req.query.withDeleted === '1';
             
             if (!Number.isInteger(id) || id <= 0) {
                 throw new ValidError("Invalid event ID. It must be a positive integer.");
             }
 
-            const result = await EventService.deleteEvent(id);
+            const result = await EventService.deleteEvent(id, hardDelete);
             return res.status(200).json(result);
         } catch (e) {
             next(e);

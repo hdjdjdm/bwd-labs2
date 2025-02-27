@@ -51,15 +51,15 @@ class EventService {
         }
     }
 
-    static async deleteEvent(id) {
+    static async deleteEvent(id, hardDelete = false) {
         try {
-            const event = await Event.findByPk(id);
+            const event = await Event.findByPk(id, { paranoid: !hardDelete });
             if (!event) {
                 throw new NotFoundedError(`Event with id ${id} not found`);
             }
     
-            await event.destroy();
-            return { message: `Event with id ${id} deleted successfully` };
+            await event.destroy({ force: hardDelete });
+            return { message: `Event with id ${id} ${hardDelete ? 'permanently deleted' : 'deleted successfully'}` };
         } catch (e) {
             throw new ServerError('Error deleting event: ' + e.message);
         }

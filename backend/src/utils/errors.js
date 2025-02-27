@@ -14,6 +14,22 @@ class NotFoundedError extends Error {
     }
 }
 
+class UnauthorizedError extends Error {
+    constructor(message = 'Unauthorized access. No valid token provided.') {
+        super(message);
+        this.name = 'UnauthorizedError';
+        this.statusCode = 401;
+    }
+}
+
+class ForbiddenError extends Error {
+    constructor(message = 'You do not have permission to access this resource.') {
+        super(message);
+        this.name = 'ForbiddenError';
+        this.statusCode = 403;
+    }
+}
+
 class ServerError extends Error {
     constructor(message = 'Internal Server Error') {
         super(message);
@@ -22,4 +38,4 @@ class ServerError extends Error {
     }
 }
 
-export { ValidError, NotFoundedError, ServerError };
+export { ValidError, NotFoundedError, UnauthorizedError, ForbiddenError, ServerError };
