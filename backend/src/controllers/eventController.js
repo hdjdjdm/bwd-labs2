@@ -46,7 +46,7 @@ class EventController {
     
     static async getAllEvents(req, res, next) {
         try {
-            const withDeleted = req.query.withDeleted === 'true' || req.query.withDeleted === '1';
+            const withDeleted = req.query.hardDelete === 'true' || req.query.hardDelete === '1';
             const events = await EventService.getAllEvents(withDeleted);
             res.status(200).json(events);
         } catch (e) {
@@ -121,12 +121,13 @@ class EventController {
     static async deleteEvent(req, res, next) {
         try {
             const id = Number(req.params.id);
+            const hardDelete = req.query.withDeleted === 'true' || req.query.withDeleted === '1';
             
             if (!Number.isInteger(id) || id <= 0) {
                 throw new ValidError("Invalid event ID. It must be a positive integer.");
             }
 
-            const result = await EventService.deleteEvent(id);
+            const result = await EventService.deleteEvent(id, hardDelete);
             return res.status(200).json(result);
         } catch (e) {
             next(e);

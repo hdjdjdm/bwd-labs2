@@ -1,6 +1,8 @@
 import express from 'express';
 import UserController from '../controllers/userController.js';
 import jwtAuthMiddleware from '../middleware/jwtAuthMiddleware.js';
+import { checkLevelAccess } from '../middleware/authMiddleware.js';
+import ROLES from '../constants/roles.js';
 
 const router = express.Router();
 
@@ -23,7 +25,7 @@ const router = express.Router();
  *       500:
  *         description: Server error
  */
-router.get('/', jwtAuthMiddleware, UserController.getAllUsers);
+router.get('/', UserController.getAllUsers);
 
 /**
   * @swagger
@@ -54,7 +56,7 @@ router.get('/', jwtAuthMiddleware, UserController.getAllUsers);
  *       500:
  *         description: Server error
  */
-router.post('/', jwtAuthMiddleware, UserController.createUser);
+router.post('/', UserController.createUser);
 
 /**
  * @swagger
@@ -69,6 +71,11 @@ router.post('/', jwtAuthMiddleware, UserController.createUser);
  *         schema:
  *           type: integer
  *         description: ID of the user to delete
+ *       - in: query
+ *         name: hardDelete
+ *         schema:
+ *           type: boolean
+ *         description: Hard delete user
  *     responses:
  *       200:
  *         description: User deleted successfully
@@ -77,7 +84,7 @@ router.post('/', jwtAuthMiddleware, UserController.createUser);
  *       500:
  *         description: Internal server error
  */
-router.delete('/:id', jwtAuthMiddleware, UserController.deleteUser);
+router.delete('/:id', UserController.deleteUser);
 
 /**
  * @swagger
@@ -100,6 +107,83 @@ router.delete('/:id', jwtAuthMiddleware, UserController.deleteUser);
  *       500:
  *         description: Internal server error
  */
-router.patch('/:id/restore', jwtAuthMiddleware, UserController.restoreUser);
+router.patch('/:id/restore', UserController.restoreUser);
+
+/**
+ * @swagger
+ * /users/{id}/role:
+ *   get:
+ *     summary: Get the role of a user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the user whose role is being retrieved
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved user role
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 role:
+ *                   type: string
+ *                   example: "admin"
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/:id/role', UserController.getUserRole);
+
+/**
+ * @swagger
+ * /users/{id}/role:
+ *   post:
+ *     summary: Update the role of a user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the user whose role is being updated
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               newRole:
+ *                 type: string
+ *                 enum: [admin, user]
+ *                 example: "admin"
+ *     responses:
+ *       200:
+ *         description: Successfully updated user role
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "User role updated successfully"
+ *       400:
+ *         description: Invalid role or user ID
+ *       403:
+ *         description: Unauthorized to change user role
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/:id/role', UserController.setUserRole);
 
 export default router;

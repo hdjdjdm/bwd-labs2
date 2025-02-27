@@ -1,6 +1,7 @@
 import Sequelize from 'sequelize';
 import bcrypt from 'bcryptjs';
 import { sequelize } from '../config/db.js'
+import ROLES from '../constants/roles.js'
 
 const User = sequelize.define('User', {
     id: {
@@ -24,6 +25,11 @@ const User = sequelize.define('User', {
     password: {
         type: Sequelize.STRING,
         allowNull: false
+    },
+    role: {
+        type: Sequelize.ENUM(Object.values(ROLES)),
+        allowNull: false,
+        defaultValue: ROLES.USER
     },
     // createdAt: {
     //     type: Sequelize.DATE,

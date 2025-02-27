@@ -22,6 +22,14 @@ class UnauthorizedError extends Error {
     }
 }
 
+class ForbiddenError extends Error {
+    constructor(message = 'You do not have permission to access this resource.') {
+        super(message);
+        this.name = 'ForbiddenError';
+        this.statusCode = 403;
+    }
+}
+
 class ServerError extends Error {
     constructor(message = 'Internal Server Error') {
         super(message);
@@ -30,4 +38,4 @@ class ServerError extends Error {
     }
 }
 
-export { ValidError, NotFoundedError, UnauthorizedError, ServerError };
+export { ValidError, NotFoundedError, UnauthorizedError, ForbiddenError, ServerError };

@@ -2,6 +2,8 @@ import express from 'express';
 import passport from 'passport';
 import EventController from '../controllers/eventController.js';
 import jwtAuthMiddleware from '../middleware/jwtAuthMiddleware.js';
+import { checkLevelAccess } from '../middleware/authMiddleware.js';
+import ROLES from '../constants/roles.js';
 
 const router = express.Router();
 
@@ -20,10 +22,15 @@ const router = express.Router();
  *     tags: [Events]
  *     parameters:
  *       - in: query
- *         name: includeDeleted
+ *         name: withDeleted
  *         schema:
  *           type: boolean
  *         description: Include soft-deleted events
+ *       - in: query
+ *         name: hardDelete
+ *         schema:
+ *           type: boolean
+ *         description: Hard delete event
  *     responses:
  *       200:
  *         description: List of events
@@ -117,7 +124,7 @@ router.get('/:id', jwtAuthMiddleware, EventController.getEvent);
  *       500:
  *         description: Internal server error
  */
-router.put('/:id', jwtAuthMiddleware, EventController.updateEvent);
+router.put('/:id', jwtAuthMiddleware, checkLevelAccess(ROLES.ADMIN, true), EventController.updateEvent);
 
 /**
  * @swagger
@@ -140,7 +147,7 @@ router.put('/:id', jwtAuthMiddleware, EventController.updateEvent);
  *       500:
  *         description: Internal server error
  */
-router.delete('/:id', jwtAuthMiddleware, EventController.deleteEvent);
+router.delete('/:id', jwtAuthMiddleware, checkLevelAccess(ROLES.ADMIN, true), EventController.deleteEvent);
 
 /**
  * @swagger
@@ -163,6 +170,6 @@ router.delete('/:id', jwtAuthMiddleware, EventController.deleteEvent);
  *       500:
  *         description: Internal server error
  */
-router.patch('/:id/restore', jwtAuthMiddleware, EventController.restoreEvent);
+router.patch('/:id/restore', jwtAuthMiddleware, checkLevelAccess(ROLES.ADMIN, true), EventController.restoreEvent);
 
 export default router;

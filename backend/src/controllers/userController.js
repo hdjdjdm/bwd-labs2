@@ -1,3 +1,4 @@
+import ROLES from "../constants/roles.js";
 import UserService from "../services/userService.js";
 import { ValidError } from "../utils/errors.js";
 
@@ -41,12 +42,13 @@ class UserController {
     static async deleteUser(req, res, next) {
         try {
             const id = Number(req.params.id);
+            const hardDelete = req.query.hardDelete === 'true' || req.query.hardDelete === '1';
 
             if (!Number.isInteger(id) || id <= 0) {
                 throw new ValidError("Invalid user ID. It must be a positive integer.");
             }
 
-            const result = await UserService.deleteUser(id);
+            const result = await UserService.deleteUser(id, hardDelete);
             return res.status(200).json(result);
         } catch (e) {
             next(e);
@@ -67,6 +69,41 @@ class UserController {
             next(e);
         }
     }
+
+    static async getUserRole(req, res, next) {
+        try {
+            const id = Number(req.params.id);
+
+            if (!Number.isInteger(id) || id <= 0) {
+                throw new ValidError("Invalid user ID. It must be a positive integer.");
+            }
+
+            const users = await UserService.getUserRole(id);
+            res.status(200).json(users);
+        } catch (e) {
+            next(e);
+        }
+    };
+
+    static async setUserRole(req, res, next) {
+        try {
+            const id = Number(req.params.id);
+            const { role } = req.body;
+
+            if (!Number.isInteger(id) || id <= 0) {
+                throw new ValidError("Invalid user ID. It must be a positive integer.");
+            }
+
+            if (!Object.values(ROLES).includes(role)) {
+                throw new ValidError(`Invalid role. Allowed roles are: ${Object.values(ROLES).join(', ')}`);
+            }
+
+            const users = await UserService.setUserRole(id, role);
+            res.status(200).json(users);
+        } catch (e) {
+            next(e);
+        }
+    };
 }
 
 export default UserController;

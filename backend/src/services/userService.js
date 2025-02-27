@@ -41,15 +41,15 @@ class UserService {
         }
     }
 
-    static async deleteUser(id) {
+    static async deleteUser(id, hardDelete = false) {
         try {
-            const user = await User.findByPk(id);
+            const user = await User.findByPk(id, { paranoid: !hardDelete });
             if (!user) {
                 throw new NotFoundedError(`User with id ${id} not found`);
             }
 
-            await user.destroy();
-            return { message: `User with id ${id} deleted successfully` };
+            await user.destroy({ force: hardDelete });
+            return { message: `User with id ${id} ${hardDelete ? 'permanently deleted' : 'deleted successfully'}` };
         } catch (e) {
             throw new ServerError('Error deleting user: ' + e.message);
         }
@@ -66,6 +66,35 @@ class UserService {
             return { message: `User with id ${id} restored successfully` };
         } catch (e) {
             throw new ServerError(`Failed to restore user: ${e.message}`);
+        }
+    }
+
+    static async getUserRole(id) {
+        try {
+            const user = await User.findByPk(id);
+            if (!user) {
+                throw new NotFoundedError(`User with id ${id} not found`);
+            }
+            
+            return { role: user.role };
+        } catch (e) {
+            throw new ServerError('Error get user role: ' + e.message);
+        }
+    }
+
+    static async setUserRole(id, newRole) {
+        try {
+            const user = await User.findByPk(id);
+            if (!user) {
+                throw new NotFoundedError(`User with id ${id} not found`);
+            }
+
+            user.role = newRole;
+            await user.save();
+            
+            return { message: `User with id ${id} role updated to ${newRole} successfully` };
+        } catch (e) {
+            throw new ServerError('Error updating user user: ' + e.message);
         }
     }
 }
