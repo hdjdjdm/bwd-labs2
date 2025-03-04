@@ -1,8 +1,5 @@
 import express from 'express';
 import UserController from '../controllers/userController.js';
-import jwtAuthMiddleware from '../middleware/jwtAuthMiddleware.js';
-import { checkLevelAccess } from '../middleware/authMiddleware.js';
-import ROLES from '../constants/roles.js';
 
 const router = express.Router();
 
@@ -14,7 +11,7 @@ const router = express.Router();
  */
 
 /**
-  * @swagger
+ * @swagger
  * /users:
  *   get:
  *     summary: Get all users
@@ -28,7 +25,7 @@ const router = express.Router();
 router.get('/', UserController.getAllUsers);
 
 /**
-  * @swagger
+ * @swagger
  * /users:
  *   post:
  *     summary: Create user

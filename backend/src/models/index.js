@@ -4,11 +4,11 @@ import Event from './Event.js';
 
 const models = { User, Event };
 
-Object.keys(models).forEach(modelName => {
+Object.keys(models).forEach((modelName) => {
     if (models[modelName].associate) {
         models[modelName].associate(models);
     }
 });
 
 export default models;
-export { sequelize, models }
+export { sequelize, models };

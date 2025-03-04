@@ -10,16 +10,18 @@ class UserService {
             return user;
         } catch (e) {
             if (e instanceof Sequelize.UniqueConstraintError) {
-                throw new ValidError('Email already exists. Please use a different email.')
+                throw new ValidError(
+                    'Email already exists. Please use a different email.',
+                );
             }
             throw new ServerError('Error creating user: ' + e.message);
         }
     }
-    
+
     static async getAllUsers(withDeleted = false) {
         try {
             const users = await User.findAll({
-                paranoid: !withDeleted
+                paranoid: !withDeleted,
             });
 
             return users;
@@ -34,7 +36,7 @@ class UserService {
             if (!user) {
                 throw new NotFoundedError(`User with ID ${id} not found`);
             }
-            
+
             return user;
         } catch (e) {
             throw new ServerError('Error get user: ' + e.message);
@@ -43,13 +45,19 @@ class UserService {
 
     static async deleteUser(id, hardDelete = false) {
         try {
-            const user = await User.findByPk(id, { paranoid: !hardDelete });
+            const user = await User.findByPk(id, {
+                paranoid: !hardDelete,
+            });
             if (!user) {
                 throw new NotFoundedError(`User with id ${id} not found`);
             }
 
-            await user.destroy({ force: hardDelete });
-            return { message: `User with id ${id} ${hardDelete ? 'permanently deleted' : 'deleted successfully'}` };
+            await user.destroy({
+                force: hardDelete,
+            });
+            return {
+                message: `User with id ${id} ${hardDelete ? 'permanently deleted' : 'deleted successfully'}`,
+            };
         } catch (e) {
             throw new ServerError('Error deleting user: ' + e.message);
         }
@@ -57,13 +65,17 @@ class UserService {
 
     static async restoreUser(id) {
         try {
-            const user = await User.findByPk(id, { paranoid: false });
+            const user = await User.findByPk(id, {
+                paranoid: false,
+            });
             if (!user) {
                 throw new NotFoundedError(`User with id ${id} not found`);
             }
 
             await user.restore();
-            return { message: `User with id ${id} restored successfully` };
+            return {
+                message: `User with id ${id} restored successfully`,
+            };
         } catch (e) {
             throw new ServerError(`Failed to restore user: ${e.message}`);
         }
@@ -75,7 +87,7 @@ class UserService {
             if (!user) {
                 throw new NotFoundedError(`User with id ${id} not found`);
             }
-            
+
             return { role: user.role };
         } catch (e) {
             throw new ServerError('Error get user role: ' + e.message);
@@ -91,8 +103,10 @@ class UserService {
 
             user.role = newRole;
             await user.save();
-            
-            return { message: `User with id ${id} role updated to ${newRole} successfully` };
+
+            return {
+                message: `User with id ${id} role updated to ${newRole} successfully`,
+            };
         } catch (e) {
             throw new ServerError('Error updating user user: ' + e.message);
         }

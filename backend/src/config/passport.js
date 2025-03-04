@@ -1,12 +1,12 @@
-import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt'; 
+import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 import passport from 'passport';
-import User from '../models/User.js'
-import 'dotenv/config';
+import User from '../models/User.js';
+import config from './config.js';
 
 const options = {
-    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(), 
-    secretOrKey: process.env.JWT_SECRET
-}
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    secretOrKey: config.auth.jwtSecret,
+};
 
 passport.use(
     new JwtStrategy(options, async (payload, done) => {
@@ -19,7 +19,7 @@ passport.use(
         } catch (error) {
             return done(error, false);
         }
-    })
+    }),
 );
 
 export default passport;

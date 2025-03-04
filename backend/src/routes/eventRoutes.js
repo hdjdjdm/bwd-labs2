@@ -1,9 +1,6 @@
 import express from 'express';
-import passport from 'passport';
 import EventController from '../controllers/eventController.js';
 import jwtAuthMiddleware from '../middleware/jwtAuthMiddleware.js';
-import { checkLevelAccess } from '../middleware/authMiddleware.js';
-import ROLES from '../constants/roles.js';
 
 const router = express.Router();
 
@@ -124,7 +121,7 @@ router.get('/:id', jwtAuthMiddleware, EventController.getEvent);
  *       500:
  *         description: Internal server error
  */
-router.put('/:id', jwtAuthMiddleware, checkLevelAccess(ROLES.ADMIN, true), EventController.updateEvent);
+router.put('/:id', jwtAuthMiddleware, EventController.updateEvent);
 
 /**
  * @swagger
@@ -147,7 +144,7 @@ router.put('/:id', jwtAuthMiddleware, checkLevelAccess(ROLES.ADMIN, true), Event
  *       500:
  *         description: Internal server error
  */
-router.delete('/:id', jwtAuthMiddleware, checkLevelAccess(ROLES.ADMIN, true), EventController.deleteEvent);
+router.delete('/:id', jwtAuthMiddleware, EventController.deleteEvent);
 
 /**
  * @swagger
@@ -170,6 +167,6 @@ router.delete('/:id', jwtAuthMiddleware, checkLevelAccess(ROLES.ADMIN, true), Ev
  *       500:
  *         description: Internal server error
  */
-router.patch('/:id/restore', jwtAuthMiddleware, checkLevelAccess(ROLES.ADMIN, true), EventController.restoreEvent);
+router.patch('/:id/restore', jwtAuthMiddleware, EventController.restoreEvent);
 
 export default router;

@@ -1,4 +1,4 @@
-const errorMiddleware = (err, req, res, next) => {
+const errorMiddleware = (err, req, res) => {
     console.error(`[ERROR] ${err.name}: ${err.message}`);
 
     const statusCode = err.statusCode || 500;

@@ -1,12 +1,17 @@
-import 'dotenv/config';
 import Sequelize from 'sequelize';
+import config from './config.js';
 
-const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
-    dialect: 'postgres',
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    logging: false
-});
+const sequelize = new Sequelize(
+    config.db.dbName,
+    config.db.user,
+    config.db.password,
+    {
+        dialect: 'postgres',
+        host: config.db.host,
+        port: config.db.port,
+        logging: false,
+    },
+);
 
 const authenticate = async () => {
     try {
@@ -15,6 +20,6 @@ const authenticate = async () => {
     } catch (e) {
         console.error('Error connection to DB: ', e);
     }
-}
+};
 
-export {sequelize, authenticate};
+export { sequelize, authenticate };

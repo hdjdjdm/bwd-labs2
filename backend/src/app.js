@@ -17,7 +17,7 @@ app.use(passport.initialize());
 app.use(morgan('[:method] :url'));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-app.use('/api', routes)
+app.use('/api', routes);
 
 app.use(errorMiddleware);
 

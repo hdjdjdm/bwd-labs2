@@ -11,11 +11,11 @@ class EventService {
             throw new ServerError('Error creating event: ' + e.message);
         }
     }
-    
+
     static async getAllEvents(withDeleted) {
         try {
             const events = await Event.findAll({
-                paranoid: !withDeleted
+                paranoid: !withDeleted,
             });
 
             return events;
@@ -30,7 +30,7 @@ class EventService {
             if (!event) {
                 throw new NotFoundedError(`Event with ID ${id} not found.`);
             }
-            
+
             return event;
         } catch (e) {
             throw new ServerError('Error get event: ' + e.message);
@@ -53,13 +53,19 @@ class EventService {
 
     static async deleteEvent(id, hardDelete = false) {
         try {
-            const event = await Event.findByPk(id, { paranoid: !hardDelete });
+            const event = await Event.findByPk(id, {
+                paranoid: !hardDelete,
+            });
             if (!event) {
                 throw new NotFoundedError(`Event with id ${id} not found`);
             }
-    
-            await event.destroy({ force: hardDelete });
-            return { message: `Event with id ${id} ${hardDelete ? 'permanently deleted' : 'deleted successfully'}` };
+
+            await event.destroy({
+                force: hardDelete,
+            });
+            return {
+                message: `Event with id ${id} ${hardDelete ? 'permanently deleted' : 'deleted successfully'}`,
+            };
         } catch (e) {
             throw new ServerError('Error deleting event: ' + e.message);
         }
@@ -67,13 +73,17 @@ class EventService {
 
     static async restoreEvent(id) {
         try {
-            const event = await Event.findByPk(id, { paranoid: false });
+            const event = await Event.findByPk(id, {
+                paranoid: false,
+            });
             if (!event) {
                 throw new NotFoundedError(`Event with id ${id} not found`);
             }
-    
+
             await event.restore();
-            return { message: `Event with id ${id} restore successfully` };
+            return {
+                message: `Event with id ${id} restore successfully`,
+            };
         } catch (e) {
             throw new ServerError('Error restoring event: ' + e.message);
         }

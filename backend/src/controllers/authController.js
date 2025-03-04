@@ -1,11 +1,11 @@
-import AuthService from "../services/authService.js";
-import { ValidError } from "../utils/errors.js";
+import AuthService from '../services/authService.js';
+import { ValidError } from '../utils/errors.js';
 
 class AuthController {
     static async registerUser(req, res, next) {
         try {
-            let { name, email, password } = req.body; 
-    
+            let { name, email, password } = req.body;
+
             if (!name || !email || !password) {
                 throw new ValidError('Email, password and name are required.');
             }
@@ -22,9 +22,19 @@ class AuthController {
                 throw new ValidError('Invalid email format.');
             }
             email = email.trim();
-    
-            const user = await AuthService.registerUser({ name, email, password });
-            return res.status(201).json({ message: 'User successfully registered', user });
+
+            const user = await AuthService.registerUser({
+                name,
+                email,
+                password,
+            });
+            return res.status(201).json({
+                message: 'User successfully registered',
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                role: user.role,
+            });
         } catch (e) {
             next(e);
         }
@@ -48,7 +58,10 @@ class AuthController {
 
             const token = await AuthService.loginUser(email, password);
 
-            return res.status(200).json({ message: 'Login successfully', token })
+            return res.status(200).json({
+                message: 'Login successfully',
+                token,
+            });
         } catch (e) {
             next(e);
         }

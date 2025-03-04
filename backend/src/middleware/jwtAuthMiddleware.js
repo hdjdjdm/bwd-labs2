@@ -2,7 +2,7 @@ import passport from 'passport';
 import { UnauthorizedError } from '../utils/errors.js';
 
 const jwtAuthMiddleware = (req, res, next) => {
-    passport.authenticate('jwt', { session: false }, (err, user, info) => {
+    passport.authenticate('jwt', { session: false }, (err, user) => {
         if (err) {
             return next(err);
         }
