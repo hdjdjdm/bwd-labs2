@@ -4,7 +4,7 @@ import app from './app';
 import { authenticate, sequelize } from './config/db';
 
 const start: () => Promise<void> = async (): Promise<void> => {
-    try { 
+    try {
                     await authenticate();
             await sequelize.sync({ force: false });
 
