@@ -14,7 +14,7 @@
   "keywords": [],
   "author": "https://github.com/hdjdjdm",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "lint-staged": {
     "*.{js,ts}": [
       "eslint --fix",
