@@ -1,11 +1,11 @@
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
-import passport from './config/passport.js';
-import routes from './routes/index.js';
+import passport from './config/passport';
+import routes from './routes';
 import swaggerUi from 'swagger-ui-express';
-import swaggerSpec from './config/swaggerConfig.js';
-import errorMiddleware from './middleware/errorMiddleware.js';
+import swaggerSpec from './config/swaggerConfig';
+import errorMiddleware from './middleware/errorMiddleware';
 
 const app = express();
 

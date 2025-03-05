@@ -1,8 +1,8 @@
-import express from 'express';
-import EventController from '../controllers/eventController.js';
-import jwtAuthMiddleware from '../middleware/jwtAuthMiddleware.js';
+import { Router } from 'express';
+import EventController from '../controllers/EventController';
+import jwtAuthMiddleware from '../middleware/jwtAuthMiddleware';
 
-const router = express.Router();
+const router: Router = Router();
 
 /**
  * @swagger

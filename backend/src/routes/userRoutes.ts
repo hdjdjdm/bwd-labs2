@@ -1,7 +1,7 @@
-import express from 'express';
-import UserController from '../controllers/userController.js';
+import { Router } from 'express';
+import UserController from '../controllers/UserController';
 
-const router = express.Router();
+const router: Router = Router();
 
 /**
  * @swagger
