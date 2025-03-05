@@ -11,11 +11,10 @@ interface CreateUserData {
 class UserService {
     static async createUser(data: CreateUserData): Promise<User> {
         try {
-            const user = await User.create({
+            return await User.create({
                 name: data.name,
                 email: data.email,
             });
-            return user;
         } catch (e: unknown) {
             if (e instanceof Sequelize.UniqueConstraintError) {
                 throw new ValidError('Email already exists. Please use a different email.');
@@ -29,11 +28,9 @@ class UserService {
 
     static async getAllUsers(withDeleted: boolean = false): Promise<User[]> {
         try {
-            const users = await User.findAll({
+            return await User.findAll({
                 paranoid: !withDeleted,
             });
-
-            return users;
         } catch (e: unknown) {
             if (e instanceof Error) {
                 throw new ServerError('Error get users: ' + e.message);

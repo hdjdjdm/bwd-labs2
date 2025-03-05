@@ -19,13 +19,12 @@ interface UpdateEventData {
 class EventService {
     static async createEvent(data: CreateEventData): Promise<Event> {
         try {
-            const event = await Event.create({
+            return await Event.create({
                 title: data.title,
                 description: data.description,
                 date: data.date,
                 createdBy: data.createdBy,
             });
-            return event;
         } catch (e: unknown) {
             if (e instanceof Error) {
                 throw new ServerError('Error creating event: ' + e.message);

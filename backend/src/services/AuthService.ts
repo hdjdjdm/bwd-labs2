@@ -47,8 +47,7 @@ class AuthService {
             throw new ValidError('Invalid password.');
         }
 
-        const token = AuthService.generateToken(user);
-        return token;
+        return AuthService.generateToken(user);
     }
 
     private static generateToken(user: User): string {
