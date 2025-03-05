@@ -5,11 +5,11 @@ import { authenticate, sequelize } from './config/db';
 
 const start: () => Promise<void> = async (): Promise<void> => {
     try {
-        await authenticate();
+            await authenticate();
 
-        await sequelize.sync({ force: false });
+        a   wait sequelize.sync({ force: false });
 
-        app.listen(config.server.port, (): void => console.log(`Server run on ${config.server.port}`));
+                    app.listen(config.server.port, (): void => console.log(`Server run on ${config.server.port}`));
     } catch (e: unknown) {
         console.error('Error starting the server: ', e);
     }
