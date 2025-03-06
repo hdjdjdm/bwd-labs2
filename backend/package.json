@@ -9,7 +9,7 @@
     "lint": "eslint . --ext .ts",
     "format": "prettier --write .",
     "check": "tsc --noEmit && eslint . --ext .ts",
-    "prepare": "husky"
+    "prepare": "cd .. && husky"
   },
   "keywords": [],
   "author": "https://github.com/hdjdjdm",
