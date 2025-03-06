@@ -1,6 +1,5 @@
 import config from '@config/config';
 import app from './app';
-
 import { authenticate, sequelize } from '@config/db';
 
 const start: () => Promise<void> = async (): Promise<void> => {
