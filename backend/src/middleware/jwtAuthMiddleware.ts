@@ -1,7 +1,7 @@
 import passport from 'passport';
 import { Request, Response, NextFunction } from 'express';
-import { UnauthorizedError } from '../utils/errors';
-import User from '../models/User';
+import { UnauthorizedError } from '@utils/errors';
+import User from '@models/User';
 
 const jwtAuthMiddleware = (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate('jwt', { session: false }, (err: Error | null, user: User | false) => {

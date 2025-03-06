@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import EventService from '../services/EventService';
-import UserService from '../services/UserService';
-import { ValidError, ForbiddenError } from '../utils/errors';
-import { Roles } from '../constants/Roles';
-import User from '../models/User';
+import EventService from '@services/EventService';
+import UserService from '@services/UserService';
+import { ValidError, ForbiddenError } from '@utils/errors';
+import { Roles } from '@constants/Roles';
+import User from '@models/User';
 
 interface CreateEventBody {
     title: string;

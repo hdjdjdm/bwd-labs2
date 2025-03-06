@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import AuthService from '../services/AuthService';
-import { ValidError } from '../utils/errors';
+import AuthService from '@services/AuthService';
+import { ValidError } from '@utils/errors';
 
 interface RegisterRequest extends Request {
     body: {
@@ -27,7 +27,6 @@ class AuthController {
             }
 
             if (name.trim() === '') {
-                //todo Попробовать прокинуть число.
                 throw new ValidError('Name must be a non-empty string');
             }
 

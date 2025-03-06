@@ -1,9 +1,9 @@
 import Sequelize from 'sequelize';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { ServerError, ValidError } from '../utils/errors';
-import config from '../config/config';
-import User from '../models/User';
+import { ServerError, ValidError } from '@utils/errors';
+import config from '@config/config';
+import User from '@models/User';
 
 interface RegisterUserData {
     name: string;

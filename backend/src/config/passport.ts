@@ -1,6 +1,6 @@
 import { Strategy as JwtStrategy, ExtractJwt, StrategyOptions } from 'passport-jwt';
 import passport from 'passport';
-import User from '../models/User';
+import User from '@models/User';
 import config from './config';
 import { JwtPayload } from 'jsonwebtoken';
 

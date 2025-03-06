@@ -1,7 +1,7 @@
 import { DataTypes, Model } from 'sequelize';
 import { sequelize } from '../config/db';
 import bcrypt from 'bcryptjs';
-import { Roles } from '../constants/Roles';
+import { Roles } from '@constants/Roles';
 import IModels from './IModels';
 
 export default class User extends Model {

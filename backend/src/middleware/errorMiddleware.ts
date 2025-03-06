@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { ValidError, UnauthorizedError, ForbiddenError, NotFoundedError, ServerError } from '../utils/errors';
+import { ValidError, UnauthorizedError, ForbiddenError, NotFoundedError, ServerError } from '@utils/errors';
 
 type CustomError = ValidError | UnauthorizedError | ForbiddenError | NotFoundedError | ServerError;
 

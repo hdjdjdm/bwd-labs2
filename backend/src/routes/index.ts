@@ -2,9 +2,9 @@ import { Router } from 'express';
 import eventsRouter from './eventRoutes';
 import usersRouter from './userRoutes';
 import authRouter from './authRoutes';
-import jwtAuthMiddleware from '../middleware/jwtAuthMiddleware';
-import { checkRole } from '../middleware/authMiddleware';
-import { Roles } from '../constants/Roles';
+import jwtAuthMiddleware from '@middleware/jwtAuthMiddleware';
+import { checkRole } from '@middleware/authMiddleware';
+import { Roles } from '@constants/Roles';
 
 const router: Router = Router();
 

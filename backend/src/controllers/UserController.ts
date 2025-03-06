@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import UserService from '../services/UserService';
-import { ValidError } from '../utils/errors';
-import { Roles } from '../constants/Roles';
+import UserService from '@services/UserService';
+import { ValidError } from '@utils/errors';
+import { Roles } from '@constants/Roles';
 
 interface ICreateUserBody {
     name: string;
