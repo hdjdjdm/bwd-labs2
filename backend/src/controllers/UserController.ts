@@ -3,7 +3,7 @@ import UserService from '@services/UserService';
 import { ValidError } from '@utils/errors';
 import { Roles } from '@constants/Roles';
 
-interface ICreateUserBody {
+interface CreateUserBody {
     name: string;
     email: string;
 }
@@ -16,7 +16,7 @@ interface UserData {
 class UserController {
     static async createUser(req: Request, res: Response, next: NextFunction) {
         try {
-            const { name, email }: ICreateUserBody = req.body;
+            const { name, email }: CreateUserBody = req.body;
 
             if (!name || !email) {
                 throw new ValidError('Name and email are required.');

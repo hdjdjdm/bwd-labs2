@@ -50,7 +50,6 @@ Event.init(
     {
         sequelize,
         modelName: 'Event',
-        timestamps: true,
         paranoid: true,
     },
 );

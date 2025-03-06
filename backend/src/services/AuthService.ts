@@ -19,7 +19,6 @@ class AuthService {
                 email: data.email,
                 password: data.password,
             });
-
             const token = AuthService.generateToken(user);
             return { user, token };
         } catch (e: unknown) {

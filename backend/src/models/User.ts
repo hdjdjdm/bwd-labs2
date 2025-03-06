@@ -49,7 +49,6 @@ User.init(
     {
         sequelize,
         modelName: 'User',
-        timestamps: true,
         paranoid: true,
     },
 );
@@ -58,6 +57,7 @@ User.beforeCreate(async (user) => {
     user.password = await bcrypt.hash(user.password, 10);
 });
 
+//todo мб убрать
 User.beforeUpdate(async (user) => {
     if (user.changed('password')) {
         user.password = await bcrypt.hash(user.password, 10);

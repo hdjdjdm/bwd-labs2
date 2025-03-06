@@ -41,7 +41,7 @@ class UserService {
 
     static async getUser(id: number): Promise<User> {
         try {
-            const user = await User.findByPk(id);
+            const user = await User.findByPk(id, { paranoid: false });
             if (!user) {
                 throw new NotFoundedError(`User with ID ${id} not found`);
             }
@@ -101,7 +101,7 @@ class UserService {
 
     static async getUserRole(id: number): Promise<{ role: string }> {
         try {
-            const user = await User.findByPk(id);
+            const user = await User.findByPk(id, { paranoid: false });
             if (!user) {
                 throw new NotFoundedError(`User with id ${id} not found`);
             }
@@ -117,7 +117,7 @@ class UserService {
 
     static async setUserRole(id: number, newRole: Roles): Promise<{ message: string }> {
         try {
-            const user = await User.findByPk(id);
+            const user = await User.findByPk(id, { paranoid: false });
             if (!user) {
                 throw new NotFoundedError(`User with id ${id} not found`);
             }

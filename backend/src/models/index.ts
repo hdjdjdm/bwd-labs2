@@ -11,5 +11,4 @@ Object.values(models).forEach((model: IModels): void => {
     }
 });
 
-export default models;
 export { sequelize, models };

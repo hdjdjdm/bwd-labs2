@@ -50,7 +50,7 @@ class EventService {
 
     static async getEvent(id: number): Promise<Event> {
         try {
-            const event = await Event.findByPk(id);
+            const event = await Event.findByPk(id, { paranoid: false });
             if (!event) {
                 throw new NotFoundedError(`Event with ID ${id} not found.`);
             }
@@ -67,7 +67,7 @@ class EventService {
 
     static async getEventCreator(id: number): Promise<User> {
         try {
-            const event = await Event.findByPk(id);
+            const event = await Event.findByPk(id, { paranoid: false });
             if (!event) {
                 throw new NotFoundedError(`Event with ID ${id} not found.`);
             }
@@ -89,7 +89,7 @@ class EventService {
 
     static async updateEvent(id: number, updateData: UpdateEventData): Promise<Event> {
         try {
-            const event = await Event.findByPk(id);
+            const event = await Event.findByPk(id, { paranoid: false });
             if (!event) {
                 throw new NotFoundedError(`Event with id ${id} not found`);
             }
