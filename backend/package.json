@@ -15,11 +15,6 @@
   "author": "https://github.com/hdjdjdm",
   "license": "ISC",
   "type": "commonjs",
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
   "lint-staged": {
     "*.{js,ts}": [
       "eslint --fix",
