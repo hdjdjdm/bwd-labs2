@@ -1,8 +1,8 @@
 import { DataTypes, Model } from 'sequelize';
-import { sequelize } from '../config/db';
+import { sequelize } from '../config/db.js';
 import bcrypt from 'bcryptjs';
-import { Roles } from '@constants/Roles';
-import IModels from './IModels';
+import { Roles } from '@constants/Roles.js';
+import IModels from './IModels.js';
 
 export default class User extends Model {
     public id!: number;

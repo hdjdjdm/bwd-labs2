@@ -1,5 +1,6 @@
 import 'dotenv/config';
 
+//todo Типы для конфига
 const config = {
     db: {
         dbName: process.env.DB_NAME,

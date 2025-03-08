@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
-import { NotFoundedError, ServerError, ValidError } from '../utils/errors';
-import User from '../models/User';
-import { Roles } from '../constants/Roles';
+import { NotFoundedError, ServerError, ValidError } from '../utils/errors.js';
+import User from '../models/User.js';
+import { Roles } from '../constants/Roles.js';
 
 interface CreateUserData {
     name: string;

@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import EventService from '@services/EventService';
-import UserService from '@services/UserService';
-import { ValidError, ForbiddenError } from '@utils/errors';
-import { Roles } from '@constants/Roles';
-import User from '@models/User';
+import EventService from '@services/EventService.js';
+import UserService from '@services/UserService.js';
+import { ValidError, ForbiddenError } from '@utils/errors.js';
+import { Roles } from '@constants/Roles.js';
+import User from '@models/User.js';
 
 interface CreateEventBody {
     title: string;
@@ -20,7 +20,7 @@ interface EventData {
 }
 
 class EventController {
-    static async createEvent(req: Request, res: Response, next: NextFunction) {
+    async createEvent(req: Request, res: Response, next: NextFunction) {
         try {
             const { title, description, date, createdBy }: CreateEventBody = req.body;
 
@@ -28,7 +28,7 @@ class EventController {
                 throw new ValidError('Title and creator are required');
             }
 
-            EventController.validateEventData({ title, description, createdBy, date });
+            this.validateEventData({ title, description, createdBy, date });
 
             const user = await UserService.getUser(createdBy);
             if (!user) {
@@ -47,7 +47,7 @@ class EventController {
         }
     }
 
-    static async getAllEvents(req: Request, res: Response, next: NextFunction) {
+    async getAllEvents(req: Request, res: Response, next: NextFunction) {
         try {
             const withDeleted = req.query.withDeleted === 'true' || req.query.withDeleted === '1';
             const events = await EventService.getAllEvents(withDeleted);
@@ -57,11 +57,11 @@ class EventController {
         }
     }
 
-    static async getEvent(req: Request, res: Response, next: NextFunction) {
+    async getEvent(req: Request, res: Response, next: NextFunction) {
         try {
             const id = Number(req.params.id);
 
-            EventController.validateEventId(id);
+            this.validateEventId(id);
 
             const event = await EventService.getEvent(id);
             res.status(200).json(event);
@@ -70,14 +70,14 @@ class EventController {
         }
     }
 
-    static async updateEvent(req: Request, res: Response, next: NextFunction) {
+    async updateEvent(req: Request, res: Response, next: NextFunction) {
         try {
             const id = Number(req.params.id);
 
-            EventController.validateEventId(id);
-            EventController.validateEventData(req.body);
+            this.validateEventId(id);
+            this.validateEventData(req.body);
 
-            if (!(await EventController.checkAccessUser(id, req.user as User))) {
+            if (!(await this.checkAccessUser(id, req.user as User))) {
                 return next(new ForbiddenError('You do not have permission to access this resource.'));
             }
 
@@ -88,15 +88,15 @@ class EventController {
         }
     }
 
-    static async deleteEvent(req: Request, res: Response, next: NextFunction) {
+    async deleteEvent(req: Request, res: Response, next: NextFunction) {
         try {
             const id = Number(req.params.id);
 
             const hardDelete = req.query.hardDelete === 'true' || req.query.hardDelete === '1';
 
-            EventController.validateEventId(id);
+            this.validateEventId(id);
 
-            if (!(await EventController.checkAccessUser(id, req.user as User))) {
+            if (!(await this.checkAccessUser(id, req.user as User))) {
                 return next(new ForbiddenError('You do not have permission to access this resource.'));
             }
 
@@ -107,13 +107,13 @@ class EventController {
         }
     }
 
-    static async restoreEvent(req: Request, res: Response, next: NextFunction) {
+    async restoreEvent(req: Request, res: Response, next: NextFunction) {
         try {
             const id = Number(req.params.id);
 
-            EventController.validateEventId(id);
+            this.validateEventId(id);
 
-            if (!(await EventController.checkAccessUser(id, req.user as User))) {
+            if (!(await this.checkAccessUser(id, req.user as User))) {
                 return next(new ForbiddenError('You do not have permission to access this resource.'));
             }
 
@@ -124,20 +124,27 @@ class EventController {
         }
     }
 
-    static async checkAccessUser(id: number, user: User): Promise<boolean> {
+    /**
+     * Метод отвечает за проверку валидности jwt токена
+     * @param {number} id - уникальный идентификатор пользователя
+     * @param {User} user - обьект пользователя, которого нужно проверить
+     *
+     * @return {Promise<boolean>}
+     */
+    async checkAccessUser(id: number, user: User): Promise<boolean> {
         if (user.role === Roles.ADMIN) return true;
 
         const creator: User = await EventService.getEventCreator(id);
         return creator.id === user.id;
     }
 
-    static validateEventId(id: number): void {
+    validateEventId(id: number): void {
         if (!Number.isInteger(id) || id <= 0) {
             throw new ValidError('Invalid event ID. It must be a positive integer.');
         }
     }
 
-    static validateEventData(data: EventData): void {
+    validateEventData(data: EventData): void {
         if (data.createdBy) {
             if (!Number.isInteger(data.createdBy) || data.createdBy <= 0) {
                 throw new ValidError('Creator ID must be a positive integer.');
@@ -166,5 +173,4 @@ class EventController {
     }
 }
 
-export default EventController;
-//todo как то можно было создать объект, что бы не писать static (вроде new не помню)
+export default new EventController();

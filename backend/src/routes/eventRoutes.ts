@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import EventController from '@controllers/EventController';
-import jwtAuthMiddleware from '@middleware/jwtAuthMiddleware';
+import EventController from '@controllers/EventController.js';
+import jwtAuthMiddleware from '@middleware/jwtAuthMiddleware.js';
 
 const router: Router = Router();
 

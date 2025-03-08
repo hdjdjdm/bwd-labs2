@@ -1,9 +1,9 @@
 import Sequelize from 'sequelize';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { ServerError, ValidError } from '@utils/errors';
-import config from '@config/config';
-import User from '@models/User';
+import { ServerError, ValidError } from '@utils/errors.js';
+import config from '@config/config.js';
+import User from '@models/User.js';
 
 interface RegisterUserData {
     name: string;
@@ -19,6 +19,7 @@ class AuthService {
                 email: data.email,
                 password: data.password,
             });
+
             const token = AuthService.generateToken(user);
             return { user, token };
         } catch (e: unknown) {

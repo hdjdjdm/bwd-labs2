@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import UserService from '@services/UserService';
-import { ValidError } from '@utils/errors';
-import { Roles } from '@constants/Roles';
+import UserService from '@services/UserService.js';
+import { ValidError } from '@utils/errors.js';
+import { Roles } from '@constants/Roles.js';
 
 interface CreateUserBody {
     name: string;
@@ -14,7 +14,7 @@ interface UserData {
 }
 
 class UserController {
-    static async createUser(req: Request, res: Response, next: NextFunction) {
+    async createUser(req: Request, res: Response, next: NextFunction) {
         try {
             const { name, email }: CreateUserBody = req.body;
 
@@ -22,7 +22,7 @@ class UserController {
                 throw new ValidError('Name and email are required.');
             }
 
-            UserController.validateUserData({ name, email });
+            this.validateUserData({ name, email });
 
             const user = await UserService.createUser({
                 name,
@@ -34,7 +34,7 @@ class UserController {
         }
     }
 
-    static async getAllUsers(req: Request, res: Response, next: NextFunction) {
+    async getAllUsers(req: Request, res: Response, next: NextFunction) {
         try {
             const withDeleted = req.query.withDeleted === 'true' || req.query.withDeleted === '1';
             const users = await UserService.getAllUsers(withDeleted);
@@ -44,12 +44,12 @@ class UserController {
         }
     }
 
-    static async deleteUser(req: Request, res: Response, next: NextFunction) {
+    async deleteUser(req: Request, res: Response, next: NextFunction) {
         try {
             const id = Number(req.params.id);
             const hardDelete = req.query.hardDelete === 'true' || req.query.hardDelete === '1';
 
-            UserController.validateUserId(id);
+            this.validateUserId(id);
 
             const result = await UserService.deleteUser(id, hardDelete);
             res.status(200).json(result);
@@ -58,11 +58,11 @@ class UserController {
         }
     }
 
-    static async restoreUser(req: Request, res: Response, next: NextFunction) {
+    async restoreUser(req: Request, res: Response, next: NextFunction) {
         try {
             const id = Number(req.params.id);
 
-            UserController.validateUserId(id);
+            this.validateUserId(id);
 
             const result = await UserService.restoreUser(id);
             res.status(200).json(result);
@@ -71,11 +71,11 @@ class UserController {
         }
     }
 
-    static async getUserRole(req: Request, res: Response, next: NextFunction) {
+    async getUserRole(req: Request, res: Response, next: NextFunction) {
         try {
             const id = Number(req.params.id);
 
-            UserController.validateUserId(id);
+            this.validateUserId(id);
 
             const users = await UserService.getUserRole(id);
             res.status(200).json(users);
@@ -84,12 +84,12 @@ class UserController {
         }
     }
 
-    static async setUserRole(req: Request, res: Response, next: NextFunction) {
+    async setUserRole(req: Request, res: Response, next: NextFunction) {
         try {
             const id = Number(req.params.id);
             const { role } = req.body;
 
-            UserController.validateUserId(id);
+            this.validateUserId(id);
 
             if (!Object.values(Roles).includes(role)) {
                 throw new ValidError(`Invalid role. Allowed roles are: ${Object.values(Roles).join(', ')}`);
@@ -102,13 +102,13 @@ class UserController {
         }
     }
 
-    static validateUserId(id: number): void {
+    validateUserId(id: number): void {
         if (!Number.isInteger(id) || id <= 0) {
             throw new ValidError('Invalid user ID. It must be a positive integer.');
         }
     }
 
-    static validateUserData(data: UserData): void {
+    validateUserData(data: UserData): void {
         if (data.name) {
             if (data.name.trim() === '') {
                 throw new ValidError('Title must be a non-empty string.');
@@ -126,4 +126,4 @@ class UserController {
     }
 }
 
-export default UserController;
+export default new UserController();

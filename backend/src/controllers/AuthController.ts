@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from 'express';
-import AuthService from '@services/AuthService';
-import { ValidError } from '@utils/errors';
+import { Request, Response } from 'express';
+import AuthService from '@services/AuthService.js';
+import { ValidError } from '@utils/errors.js';
 
 interface RegisterRequest extends Request {
     body: {
@@ -9,7 +9,7 @@ interface RegisterRequest extends Request {
         password: string;
     };
 }
-
+//todo rename to dto
 interface LoginRequest extends Request {
     body: {
         email: string;
@@ -18,72 +18,64 @@ interface LoginRequest extends Request {
 }
 
 class AuthController {
-    static async registerUser(req: RegisterRequest, res: Response, next: NextFunction) {
-        try {
-            const { name, email, password } = req.body;
+    async registerUser(req: RegisterRequest, res: Response) {
+        const { name, email, password } = req.body;
 
-            if (!name || !email || !password) {
-                throw new ValidError('Email, password and name are required.');
-            }
-
-            if (name.trim() === '') {
-                throw new ValidError('Name must be a non-empty string');
-            }
-
-            const trimmedName = name.trim();
-            const trimmedPassword = String(password).trim();
-            const trimmedEmail = email.trim();
-
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(trimmedEmail)) {
-                throw new ValidError('Invalid email format.');
-            }
-
-            const { user, token } = await AuthService.registerUser({
-                name: trimmedName,
-                email: trimmedEmail,
-                password: trimmedPassword,
-            });
-
-            res.status(201).json({
-                message: 'User successfully registered',
-                token: token,
-                id: user.id,
-                email: user.email,
-                name: user.name,
-                role: user.role,
-            });
-        } catch (e) {
-            next(e);
+        if (!name || !email || !password) {
+            throw new ValidError('Email, password and name are required.');
         }
+
+        if (name.trim() === '') {
+            throw new ValidError('Name must be a non-empty string');
+        }
+
+        const trimmedName = name.trim();
+        const trimmedPassword = String(password).trim();
+        const trimmedEmail = email.trim();
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(trimmedEmail)) {
+            throw new ValidError('Invalid email format.');
+        }
+
+        const { user, token } = await AuthService.registerUser({
+            name: trimmedName,
+            email: trimmedEmail,
+            password: trimmedPassword,
+        });
+
+        res.status(201).json({
+            message: 'User successfully registered',
+            token: token,
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+        });
     }
 
-    static async loginUser(req: LoginRequest, res: Response, next: NextFunction) {
-        try {
-            const { email, password } = req.body;
+    async loginUser(req: LoginRequest, res: Response) {
+        const { email, password } = req.body;
 
-            if (!email || !password) {
-                throw new ValidError('Email and password are required.');
-            }
-
-            const trimmedPassword: string = password.trim();
-            const trimmedEmail: string = email.trim();
-
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(trimmedEmail)) {
-                throw new ValidError('Invalid email format.');
-            }
-
-            const token = await AuthService.loginUser(trimmedEmail, trimmedPassword);
-
-            res.status(200).json({
-                message: 'Login successfully',
-                token,
-            });
-        } catch (e) {
-            next(e);
+        if (!email || !password) {
+            throw new ValidError('Email and password are required.');
         }
+
+        const trimmedPassword: string = password.trim();
+        const trimmedEmail: string = email.trim();
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(trimmedEmail)) {
+            throw new ValidError('Invalid email format.');
+        }
+
+        const token = await AuthService.loginUser(trimmedEmail, trimmedPassword);
+
+        res.status(200).json({
+            message: 'Login successfully',
+            token,
+        });
     }
 }
 
-export default AuthController;
+export default new AuthController();

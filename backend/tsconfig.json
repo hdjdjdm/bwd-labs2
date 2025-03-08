@@ -1,8 +1,15 @@
 {
+    "ts-node": {
+        "require": ["tsconfig-paths/register"]
+    },
     "compilerOptions": {
-        "target": "ES6",
-        "module": "CommonJS",
-        "rootDir": "./src",
+        "target": "ESNext",
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "strict": true,
+        "skipLibCheck": true,
         "baseUrl": "./src",
         "paths": {
             "@config/*": ["config/*"],
@@ -16,11 +23,6 @@
         },
         "resolveJsonModule": true,
         "outDir": "./dist",
-        "esModuleInterop": true,
-        "forceConsistentCasingInFileNames": true,
-        "strict": true,
-        "skipLibCheck": true
-    },
-    "include": ["src"],
-    "exclude": ["node_modules"]
+        "rootDir": "./src"
+    }
 }

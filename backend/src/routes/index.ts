@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import eventsRouter from './eventRoutes';
-import usersRouter from './userRoutes';
-import authRouter from './authRoutes';
-import jwtAuthMiddleware from '@middleware/jwtAuthMiddleware';
-import { checkRole } from '@middleware/authMiddleware';
-import { Roles } from '@constants/Roles';
+import eventsRouter from './eventRoutes.js';
+import usersRouter from './userRoutes.js';
+import authRouter from './authRoutes.js';
+import jwtAuthMiddleware from '@middleware/jwtAuthMiddleware.js';
+import { checkRole } from '@middleware/authMiddleware.js';
+import { Roles } from '@constants/Roles.js';
 
 const router: Router = Router();
 

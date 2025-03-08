@@ -1,6 +1,6 @@
-import { NotFoundedError, ServerError } from '@utils/errors';
-import Event from '@models/Event';
-import User from '@models/User';
+import { NotFoundedError, ServerError } from '@utils/errors.js';
+import Event from '@models/Event.js';
+import User from '@models/User.js';
 
 interface CreateEventData {
     title: string;

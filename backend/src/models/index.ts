@@ -1,7 +1,7 @@
-import { sequelize } from '@config/db';
-import User from './User';
-import Event from './Event';
-import IModels from './IModels';
+import { sequelize } from '@config/db.js';
+import User from './User.js';
+import Event from './Event.js';
+import IModels from './IModels.js';
 
 const models: IModels = { User, Event };
 

@@ -1,5 +1,5 @@
-import User from './User';
-import Event from './Event';
+import User from './User.js';
+import Event from './Event.js';
 
 export default interface IModels {
     User: typeof User;
