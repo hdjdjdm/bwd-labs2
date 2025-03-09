@@ -4,15 +4,10 @@ import jwt from 'jsonwebtoken';
 import { ServerError, ValidError } from '@utils/errors.js';
 import config from '@config/config.js';
 import User from '@models/User.js';
-
-interface RegisterUserData {
-    name: string;
-    email: string;
-    password: string;
-}
+import UserDTO from '@dto/UserDTO.js';
 
 class AuthService {
-    static async registerUser(data: RegisterUserData): Promise<{ user: User; token: string }> {
+    async registerUser(data: UserDTO): Promise<{ user: User; token: string }> {
         try {
             const user = await User.create({
                 name: data.name,
@@ -33,7 +28,7 @@ class AuthService {
         }
     }
 
-    static async loginUser(email: string, password: string): Promise<string> {
+    async loginUser(email: string, password: string): Promise<string> {
         const user = await User.findOne({
             where: { email },
         });
@@ -68,4 +63,4 @@ class AuthService {
     }
 }
 
-export default AuthService;
+export default new AuthService();

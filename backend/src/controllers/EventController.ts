@@ -4,47 +4,30 @@ import UserService from '@services/UserService.js';
 import { ValidError, ForbiddenError } from '@utils/errors.js';
 import { Roles } from '@constants/Roles.js';
 import User from '@models/User.js';
-
-interface CreateEventBody {
-    title: string;
-    description?: string;
-    date?: Date;
-    createdBy: number;
-}
-
-interface EventData {
-    createdBy?: number;
-    title?: string;
-    description?: string;
-    date?: Date;
-}
+import EventDTO from '@dto/EventDTO.js';
 
 class EventController {
-    async createEvent(req: Request, res: Response, next: NextFunction) {
-        try {
-            const { title, description, date, createdBy }: CreateEventBody = req.body;
+    async createEvent(req: Request, res: Response) {
+        const { title, description, date, createdBy }: EventDTO = req.body;
 
-            if (!title || !createdBy) {
-                throw new ValidError('Title and creator are required');
-            }
-
-            this.validateEventData({ title, description, createdBy, date });
-
-            const user = await UserService.getUser(createdBy);
-            if (!user) {
-                throw new ValidError(`User with the ID ${createdBy} not found`);
-            }
-
-            const event = await EventService.createEvent({
-                title,
-                description,
-                date,
-                createdBy,
-            });
-            res.status(201).json(event);
-        } catch (e) {
-            next(e);
+        if (!title || !createdBy) {
+            throw new ValidError('Title and creator are required');
         }
+
+        EventController.validateEventData({ title, description, createdBy, date });
+
+        const user = await UserService.getUser(createdBy);
+        if (!user) {
+            throw new ValidError(`User with the ID ${createdBy} not found`);
+        }
+
+        const event = await EventService.createEvent({
+            title,
+            description,
+            date,
+            createdBy,
+        });
+        res.status(201).json(event);
     }
 
     async getAllEvents(req: Request, res: Response, next: NextFunction) {
@@ -61,7 +44,7 @@ class EventController {
         try {
             const id = Number(req.params.id);
 
-            this.validateEventId(id);
+            EventController.validateEventId(id);
 
             const event = await EventService.getEvent(id);
             res.status(200).json(event);
@@ -74,10 +57,10 @@ class EventController {
         try {
             const id = Number(req.params.id);
 
-            this.validateEventId(id);
-            this.validateEventData(req.body);
+            EventController.validateEventId(id);
+            EventController.validateEventData(req.body);
 
-            if (!(await this.checkAccessUser(id, req.user as User))) {
+            if (!(await EventController.checkAccessToEvent(id, req.user as User))) {
                 return next(new ForbiddenError('You do not have permission to access this resource.'));
             }
 
@@ -94,9 +77,9 @@ class EventController {
 
             const hardDelete = req.query.hardDelete === 'true' || req.query.hardDelete === '1';
 
-            this.validateEventId(id);
+            EventController.validateEventId(id);
 
-            if (!(await this.checkAccessUser(id, req.user as User))) {
+            if (!(await EventController.checkAccessToEvent(id, req.user as User))) {
                 return next(new ForbiddenError('You do not have permission to access this resource.'));
             }
 
@@ -111,9 +94,9 @@ class EventController {
         try {
             const id = Number(req.params.id);
 
-            this.validateEventId(id);
+            EventController.validateEventId(id);
 
-            if (!(await this.checkAccessUser(id, req.user as User))) {
+            if (!(await EventController.checkAccessToEvent(id, req.user as User))) {
                 return next(new ForbiddenError('You do not have permission to access this resource.'));
             }
 
@@ -125,26 +108,26 @@ class EventController {
     }
 
     /**
-     * Метод отвечает за проверку валидности jwt токена
+     * Метод отвечает за проверку доступа пользователя к редактированию событий
      * @param {number} id - уникальный идентификатор пользователя
      * @param {User} user - обьект пользователя, которого нужно проверить
      *
      * @return {Promise<boolean>}
      */
-    async checkAccessUser(id: number, user: User): Promise<boolean> {
+    private static async checkAccessToEvent(id: number, user: User): Promise<boolean> {
         if (user.role === Roles.ADMIN) return true;
 
         const creator: User = await EventService.getEventCreator(id);
         return creator.id === user.id;
     }
 
-    validateEventId(id: number): void {
+    private static validateEventId(id: number): void {
         if (!Number.isInteger(id) || id <= 0) {
             throw new ValidError('Invalid event ID. It must be a positive integer.');
         }
     }
 
-    validateEventData(data: EventData): void {
+    private static validateEventData(data: Partial<EventDTO>): void {
         if (data.createdBy) {
             if (!Number.isInteger(data.createdBy) || data.createdBy <= 0) {
                 throw new ValidError('Creator ID must be a positive integer.');
@@ -158,11 +141,8 @@ class EventController {
             data.title = data.title.trim();
         }
 
-        if (data.description) {
+        if (data.description !== undefined) {
             data.description = data.description.trim();
-            if (data.description === '') {
-                throw new ValidError('Description must not be an empty string.');
-            }
         }
 
         if (data.date) {
@@ -173,4 +153,5 @@ class EventController {
     }
 }
 
+//todo мб обрабатывать ошибки не в сервисе, а в контроллере
 export default new EventController();

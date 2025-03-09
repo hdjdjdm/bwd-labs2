@@ -6,7 +6,7 @@
     "scripts": {
         "dev": "nodemon dist/index.js",
         "tsc": "tsc && tsc-alias",
-        "lint": "eslint . --ext .ts --fix",
+        "lint": "eslint . --ext .ts",
         "format": "prettier --write .",
         "check": "tsc --noEmit && eslint . --ext .ts",
         "prepare": "cd .. && husky"

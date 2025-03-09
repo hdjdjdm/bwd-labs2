@@ -1,19 +1,15 @@
-import { DataTypes, Model } from 'sequelize';
+import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from 'sequelize';
 import { sequelize } from '../config/db.js';
 import bcrypt from 'bcryptjs';
 import { Roles } from '@constants/Roles.js';
-import IModels from './IModels.js';
 
-export default class User extends Model {
-    public id!: number;
-    public name!: string;
-    public email!: string;
-    public password!: string;
-    public role!: Roles;
-
-    static associate(models: IModels): void {
-        User.hasMany(models.Event, { foreignKey: 'createdBy' });
-    }
+export default class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
+    declare id: CreationOptional<number>;
+    declare name: string;
+    declare email: string;
+    declare password: string;
+    declare role: CreationOptional<Roles>;
+    declare deletedAt: CreationOptional<Date | null>;
 }
 
 User.init(
@@ -45,11 +41,16 @@ User.init(
             allowNull: false,
             defaultValue: Roles.USER,
         },
+        deletedAt: {
+            type: DataTypes.DATE,
+            allowNull: true,
+        },
     },
     {
         sequelize,
         modelName: 'User',
         paranoid: true,
+        timestamps: true,
     },
 );
 
@@ -57,7 +58,6 @@ User.beforeCreate(async (user) => {
     user.password = await bcrypt.hash(user.password, 10);
 });
 
-//todo мб убрать
 User.beforeUpdate(async (user) => {
     if (user.changed('password')) {
         user.password = await bcrypt.hash(user.password, 10);

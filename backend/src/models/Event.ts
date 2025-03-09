@@ -1,22 +1,13 @@
-import { DataTypes, Model } from 'sequelize';
+import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from 'sequelize';
 import { sequelize } from '@config/db.js';
-import Models from './IModels.js';
 
-export default class Event extends Model {
-    public id!: number; //todo поправить на деклеир
-    public title!: string;
-    public description?: string;
-    public date!: Date;
-    public createdBy!: number;
-    public createdAt?: Date;
-    public updatedAt?: Date;
-    public deletedAt?: Date | null;
-
-    //todo убрать
-    //todo добавить алиасы в package
-    static associate(models: Models) {
-        Event.belongsTo(models.User, { foreignKey: 'createdBy' });
-    }
+export default class Event extends Model<InferAttributes<Event>, InferCreationAttributes<Event>> {
+    declare id: CreationOptional<number>;
+    declare title: string;
+    declare description: string | null;
+    declare date: CreationOptional<Date>;
+    declare createdBy: number;
+    declare deletedAt: CreationOptional<Date | null>;
 }
 
 Event.init(
@@ -53,5 +44,6 @@ Event.init(
         sequelize,
         modelName: 'Event',
         paranoid: true,
+        timestamps: true,
     },
 );

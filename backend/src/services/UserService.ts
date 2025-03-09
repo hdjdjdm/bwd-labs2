@@ -1,32 +1,9 @@
-import Sequelize from 'sequelize';
-import { NotFoundedError, ServerError, ValidError } from '../utils/errors.js';
+import { NotFoundedError, ServerError } from '../utils/errors.js';
 import User from '../models/User.js';
 import { Roles } from '../constants/Roles.js';
 
-interface CreateUserData {
-    name: string;
-    email: string;
-}
-
 class UserService {
-    static async createUser(data: CreateUserData): Promise<User> {
-        try {
-            return await User.create({
-                name: data.name,
-                email: data.email,
-            });
-        } catch (e: unknown) {
-            if (e instanceof Sequelize.UniqueConstraintError) {
-                throw new ValidError('Email already exists. Please use a different email.');
-            }
-            if (e instanceof Error) {
-                throw new ServerError('Error creating user: ' + e.message);
-            }
-            throw new ServerError('An unknown error occurred while creating the user.');
-        }
-    }
-
-    static async getAllUsers(withDeleted: boolean = false): Promise<User[]> {
+    async getAllUsers(withDeleted: boolean = false): Promise<User[]> {
         try {
             return await User.findAll({
                 paranoid: !withDeleted,
@@ -39,7 +16,7 @@ class UserService {
         }
     }
 
-    static async getUser(id: number): Promise<User> {
+    async getUser(id: number): Promise<User> {
         try {
             const user = await User.findByPk(id, { paranoid: false });
             if (!user) {
@@ -55,7 +32,7 @@ class UserService {
         }
     }
 
-    static async deleteUser(id: number, hardDelete: boolean = false): Promise<{ message: string }> {
+    async deleteUser(id: number, hardDelete: boolean = false): Promise<{ message: string }> {
         try {
             const user = await User.findByPk(id, {
                 paranoid: !hardDelete,
@@ -78,7 +55,7 @@ class UserService {
         }
     }
 
-    static async restoreUser(id: number): Promise<{ message: string }> {
+    async restoreUser(id: number): Promise<{ message: string }> {
         try {
             const user = await User.findByPk(id, {
                 paranoid: false,
@@ -99,7 +76,7 @@ class UserService {
         }
     }
 
-    static async getUserRole(id: number): Promise<{ role: string }> {
+    async getUserRole(id: number): Promise<{ role: string }> {
         try {
             const user = await User.findByPk(id, { paranoid: false });
             if (!user) {
@@ -115,7 +92,7 @@ class UserService {
         }
     }
 
-    static async setUserRole(id: number, newRole: Roles): Promise<{ message: string }> {
+    async setUserRole(id: number, newRole: Roles): Promise<{ message: string }> {
         try {
             const user = await User.findByPk(id, { paranoid: false });
             if (!user) {
@@ -137,4 +114,4 @@ class UserService {
     }
 }
 
-export default UserService;
+export default new UserService();

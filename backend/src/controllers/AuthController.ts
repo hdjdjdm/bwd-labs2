@@ -1,25 +1,11 @@
 import { Request, Response } from 'express';
 import AuthService from '@services/AuthService.js';
 import { ValidError } from '@utils/errors.js';
-
-interface RegisterRequest extends Request {
-    body: {
-        name: string;
-        email: string;
-        password: string;
-    };
-}
-//todo rename to dto
-interface LoginRequest extends Request {
-    body: {
-        email: string;
-        password: string;
-    };
-}
+import UserDTO from '@dto/UserDTO.js';
 
 class AuthController {
-    async registerUser(req: RegisterRequest, res: Response) {
-        const { name, email, password } = req.body;
+    async registerUser(req: Request, res: Response) {
+        const { name, email, password }: UserDTO = req.body;
 
         if (!name || !email || !password) {
             throw new ValidError('Email, password and name are required.');
@@ -54,8 +40,8 @@ class AuthController {
         });
     }
 
-    async loginUser(req: LoginRequest, res: Response) {
-        const { email, password } = req.body;
+    async loginUser(req: Request, res: Response) {
+        const { email, password }: UserDTO = req.body;
 
         if (!email || !password) {
             throw new ValidError('Email and password are required.');

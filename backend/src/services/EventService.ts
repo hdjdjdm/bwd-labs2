@@ -1,23 +1,10 @@
 import { NotFoundedError, ServerError } from '@utils/errors.js';
 import Event from '@models/Event.js';
 import User from '@models/User.js';
-
-interface CreateEventData {
-    title: string;
-    description?: string;
-    date?: Date;
-    createdBy: number;
-}
-
-interface UpdateEventData {
-    title?: string;
-    description?: string;
-    date?: Date;
-    createdBy?: number;
-}
+import EventDTO from '@dto/EventDTO.js';
 
 class EventService {
-    static async createEvent(data: CreateEventData): Promise<Event> {
+    async createEvent(data: EventDTO): Promise<Event> {
         try {
             return await Event.create({
                 title: data.title,
@@ -34,7 +21,7 @@ class EventService {
         }
     }
 
-    static async getAllEvents(withDeleted: boolean): Promise<Event[]> {
+    async getAllEvents(withDeleted: boolean): Promise<Event[]> {
         try {
             return await Event.findAll({
                 paranoid: !withDeleted,
@@ -48,7 +35,7 @@ class EventService {
         }
     }
 
-    static async getEvent(id: number): Promise<Event> {
+    async getEvent(id: number): Promise<Event> {
         try {
             const event = await Event.findByPk(id, { paranoid: false });
             if (!event) {
@@ -65,7 +52,7 @@ class EventService {
         }
     }
 
-    static async getEventCreator(id: number): Promise<User> {
+    async getEventCreator(id: number): Promise<User> {
         try {
             const event = await Event.findByPk(id, { paranoid: false });
             if (!event) {
@@ -87,7 +74,7 @@ class EventService {
         }
     }
 
-    static async updateEvent(id: number, updateData: UpdateEventData): Promise<Event> {
+    async updateEvent(id: number, updateData: Partial<EventDTO>): Promise<Event> {
         try {
             const event = await Event.findByPk(id, { paranoid: false });
             if (!event) {
@@ -105,7 +92,7 @@ class EventService {
         }
     }
 
-    static async deleteEvent(id: number, hardDelete: boolean = false): Promise<{ message: string }> {
+    async deleteEvent(id: number, hardDelete: boolean = false): Promise<{ message: string }> {
         try {
             const event = await Event.findByPk(id, {
                 paranoid: !hardDelete,
@@ -129,7 +116,7 @@ class EventService {
         }
     }
 
-    static async restoreEvent(id: number): Promise<{ message: string }> {
+    async restoreEvent(id: number): Promise<{ message: string }> {
         try {
             const event = await Event.findByPk(id, {
                 paranoid: false,
@@ -152,4 +139,4 @@ class EventService {
     }
 }
 
-export default EventService;
+export default new EventService();

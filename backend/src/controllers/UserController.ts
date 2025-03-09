@@ -2,38 +2,9 @@ import { Request, Response, NextFunction } from 'express';
 import UserService from '@services/UserService.js';
 import { ValidError } from '@utils/errors.js';
 import { Roles } from '@constants/Roles.js';
-
-interface CreateUserBody {
-    name: string;
-    email: string;
-}
-
-interface UserData {
-    name?: string;
-    email?: string;
-}
+import UserDTO from '@dto/UserDTO.js';
 
 class UserController {
-    async createUser(req: Request, res: Response, next: NextFunction) {
-        try {
-            const { name, email }: CreateUserBody = req.body;
-
-            if (!name || !email) {
-                throw new ValidError('Name and email are required.');
-            }
-
-            this.validateUserData({ name, email });
-
-            const user = await UserService.createUser({
-                name,
-                email,
-            });
-            res.status(201).json(user);
-        } catch (e) {
-            next(e);
-        }
-    }
-
     async getAllUsers(req: Request, res: Response, next: NextFunction) {
         try {
             const withDeleted = req.query.withDeleted === 'true' || req.query.withDeleted === '1';
@@ -49,7 +20,7 @@ class UserController {
             const id = Number(req.params.id);
             const hardDelete = req.query.hardDelete === 'true' || req.query.hardDelete === '1';
 
-            this.validateUserId(id);
+            UserController.validateUserId(id);
 
             const result = await UserService.deleteUser(id, hardDelete);
             res.status(200).json(result);
@@ -62,7 +33,7 @@ class UserController {
         try {
             const id = Number(req.params.id);
 
-            this.validateUserId(id);
+            UserController.validateUserId(id);
 
             const result = await UserService.restoreUser(id);
             res.status(200).json(result);
@@ -75,7 +46,7 @@ class UserController {
         try {
             const id = Number(req.params.id);
 
-            this.validateUserId(id);
+            UserController.validateUserId(id);
 
             const users = await UserService.getUserRole(id);
             res.status(200).json(users);
@@ -84,31 +55,27 @@ class UserController {
         }
     }
 
-    async setUserRole(req: Request, res: Response, next: NextFunction) {
-        try {
-            const id = Number(req.params.id);
-            const { role } = req.body;
+    async setUserRole(req: Request, res: Response) {
+        const id = Number(req.params.id);
+        const { role } = req.body;
 
-            this.validateUserId(id);
+        UserController.validateUserId(id);
 
-            if (!Object.values(Roles).includes(role)) {
-                throw new ValidError(`Invalid role. Allowed roles are: ${Object.values(Roles).join(', ')}`);
-            }
-
-            const users = await UserService.setUserRole(id, role);
-            res.status(200).json(users);
-        } catch (e) {
-            next(e);
+        if (!Object.values(Roles).includes(role)) {
+            throw new ValidError(`Invalid role. Allowed roles are: ${Object.values(Roles).join(', ')}`);
         }
+
+        const users = await UserService.setUserRole(id, role);
+        res.status(200).json(users);
     }
 
-    validateUserId(id: number): void {
+    private static validateUserId(id: number): void {
         if (!Number.isInteger(id) || id <= 0) {
             throw new ValidError('Invalid user ID. It must be a positive integer.');
         }
     }
 
-    validateUserData(data: UserData): void {
+    private static validateUserData(data: Partial<UserDTO>): void {
         if (data.name) {
             if (data.name.trim() === '') {
                 throw new ValidError('Title must be a non-empty string.');
@@ -122,6 +89,13 @@ class UserController {
                 throw new ValidError('Invalid email format.');
             }
             data.email = data.email.trim();
+        }
+
+        if (data.password) {
+            if (data.password.trim() === '') {
+                throw new ValidError('Title must be a non-empty string.');
+            }
+            data.password = data.password.trim();
         }
     }
 }

@@ -26,37 +26,6 @@ router.get('/', UserController.getAllUsers);
 
 /**
  * @swagger
- * /users:
- *   post:
- *     summary: Create user
- *     tags: [Users]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *                 example: "Maxim Morzyukov"
- *               email:
- *                 type: string
- *                 example: "krutoimax@example.com"
- *     responses:
- *       201:
- *         description: User created successfully
- *       400:
- *         description: Bad request (missing required fields)
- *       409:
- *         description: Conflict (email already exists)
- *       500:
- *         description: Server error
- */
-router.post('/', UserController.createUser);
-
-/**
- * @swagger
  * /users/{id}:
  *   delete:
  *     summary: Soft delete an user

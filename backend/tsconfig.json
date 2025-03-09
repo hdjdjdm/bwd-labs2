@@ -1,7 +1,4 @@
 {
-    "ts-node": {
-        "require": ["tsconfig-paths/register"]
-    },
     "compilerOptions": {
         "target": "ESNext",
         "module": "NodeNext",
@@ -15,6 +12,7 @@
             "@config/*": ["config/*"],
             "@constants/*": ["constants/*"],
             "@controllers/*": ["controllers/*"],
+            "@dto/*": ["dto/*"],
             "@middleware/*": ["middleware/*"],
             "@models/*": ["models/*"],
             "@routes/*": ["routes/*"],
