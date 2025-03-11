@@ -4,6 +4,7 @@
     "description": "",
     "main": "src/index.ts",
     "scripts": {
+        "start": "tsc && tsc-alias && nodemon dist/index.js",
         "dev": "nodemon dist/index.js",
         "tsc": "tsc && tsc-alias",
         "lint": "eslint . --ext .ts",

@@ -1,30 +1,36 @@
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import EventService from '@services/EventService.js';
-import UserService from '@services/UserService.js';
-import { ValidError, ForbiddenError } from '@utils/errors.js';
 import { Roles } from '@constants/Roles.js';
 import User from '@models/User.js';
 import EventDTO from '@dto/EventDTO.js';
+import CustomError from '@utils/CustomError.js';
+import { ErrorCodes } from '@constants/Errors.js';
 
 class EventController {
-    async createEvent(req: Request, res: Response) {
-        const { title, description, date, createdBy }: EventDTO = req.body;
+    async createEvent(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const { title, description, date, createdBy }: Pick<EventDTO, 'title' | 'description' | 'date' | 'createdBy'> =
+            req.body;
 
         if (!title || !createdBy) {
-            throw new ValidError('Title and creator are required');
+            return next(new CustomError(ErrorCodes.BadRequest, 'Title and creator are required'));
         }
 
-        EventController.validateEventData({ title, description, createdBy, date });
+        const eventDate = date ? new Date(date) : undefined;
+        if (eventDate && isNaN(eventDate.getTime())) {
+            return next(new CustomError(ErrorCodes.BadRequest, 'Invalid date format'));
+        }
 
-        const user = await UserService.getUser(createdBy);
+        EventController.validateEventData({ title, description, createdBy, date: eventDate }); //todo не нрава поменять мб
+
+        const user = await User.findByPk(createdBy); //todo мб перенести в сервис?
         if (!user) {
-            throw new ValidError(`User with the ID ${createdBy} not found`);
+            return next(new CustomError(ErrorCodes.BadRequest, `User with the ID ${createdBy} not found`));
         }
 
         const event = await EventService.createEvent({
             title,
             description,
-            date,
+            date: eventDate,
             createdBy,
         });
         res.status(201).json(event);
@@ -61,7 +67,9 @@ class EventController {
             EventController.validateEventData(req.body);
 
             if (!(await EventController.checkAccessToEvent(id, req.user as User))) {
-                return next(new ForbiddenError('You do not have permission to access this resource.'));
+                return next(
+                    new CustomError(ErrorCodes.ForbiddenError, 'You do not have permission to access this resource.'),
+                );
             }
 
             const updatedEvent = await EventService.updateEvent(id, req.body);
@@ -80,7 +88,9 @@ class EventController {
             EventController.validateEventId(id);
 
             if (!(await EventController.checkAccessToEvent(id, req.user as User))) {
-                return next(new ForbiddenError('You do not have permission to access this resource.'));
+                return next(
+                    new CustomError(ErrorCodes.ForbiddenError, 'You do not have permission to access this resource.'),
+                );
             }
 
             const result = await EventService.deleteEvent(id, hardDelete);
@@ -97,7 +107,9 @@ class EventController {
             EventController.validateEventId(id);
 
             if (!(await EventController.checkAccessToEvent(id, req.user as User))) {
-                return next(new ForbiddenError('You do not have permission to access this resource.'));
+                return next(
+                    new CustomError(ErrorCodes.ForbiddenError, 'You do not have permission to access this resource.'),
+                );
             }
 
             const result = await EventService.restoreEvent(id);
@@ -109,7 +121,7 @@ class EventController {
 
     /**
      * Метод отвечает за проверку доступа пользователя к редактированию событий
-     * @param {number} id - уникальный идентификатор пользователя
+     * @param {number} id - уникальный идентификатор события
      * @param {User} user - обьект пользователя, которого нужно проверить
      *
      * @return {Promise<boolean>}
@@ -123,35 +135,37 @@ class EventController {
 
     private static validateEventId(id: number): void {
         if (!Number.isInteger(id) || id <= 0) {
-            throw new ValidError('Invalid event ID. It must be a positive integer.');
+            throw new CustomError(ErrorCodes.BadRequest, 'Invalid event ID. It must be a positive integer.');
         }
     }
 
     private static validateEventData(data: Partial<EventDTO>): void {
-        if (data.createdBy) {
+        if (data.createdBy !== undefined) {
             if (!Number.isInteger(data.createdBy) || data.createdBy <= 0) {
-                throw new ValidError('Creator ID must be a positive integer.');
+                throw new CustomError(ErrorCodes.BadRequest, 'Creator ID must be a positive integer.');
             }
         }
 
-        if (data.title) {
+        if (typeof data.title === 'string') {
             if (data.title.trim() === '') {
-                throw new ValidError('Title must be a non-empty string.');
+                throw new CustomError(ErrorCodes.BadRequest, 'Title must be a non-empty string.');
             }
             data.title = data.title.trim();
         }
 
-        if (data.description !== undefined) {
+        if (typeof data.description === 'string') {
+            if (data.description.trim() === '') {
+                throw new CustomError(ErrorCodes.BadRequest, 'Description must not be empty.');
+            }
             data.description = data.description.trim();
         }
 
-        if (data.date) {
+        if (data.date !== undefined) {
             if (isNaN(data.date.getTime())) {
-                throw new ValidError('Invalid date format.');
+                throw new CustomError(ErrorCodes.BadRequest, 'Invalid date format.');
             }
         }
     }
 }
 
-//todo мб обрабатывать ошибки не в сервисе, а в контроллере
 export default new EventController();

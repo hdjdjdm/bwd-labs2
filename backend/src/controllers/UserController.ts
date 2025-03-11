@@ -1,8 +1,9 @@
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import UserService from '@services/UserService.js';
-import { ValidError } from '@utils/errors.js';
 import { Roles } from '@constants/Roles.js';
 import UserDTO from '@dto/UserDTO.js';
+import CustomError from '@utils/CustomError.js';
+import { ErrorCodes } from '@constants/Errors.js';
 
 class UserController {
     async getAllUsers(req: Request, res: Response, next: NextFunction) {
@@ -48,37 +49,42 @@ class UserController {
 
             UserController.validateUserId(id);
 
-            const users = await UserService.getUserRole(id);
-            res.status(200).json(users);
+            const role = await UserService.getUserRole(id);
+            res.status(200).json(role);
         } catch (e) {
             next(e);
         }
     }
 
-    async setUserRole(req: Request, res: Response) {
+    async setUserRole(req: Request, res: Response, next: NextFunction): Promise<void> {
         const id = Number(req.params.id);
-        const { role } = req.body;
+        const { role }: { role: Roles } = req.body;
 
         UserController.validateUserId(id);
 
-        if (!Object.values(Roles).includes(role)) {
-            throw new ValidError(`Invalid role. Allowed roles are: ${Object.values(Roles).join(', ')}`);
+        if (!role || !Object.values(Roles).includes(role)) {
+            return next(
+                new CustomError(
+                    ErrorCodes.BadRequest,
+                    `Invalid or missing role. Allowed roles are: ${Object.values(Roles).join(', ')}`,
+                ),
+            );
         }
 
-        const users = await UserService.setUserRole(id, role);
-        res.status(200).json(users);
+        const user = await UserService.setUserRole(id, role);
+        res.status(200).json(user);
     }
 
     private static validateUserId(id: number): void {
         if (!Number.isInteger(id) || id <= 0) {
-            throw new ValidError('Invalid user ID. It must be a positive integer.');
+            throw new CustomError(ErrorCodes.BadRequest, 'Invalid user ID. It must be a positive integer.');
         }
     }
 
     private static validateUserData(data: Partial<UserDTO>): void {
         if (data.name) {
             if (data.name.trim() === '') {
-                throw new ValidError('Title must be a non-empty string.');
+                throw new CustomError(ErrorCodes.BadRequest, 'Title must be a non-empty string.');
             }
             data.name = data.name.trim();
         }
@@ -86,16 +92,15 @@ class UserController {
         if (data.email) {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(data.email)) {
-                throw new ValidError('Invalid email format.');
+                throw new CustomError(ErrorCodes.BadRequest, 'Invalid email format.');
             }
             data.email = data.email.trim();
         }
 
         if (data.password) {
             if (data.password.trim() === '') {
-                throw new ValidError('Title must be a non-empty string.');
+                throw new CustomError(ErrorCodes.BadRequest, 'Title must be a non-empty string.');
             }
-            data.password = data.password.trim();
         }
     }
 }
