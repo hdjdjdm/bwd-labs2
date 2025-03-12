@@ -8,8 +8,7 @@ import { ErrorCodes } from '@constants/Errors.js';
 
 class EventController {
     async createEvent(req: Request, res: Response, next: NextFunction): Promise<void> {
-        const { title, description, date, createdBy }: Pick<EventDTO, 'title' | 'description' | 'date' | 'createdBy'> =
-            req.body;
+        const { title, description, date, createdBy } = req.body as EventDTO;
 
         if (!title || !createdBy) {
             return next(new CustomError(ErrorCodes.BadRequest, 'Title and creator are required'));
@@ -20,9 +19,14 @@ class EventController {
             return next(new CustomError(ErrorCodes.BadRequest, 'Invalid date format'));
         }
 
-        EventController.validateEventData({ title, description, createdBy, date: eventDate }); //todo не нрава поменять мб
+        EventController.validateEventData({ title, description, createdBy, date: eventDate });
 
-        const user = await User.findByPk(createdBy); //todo мб перенести в сервис?
+        const user = await User.findOne({
+            where: {
+                id: createdBy,
+            },
+        });
+
         if (!user) {
             return next(new CustomError(ErrorCodes.BadRequest, `User with the ID ${createdBy} not found`));
         }
@@ -62,9 +66,10 @@ class EventController {
     async updateEvent(req: Request, res: Response, next: NextFunction) {
         try {
             const id = Number(req.params.id);
+            const eventData: Partial<EventDTO> = req.body;
 
             EventController.validateEventId(id);
-            EventController.validateEventData(req.body);
+            EventController.validateEventData(eventData);
 
             if (!(await EventController.checkAccessToEvent(id, req.user as User))) {
                 return next(
@@ -72,7 +77,7 @@ class EventController {
                 );
             }
 
-            const updatedEvent = await EventService.updateEvent(id, req.body);
+            const updatedEvent = await EventService.updateEvent(id, eventData);
             res.status(200).json(updatedEvent);
         } catch (e) {
             next(e);

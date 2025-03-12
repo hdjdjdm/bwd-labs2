@@ -40,5 +40,4 @@ const config: AppConfig = {
     },
 };
 
-//todo мб сделать проверку и выбрасывать ошибки
 export default config;

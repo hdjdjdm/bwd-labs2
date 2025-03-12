@@ -58,7 +58,7 @@ class UserController {
 
     async setUserRole(req: Request, res: Response, next: NextFunction): Promise<void> {
         const id = Number(req.params.id);
-        const { role }: { role: Roles } = req.body;
+        const { role } = req.body as UserDTO;
 
         UserController.validateUserId(id);
 

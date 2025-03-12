@@ -8,7 +8,7 @@ import { UniqueConstraintError } from 'sequelize';
 class AuthController {
     async registerUser(req: Request, res: Response, next: NextFunction) {
         try {
-            const { name, email, password }: Pick<UserDTO, 'name' | 'email' | 'password'> = req.body;
+            const { name, email, password }: UserDTO = req.body;
 
             if (!name || !email || !password) {
                 return next(new CustomError(ErrorCodes.BadRequest, 'Email, password and name are required.'));
@@ -33,14 +33,16 @@ class AuthController {
                 password: trimmedPassword,
             });
 
-            res.status(201).json({
-                //todo pick??
-                message: 'User successfully registered',
-                token: token,
-                id: user.id,
+            const response: Pick<UserDTO, 'email' | 'name' | 'role'> = {
                 email: user.email,
                 name: user.name,
                 role: user.role,
+            };
+
+            res.status(201).json({
+                message: 'User successfully registered',
+                token: token,
+                ...response,
             });
         } catch (e) {
             if (e instanceof UniqueConstraintError) {
