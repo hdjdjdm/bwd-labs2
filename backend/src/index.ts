@@ -1,8 +1,8 @@
-import config from '@config/config';
-import app from './app';
-import { authenticate, sequelize } from '@config/db';
+import config from '@config/config.js';
+import app from './app.js';
+import { authenticate, sequelize } from '@config/db.js';
 
-const start: () => Promise<void> = async (): Promise<void> => {
+async function start() {
     try {
         await authenticate();
 
@@ -12,6 +12,6 @@ const start: () => Promise<void> = async (): Promise<void> => {
     } catch (e: unknown) {
         console.error('Error starting the server: ', e);
     }
-};
+}
 
 start();

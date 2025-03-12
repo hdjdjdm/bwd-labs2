@@ -2,11 +2,12 @@
     "name": "bwd-labs2",
     "version": "1.0.0",
     "description": "",
-    "main": "src/index.js",
+    "main": "src/index.ts",
     "scripts": {
-        "dev": "node -r ./tsconfig-paths-bootstrap.js dist/index.js",
-        "tsc": "tsc",
-        "lint": "eslint . --ext .ts --fix",
+        "start": "tsc && tsc-alias && nodemon dist/index.js",
+        "dev": "nodemon dist/index.js",
+        "tsc": "tsc && tsc-alias",
+        "lint": "eslint . --ext .ts",
         "format": "prettier --write .",
         "check": "tsc --noEmit && eslint . --ext .ts",
         "prepare": "cd .. && husky"
@@ -14,7 +15,7 @@
     "keywords": [],
     "author": "https://github.com/hdjdjdm",
     "license": "ISC",
-    "type": "commonjs",
+    "type": "module",
     "lint-staged": {
         "*.{js,ts}": [
             "eslint --fix",
@@ -58,8 +59,7 @@
         "nodemon": "^3.1.9",
         "pg": "^8.13.3",
         "prettier": "^3.5.3",
-        "ts-node": "^10.9.2",
-        "tsconfig-paths": "^4.2.0",
+        "tsc-alias": "^1.8.11",
         "typescript": "^5.7.3",
         "typescript-eslint": "^8.26.0"
     }

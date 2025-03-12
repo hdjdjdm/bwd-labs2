@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize-typescript';
-import config from './config';
+import config from './config.js';
 
 if (!config.db.dbName || !config.db.user || !config.db.password || !config.db.host || !config.db.port) {
     throw new Error('Missing database configuration');

@@ -1,50 +1,35 @@
-import Sequelize from 'sequelize';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { ServerError, ValidError } from '@utils/errors';
-import config from '@config/config';
-import User from '@models/User';
-
-interface RegisterUserData {
-    name: string;
-    email: string;
-    password: string;
-}
+import config from '@config/config.js';
+import User from '@models/User.js';
+import UserDTO from '@dto/UserDTO.js';
+import CustomError from '@utils/CustomError.js';
+import { ErrorCodes } from '@constants/Errors.js';
 
 class AuthService {
-    static async registerUser(data: RegisterUserData): Promise<{ user: User; token: string }> {
-        try {
-            const user = await User.create({
-                name: data.name,
-                email: data.email,
-                password: data.password,
-            });
+    async registerUser(data: Pick<UserDTO, 'name' | 'email' | 'password'>): Promise<{ user: User; token: string }> {
+        const user = await User.create({
+            name: data.name,
+            email: data.email,
+            password: data.password,
+        });
 
-            const token = AuthService.generateToken(user);
-            return { user, token };
-        } catch (e: unknown) {
-            if (e instanceof Sequelize.UniqueConstraintError) {
-                throw new ValidError('Email already exists. Please use a different email.');
-            }
-            if (e instanceof Error) {
-                throw new ServerError('Error creating user: ' + e.message);
-            }
-            throw new ServerError('An unknown error occurred while creating the user.');
-        }
+        const token = AuthService.generateToken(user);
+        return { user, token };
     }
 
-    static async loginUser(email: string, password: string): Promise<string> {
+    async loginUser(email: string, password: string): Promise<string> {
         const user = await User.findOne({
             where: { email },
         });
 
         if (!user) {
-            throw new ValidError('User with this email does not exist.');
+            throw new CustomError(ErrorCodes.BadRequest, 'User with this email does not exist.');
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
-            throw new ValidError('Invalid password.');
+            throw new CustomError(ErrorCodes.BadRequest, 'Invalid password.');
         }
 
         return AuthService.generateToken(user);
@@ -68,4 +53,4 @@ class AuthService {
     }
 }
 
-export default AuthService;
+export default new AuthService();

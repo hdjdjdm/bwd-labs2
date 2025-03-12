@@ -1,7 +1,7 @@
 import { Strategy as JwtStrategy, ExtractJwt, StrategyOptions } from 'passport-jwt';
 import passport from 'passport';
-import User from '@models/User';
-import config from './config';
+import User from '@models/User.js';
+import config from './config.js';
 import { JwtPayload } from 'jsonwebtoken';
 
 if (!config.auth.jwtSecret) {
@@ -20,10 +20,7 @@ passport.use(
         async (payload: JwtPayload, done: (error: Error | null, user?: User | false) => void): Promise<void> => {
             try {
                 const user: User | null = await User.findByPk(payload.id);
-                if (user) {
-                    return done(null, user);
-                }
-                return done(null, false);
+                return done(null, user ? user : false);
             } catch (error) {
                 return done(error instanceof Error ? error : new Error(String(error)), false);
             }

@@ -1,5 +1,5 @@
-const { register } = require('tsconfig-paths');
-const tsConfig = require('./tsconfig.json');
+import { register } from 'tsconfig-paths';
+import tsConfig from './tsconfig.json';
 
 register({
     baseUrl: tsConfig.compilerOptions.outDir,

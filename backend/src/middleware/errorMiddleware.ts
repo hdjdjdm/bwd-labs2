@@ -1,18 +1,18 @@
 import { NextFunction, Request, Response } from 'express';
-import { ValidError, UnauthorizedError, ForbiddenError, NotFoundedError, ServerError } from '@utils/errors';
+import CustomError from '@utils/CustomError.js';
+// import { UniqueConstraintError } from 'sequelize';
 
-type CustomError = ValidError | UnauthorizedError | ForbiddenError | NotFoundedError | ServerError;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const errorMiddleware = (err: Error, req: Request, res: Response, next: NextFunction): void => {
+    let statusCode: number = 500;
+    let message: string = 'Something went wrong';
 
-const errorMiddleware = (err: CustomError, req: Request, res: Response, next: NextFunction): void => {
-    console.error(`[ERROR] ${err.name}: ${err.message}`);
-
-    const statusCode: number = err.statusCode || 500;
-    const message: string = err.message || 'Something went wrong';
-
-    if (typeof res.status !== 'function') {
-        console.error('res is not a valid Response object');
-        return next(err);
+    if (err instanceof CustomError) {
+        statusCode = err.statusCode;
+        message = err.message;
     }
+
+    console.error(`[ERROR] ${statusCode}: ${err.message}`);
 
     res.status(statusCode).json({ error: message });
 };

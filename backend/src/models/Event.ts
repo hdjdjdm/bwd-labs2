@@ -1,20 +1,13 @@
-import { DataTypes, Model } from 'sequelize';
-import { sequelize } from '@config/db';
-import Models from './IModels';
+import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from 'sequelize';
+import { sequelize } from '@config/db.js';
 
-export default class Event extends Model {
-    public id!: number;
-    public title!: string;
-    public description?: string;
-    public date!: Date;
-    public createdBy!: number;
-    public createdAt?: Date;
-    public updatedAt?: Date;
-    public deletedAt?: Date | null;
-
-    static associate(models: Models) {
-        Event.belongsTo(models.User, { foreignKey: 'createdBy' });
-    }
+export default class Event extends Model<InferAttributes<Event>, InferCreationAttributes<Event>> {
+    declare id: CreationOptional<number>;
+    declare title: string;
+    declare description: string | null;
+    declare date: CreationOptional<Date>;
+    declare createdBy: number;
+    declare deletedAt: CreationOptional<Date | null>;
 }
 
 Event.init(
@@ -50,7 +43,7 @@ Event.init(
     {
         sequelize,
         modelName: 'Event',
-        timestamps: true,
         paranoid: true,
+        timestamps: true,
     },
 );

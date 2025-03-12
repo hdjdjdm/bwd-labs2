@@ -1,33 +1,21 @@
-import { Request, Response, NextFunction } from 'express';
-import AuthService from '@services/AuthService';
-import { ValidError } from '@utils/errors';
-
-interface RegisterRequest extends Request {
-    body: {
-        name: string;
-        email: string;
-        password: string;
-    };
-}
-
-interface LoginRequest extends Request {
-    body: {
-        email: string;
-        password: string;
-    };
-}
+import { NextFunction, Request, Response } from 'express';
+import AuthService from '@services/AuthService.js';
+import UserDTO from '@dto/UserDTO.js';
+import CustomError from '@utils/CustomError.js';
+import { ErrorCodes } from '@constants/Errors.js';
+import { UniqueConstraintError } from 'sequelize';
 
 class AuthController {
-    static async registerUser(req: RegisterRequest, res: Response, next: NextFunction) {
+    async registerUser(req: Request, res: Response, next: NextFunction) {
         try {
-            const { name, email, password } = req.body;
+            const { name, email, password }: UserDTO = req.body;
 
             if (!name || !email || !password) {
-                throw new ValidError('Email, password and name are required.');
+                return next(new CustomError(ErrorCodes.BadRequest, 'Email, password and name are required.'));
             }
 
             if (name.trim() === '') {
-                throw new ValidError('Name must be a non-empty string');
+                return next(new CustomError(ErrorCodes.BadRequest, 'Name must be a non-empty string'));
             }
 
             const trimmedName = name.trim();
@@ -36,7 +24,7 @@ class AuthController {
 
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(trimmedEmail)) {
-                throw new ValidError('Invalid email format.');
+                return next(new CustomError(ErrorCodes.BadRequest, 'Invalid email format.'));
             }
 
             const { user, token } = await AuthService.registerUser({
@@ -45,36 +33,41 @@ class AuthController {
                 password: trimmedPassword,
             });
 
-            res.status(201).json({
-                message: 'User successfully registered',
-                token: token,
-                id: user.id,
+            const response: Pick<UserDTO, 'email' | 'name' | 'role'> = {
                 email: user.email,
                 name: user.name,
                 role: user.role,
+            };
+
+            res.status(201).json({
+                message: 'User successfully registered',
+                token: token,
+                ...response,
             });
         } catch (e) {
+            if (e instanceof UniqueConstraintError) {
+                return next(new CustomError(ErrorCodes.ConflictError, 'Email already exists.'));
+            }
             next(e);
         }
     }
 
-    static async loginUser(req: LoginRequest, res: Response, next: NextFunction) {
+    async loginUser(req: Request, res: Response, next: NextFunction) {
         try {
-            const { email, password } = req.body;
+            const { email, password }: Pick<UserDTO, 'email' | 'password'> = req.body;
 
             if (!email || !password) {
-                throw new ValidError('Email and password are required.');
+                return next(new CustomError(ErrorCodes.BadRequest, 'Email and password are required.'));
             }
 
-            const trimmedPassword: string = password.trim();
             const trimmedEmail: string = email.trim();
 
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(trimmedEmail)) {
-                throw new ValidError('Invalid email format.');
+                return next(new CustomError(ErrorCodes.BadRequest, 'Invalid email format.'));
             }
 
-            const token = await AuthService.loginUser(trimmedEmail, trimmedPassword);
+            const token = await AuthService.loginUser(trimmedEmail, password);
 
             res.status(200).json({
                 message: 'Login successfully',
@@ -86,4 +79,4 @@ class AuthController {
     }
 }
 
-export default AuthController;
+export default new AuthController();
