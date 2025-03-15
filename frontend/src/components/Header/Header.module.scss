@@ -1,0 +1,41 @@
+@use '@styles/variables' as *;
+@use '@styles/mixins' as *;
+@use '@styles/media' as *;
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  &__inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: $color-secondary;
+
+    padding: 40px 20px 20px;
+
+    @include desktop {
+      padding-top: 30px;
+    }
+
+    @include mobile {
+      padding-top: 15px;
+    }
+  }
+
+  &__logo {
+    color: $color-accent;
+    cursor: pointer;
+  };
+
+  &__nav {
+    display: flex;
+    gap: 20px;
+  }
+
+  &__navButton {
+    padding: 10px 20px;
+  }
+
+}

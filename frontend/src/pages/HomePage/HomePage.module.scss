@@ -1,0 +1,14 @@
+@use '@styles/variables' as *;
+
+.homePage {
+
+
+    &__inner {
+    }
+
+    &__features {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $block-gap-small;
+    }
+}

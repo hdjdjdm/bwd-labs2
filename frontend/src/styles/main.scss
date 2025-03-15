@@ -1,0 +1,13 @@
+@forward 'fonts.css';
+@forward 'variables';
+@forward 'normalize';
+@forward 'media';
+@forward 'mixins';
+@forward 'utils';
+@forward 'globals';
+
+//swiper
+@forward 'swiper/scss';
+@forward 'swiper/scss/navigation';
+@forward 'swiper/scss/pagination';
+@forward 'swiper/scss/autoplay';

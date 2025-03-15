@@ -1,0 +1,45 @@
+@use '@styles/variables' as *;
+
+.hero {
+    height: 400px;
+    position: relative;
+    overflow: hidden;
+
+    &__swiper {
+        width: 100%;
+        height: 100%;
+    }
+
+    &__swiperSlide {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    &__inner {
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+
+    &__text {
+        background-color: $color-background;
+        color: $color-text;
+        opacity: 95%;
+        padding: 20px;
+        border-radius: $border-radius-large;
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: $color-text-secondary;
+        }
+    }
+}

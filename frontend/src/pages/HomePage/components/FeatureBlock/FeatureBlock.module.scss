@@ -1,0 +1,15 @@
+@use '@styles/variables' as *;
+@use '@styles/mixins' as *;
+@use '@styles/media' as *;
+
+.featureBlock {
+    flex: 1 1 calc(25% - $block-gap-small);
+
+    @include tablet {
+        flex: 1 1 calc(50% - $block-gap-small);
+    }
+
+    @include mobile {
+        flex: 1 1 100%;
+    }
+}

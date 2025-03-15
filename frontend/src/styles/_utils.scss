@@ -1,0 +1,92 @@
+@use 'media' as *;
+@use 'mixins' as *;
+@use 'variables' as *;
+
+.container {
+    width: 100%;
+    max-width: $container-width;
+    margin-inline: auto;
+    padding-inline: $container-padding-x;
+}
+
+.page__inner {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px 40px;
+    gap: $block-gap;
+}
+
+.block {
+    border-radius: $border-radius-large;
+    box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.2);
+    background-color: $color-background;
+}
+
+.button {
+    color: $color-text;
+    border-radius: $border-radius;
+    border: $border;
+
+    &_accent {
+        background-color: $color-accent;
+        color: $color-background;
+    }
+
+    @include hover {
+        text-decoration: underline;
+    }
+}
+
+.visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    margin: -1px !important;
+    border: 0 !important;
+    padding: 0 !important;
+    white-space: nowrap !important;
+    clip-path: inset(100%) !important;
+    clip: rect(0 0 0 0) !important;
+    overflow: hidden !important;
+}
+
+.hidden-mobile {
+    @include mobile {
+        display: none !important;
+    }
+}
+
+.visible-mobile {
+    @include mobile-above {
+        display: none !important;
+    }
+}
+
+.visible-small-mobile {
+    @include small-mobile-above {
+        display: none !important;
+    }
+}
+
+.hidden-small-mobile {
+    @include small-mobile {
+        display: none !important;
+    }
+}
+
+.svg {
+    width: $svg-size;
+}
+
+.svg-small {
+    width: $svg-size-small;
+}
+
+.svg-large {
+    width: $svg-size-large;
+}
+
+.avatar {
+    @include avatar(45);
+}

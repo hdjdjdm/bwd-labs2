@@ -1,0 +1,99 @@
+@use '@styles/variables' as *;
+@use '@styles/mixins' as *;
+@use '@styles/media' as *;
+
+.authForm {
+    padding: $block-padding;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $block-gap-small;
+    width: 500px;
+
+    &__title {
+        margin: 0;
+    }
+
+    &__field {
+        @include flex-center();
+
+        position: relative;
+        width: 100%;
+    }
+
+    &__label {
+        position: absolute;
+        z-index: 1;
+        left: 15px;
+        top: 25%;
+        pointer-events: none;
+        color: $color-text;
+        transition: all $transition-duration;
+    }
+
+    &__input {
+        width: 100%;
+        height: 50px;
+        border-radius: $border-radius;
+        padding: 10px 40px 10px 15px;
+        outline: none;
+        border: 2px solid $color-border;
+        transition: font-size 0s;
+
+        &:focus {
+            border-color: $color-accent;
+        }
+
+        &:focus + .authForm__label,
+        &:not(:placeholder-shown) + .authForm__label {
+            top: -10px;
+            font-size: 12px;
+            background-color: $color-background;
+            padding: 0 5px;
+        }
+
+        &:focus + .authForm__label {
+            color: $color-accent;
+        }
+
+        &:not(:placeholder-shown) + .authForm__label {
+            color: $color-text;
+        }
+
+        &[type="password"] {
+            font-size: 26px;
+            letter-spacing: 2px;
+        }
+    }
+
+    &__inputIcon {
+        position: absolute;
+        right: 10px;
+
+        &_password {
+            cursor: pointer;
+        }
+    }
+
+    &__link {
+        @include fluid-text(10, 16);
+
+        color: $color-accent;
+        margin-right: auto;
+        font-family: $font-family-base;
+
+        @include hover {
+            text-decoration: underline;
+        }
+    }
+
+    &__button {
+        padding: 5px 20px;
+    }
+
+    &__nonAccountText {
+        @include fluid-text(10, 16);
+
+        font-family: $font-family-light;
+    }
+}
