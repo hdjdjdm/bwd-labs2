@@ -31,8 +31,17 @@
       "@api/*": [
         "src/api/*"
       ],
+      "@assets/*": [
+        "src/assets/*"
+      ],
       "@components/*": [
         "src/components/*"
+      ],
+      "@dtos/*": [
+        "src/dtos/*"
+      ],
+      "@hooks/*": [
+        "src/hooks/*"
       ],
       "@pages/*": [
         "src/pages/*"
@@ -45,9 +54,6 @@
       ],
       "@utils/*": [
         "src/utils/*"
-      ],
-      "@assets/*": [
-        "src/assets/*"
       ],
     }
   },

@@ -1,0 +1,69 @@
+@use '@styles/variables' as *;
+@use '@styles/mixins' as *;
+@use '@styles/media' as *;
+
+.eventModal {
+
+    &__mainInfo {
+        display: flex;
+        justify-content: space-between;
+        gap: $block-gap-small;
+
+        @include mobile {
+            flex-direction: column;
+        }
+    }
+
+    &__title {
+    }
+
+    &__description {
+        font-family: $font-family-light;
+        border: $border-large;
+        border-radius: $border-radius;
+        resize: none;
+        padding: $block-padding-small;
+        overflow-y: auto;
+        max-height: 30lvh;
+    }
+
+    &__input {
+
+        &_title {
+            flex: 1;
+        }
+
+        &_date {
+            width: 160px;
+
+            @include mobile {
+                width: 100%;
+            }
+        }
+    }
+
+    &__deleteButtons {
+        @include fluid-text(20, 16);
+
+        display: flex;
+        justify-content: space-between;
+
+        @include mobile {
+            flex-direction: column;
+            gap: $block-gap-small;
+        }
+    }
+
+    &__button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: $block-gap-small;
+
+        &_delete {
+            @include mobile {
+                justify-content: space-between;
+            }
+        }
+    }
+}

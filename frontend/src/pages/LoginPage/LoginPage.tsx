@@ -3,10 +3,14 @@ import Header from '@components/Header/Header.tsx';
 import classNames from 'classnames';
 import React from 'react';
 import AuthForm from '@components/AuthForm/AuthForm.tsx';
+import { useNavigate } from 'react-router-dom';
 
 const LoginPage: React.FC = () => {
+    const navigate = useNavigate();
+
     const handleLogin = (email: string, password: string) => {
         console.log('Логин ', email, password);
+        navigate('/events');
     };
 
     return (

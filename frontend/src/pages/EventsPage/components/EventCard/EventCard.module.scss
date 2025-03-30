@@ -1,0 +1,66 @@
+@use '@styles/variables' as *;
+@use '@styles/mixins' as *;
+@use '@styles/media' as *;
+
+.eventCard {
+    background-color: $color-background;
+    flex: 1 1 calc(25% - $block-gap-small); //todo вынести отсюда
+    padding: 20px !important;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: $block-gap-small;
+
+    @include tablet {
+        flex: 1 1 calc(50% - $block-gap-small);
+    }
+
+    @include mobile {
+        flex: 1 1 100%;
+    }
+
+    @include hover {
+    }
+
+    &__head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    &__date {
+        @include fluid-text(22, 20);
+
+        font-family: $font-family-light;
+    }
+
+    &__info {
+        display: flex;
+        flex-direction: column;
+        gap: $block-gap-small;
+        overflow: hidden;
+    }
+
+    &__title {
+        @include fluid-text(32, 26);
+
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-wrap: nowrap;
+        border-radius: $border-radius-small;
+        padding: 0 $block-padding-small;
+
+    }
+
+    &__settingsIcon {
+        cursor: pointer;
+        filter: $svg-color-accent;
+        transition: all $transition-duration ease;
+        width: $svg-size !important;
+
+        @include hover {
+            transform: rotate(90deg);
+        }
+    }
+}

@@ -3,76 +3,32 @@
 @use '@styles/media' as *;
 
 .authForm {
-    padding: $block-padding;
+    padding: $block-padding !important;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: $block-gap-small;
     width: 500px;
+    transition: width $transition-duration ease;
+
+    @include tablet {
+        width: 400px;
+    }
+
+    @include small-mobile {
+        width: 300px;
+    }
 
     &__title {
         margin: 0;
-    }
 
-    &__field {
-        @include flex-center();
-
-        position: relative;
-        width: 100%;
-    }
-
-    &__label {
-        position: absolute;
-        z-index: 1;
-        left: 15px;
-        top: 25%;
-        pointer-events: none;
-        color: $color-text;
-        transition: all $transition-duration;
+        @include small-mobile {
+            font-size: $font-size-accent;
+        }
     }
 
     &__input {
         width: 100%;
-        height: 50px;
-        border-radius: $border-radius;
-        padding: 10px 40px 10px 15px;
-        outline: none;
-        border: 2px solid $color-border;
-        transition: font-size 0s;
-
-        &:focus {
-            border-color: $color-accent;
-        }
-
-        &:focus + .authForm__label,
-        &:not(:placeholder-shown) + .authForm__label {
-            top: -10px;
-            font-size: 12px;
-            background-color: $color-background;
-            padding: 0 5px;
-        }
-
-        &:focus + .authForm__label {
-            color: $color-accent;
-        }
-
-        &:not(:placeholder-shown) + .authForm__label {
-            color: $color-text;
-        }
-
-        &[type="password"] {
-            font-size: 26px;
-            letter-spacing: 2px;
-        }
-    }
-
-    &__inputIcon {
-        position: absolute;
-        right: 10px;
-
-        &_password {
-            cursor: pointer;
-        }
     }
 
     &__link {
@@ -88,7 +44,6 @@
     }
 
     &__button {
-        padding: 5px 20px;
     }
 
     &__nonAccountText {

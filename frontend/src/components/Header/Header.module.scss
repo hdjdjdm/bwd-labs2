@@ -3,39 +3,118 @@
 @use '@styles/media' as *;
 
 .header {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 
-  &__inner {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: $color-secondary;
+    &__inner {
+        background-color: $color-background;
+        //border-bottom: $border;
+        //border-color: $color-text-secondary;
 
-    padding: 40px 20px 20px;
+        padding: 40px 20px 10px;
 
-    @include desktop {
-      padding-top: 30px;
+        @include desktop {
+            padding-top: 30px;
+        }
+
+        @include mobile {
+            padding-top: 20px;
+        }
     }
 
-    @include mobile {
-      padding-top: 15px;
+    &__top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
-  }
 
-  &__logo {
-    color: $color-accent;
-    cursor: pointer;
-  };
+    &__logo {
+        cursor: pointer;
+        width: 250px;
+        transition: width $transition-duration ease;
 
-  &__nav {
-    display: flex;
-    gap: 20px;
-  }
+        @include tablet {
+            width: 190px;
+        }
 
-  &__navButton {
-    padding: 10px 20px;
-  }
+        &_mobile {
+            width: 150px;
+            transition: width 0s ease;
+        }
+    };
 
+    &__nav {
+        display: flex;
+        gap: $block-gap;
+        padding: $block-padding-small;
+        transition: gap $transition-duration ease;
+
+        @include tablet {
+            gap: $block-gap-small;
+        }
+
+        &_mobile {
+            padding-top: 20px;
+        }
+    }
+
+    &__navItem {
+        @include fluid-text(22, 18);
+
+        font-family: $font-family-accent;
+        color: $color-text;
+        position: relative;
+        white-space: nowrap;
+
+        @include mobile {
+            font-size: $font-size-base;
+        }
+
+        &:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            height: 2px;
+            width: 0;
+            background-color: $color-text;
+            transform: translateX(-50%);
+            transition: all $transition-duration ease;
+        }
+
+        @include hover {
+            &:after {
+                background-color: $color-accent;
+                width: 100%;
+            }
+        }
+    }
+
+    &__authButtons {
+        display: flex;
+        gap: 20px;
+
+        @include tablet {
+            gap: 10px;
+        }
+    }
+
+    &__authButton {
+        @include fluid-text(22, 16);
+
+        border: none !important;
+
+
+        @include small-mobile {
+            @include flex-center();
+
+            padding: 0 !important;
+            width: 50px;
+            aspect-ratio: 1;
+        }
+    }
+
+    &__authButtonIcon {
+    }
 }

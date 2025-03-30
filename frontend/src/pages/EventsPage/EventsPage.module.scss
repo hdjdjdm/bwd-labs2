@@ -1,1 +1,56 @@
 @use '@styles/variables' as *;
+@use '@styles/mixins' as *;
+@use '@styles/media' as *;
+
+.eventsPage {
+
+    &__inner {
+        @include flex-center();
+    }
+
+    &__categories {
+        @include flex-center();
+
+        position: sticky;
+        z-index: 25;
+        background-color: $color-light;
+        padding: $block-padding-small $block-padding;
+        gap: $block-gap-small;
+        transition: all $transition-duration ease;
+        top: 180px;
+
+        @include tablet {
+            top: 150px;
+        }
+
+        @include mobile {
+            width: 100%;
+            top: 160px;
+        }
+
+        &_scrolled {
+            background-color: $color-secondary;
+            opacity: 0.8;
+        }
+
+        @include hover {
+            opacity: 1;
+        }
+    }
+
+    &__categoriesItem {
+        @include fluid-text(24, 18);
+
+        cursor: pointer;
+        padding: 0 $container-padding-x;
+        border-radius: $border-radius-large;
+
+        &_active {
+            background-color: $color-accent;
+            color: $color-background;
+        }
+
+        @include hover {
+        }
+    }
+}

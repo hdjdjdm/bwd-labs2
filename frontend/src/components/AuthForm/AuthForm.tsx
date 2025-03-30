@@ -2,12 +2,14 @@ import styles from './AuthForm.module.scss';
 import classNames from 'classnames';
 import { useState } from 'react';
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     AccountIcon,
     AtIcon,
     EyeOffOutlineIcon,
     EyeOutlineIcon,
 } from '@assets/icons/icons.ts';
+import InputField from '@components/InputField/InputField.tsx';
 
 interface AuthFormProps {
     type: 'login' | 'register';
@@ -15,6 +17,8 @@ interface AuthFormProps {
 }
 
 const AuthForm: React.FC<AuthFormProps> = ({ type, onSubmit }) => {
+    const navigate = useNavigate();
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [username, setUsername] = useState('');
@@ -42,70 +46,45 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSubmit }) => {
                 {type === 'login' ? 'Войти в аккаунт' : 'Создать аккаунт'}
             </h2>
             {type === 'register' && (
-                <div className={styles.authForm__field}>
-                    <input
-                        className={styles.authForm__input}
+                <span className={styles.authForm__input}>
+                    <InputField
                         type="text"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
-                        placeholder=" "
+                        label="Имя пользователя"
+                        iconSrc={AccountIcon}
+                        alt="usernameFieldIcon"
                         required
                     />
-                    <label className={styles.authForm__label}>
-                        Имя пользователя
-                    </label>
-                    <img
-                        src={AccountIcon}
-                        className={classNames(
-                            styles.authForm__inputIcon,
-                            'svg-small',
-                        )}
-                        alt="usernameFieldIcon"
-                    />
-                </div>
+                </span>
             )}
-            <div className={styles.authForm__field}>
-                <input
-                    className={styles.authForm__input}
+            <span className={styles.authForm__input}>
+                <InputField
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder=" "
+                    label="Почта"
+                    iconSrc={AtIcon}
+                    alt="emailFieldIcon"
                     required
                 />
-                <label className={styles.authForm__label}>Почта</label>
-                <img
-                    src={AtIcon}
-                    className={classNames(
-                        styles.authForm__inputIcon,
-                        'svg-small',
-                    )}
-                    alt="emailFieldIcon"
-                />
-            </div>
-            <div className={styles.authForm__field}>
-                <input
-                    className={styles.authForm__input}
+            </span>
+            <span className={styles.authForm__input}>
+                <InputField
                     type={isPasswordShow ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder=" "
+                    label="Пароль"
+                    iconSrc={
+                        isPasswordShow ? EyeOutlineIcon : EyeOffOutlineIcon
+                    }
+                    alt="passwordFieldIcon"
+                    onClickIcon={() => toggleIsPasswordShow()}
                     required
                 />
-                <label className={styles.authForm__label}>Пароль</label>
-                <img
-                    src={isPasswordShow ? EyeOutlineIcon : EyeOffOutlineIcon}
-                    className={classNames(
-                        styles.authForm__inputIcon,
-                        styles.authForm__inputIcon_password,
-                        'svg-small',
-                    )}
-                    alt="passwordFieldIcon"
-                    onClick={() => toggleIsPasswordShow()}
-                />
-            </div>
+            </span>
             {type === 'login' && (
-                <a className={styles.authForm__link}>Забыли пароль?</a>
+                <a className={styles.authForm__link}>Забыли пароль?</a> //todo И это печально (˘･_･˘)
             )}
             <button
                 className={classNames(
@@ -118,10 +97,24 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSubmit }) => {
                 {type === 'register' ? 'Зарегистрироваться' : 'Войти'}
             </button>
 
+            {type === 'register' && (
+                <span className={styles.authForm__nonAccountText}>
+                    Уже есть аккаунт?{' '}
+                    <a
+                        className={styles.authForm__link}
+                        onClick={() => navigate('/login')}
+                    >
+                        Войти
+                    </a>
+                </span>
+            )}
             {type === 'login' && (
                 <span className={styles.authForm__nonAccountText}>
                     Нет аккаунта?{' '}
-                    <a className={styles.authForm__link} href={'/register'}>
+                    <a
+                        className={styles.authForm__link}
+                        onClick={() => navigate('/register')}
+                    >
                         Создать
                     </a>
                 </span>

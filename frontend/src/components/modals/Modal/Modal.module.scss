@@ -1,0 +1,48 @@
+@use '@styles/variables' as *;
+@use '@styles/mixins' as *;
+@use '@styles/media' as *;
+
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: $border;
+    background-color: $color-background;
+    width: 800px;
+    transition: width $transition-duration ease;
+
+    @include  tablet {
+        width: 500px;
+    }
+
+    @include mobile {
+        width: 300px;
+    }
+
+    &__inner {
+        display: flex;
+        flex-direction: column;
+        gap: $block-gap-small;
+    }
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &__title {
+
+    }
+
+    &__closeButton {
+        @include square(30);
+    }
+
+    &__content {
+        display: flex;
+        flex-direction: column;
+        gap: $block-gap-small;
+    }
+}

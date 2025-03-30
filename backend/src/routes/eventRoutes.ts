@@ -7,7 +7,7 @@ const router: Router = Router();
 /**
  * @swagger
  * tags:
- *   name: Events
+ *   name: EventsPage
  *   description: API for managing events
  */
 
@@ -16,7 +16,7 @@ const router: Router = Router();
  * /events:
  *   get:
  *     summary: Get all events
- *     tags: [Events]
+ *     tags: [EventsPage]
  *     parameters:
  *       - in: query
  *         name: withDeleted
@@ -41,7 +41,7 @@ router.get('/', EventController.getAllEvents);
  * /events:
  *   post:
  *     summary: Create a new event
- *     tags: [Events]
+ *     tags: [EventsPage]
  *     requestBody:
  *       required: true
  *       content:
@@ -70,7 +70,7 @@ router.post('/', jwtAuthMiddleware, EventController.createEvent);
  * /events/{id}:
  *   get:
  *     summary: Get an event by ID
- *     tags: [Events]
+ *     tags: [EventsPage]
  *     parameters:
  *       - in: path
  *         name: id
@@ -93,7 +93,7 @@ router.get('/:id', jwtAuthMiddleware, EventController.getEvent);
  * /events/{id}:
  *   put:
  *     summary: Update an event
- *     tags: [Events]
+ *     tags: [EventsPage]
  *     parameters:
  *       - in: path
  *         name: id
@@ -128,7 +128,7 @@ router.put('/:id', jwtAuthMiddleware, EventController.updateEvent);
  * /events/{id}:
  *   delete:
  *     summary: Soft delete an event
- *     tags: [Events]
+ *     tags: [EventsPage]
  *     parameters:
  *       - in: path
  *         name: id
@@ -151,7 +151,7 @@ router.delete('/:id', jwtAuthMiddleware, EventController.deleteEvent);
  * /events/{id}/restore:
  *   patch:
  *     summary: Restore a soft-deleted event
- *     tags: [Events]
+ *     tags: [EventsPage]
  *     parameters:
  *       - in: path
  *         name: id

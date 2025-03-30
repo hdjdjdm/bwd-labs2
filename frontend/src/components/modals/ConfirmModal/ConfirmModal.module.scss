@@ -1,0 +1,51 @@
+@use '@styles/variables' as *;
+@use '@styles/mixins' as *;
+@use '@styles/media' as *;
+
+.confirmModal {
+
+    &__inner {
+        display: flex;
+        flex-direction: column;
+        gap: $block-gap-small;
+    }
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &__modalTitle {
+
+    }
+
+    &__closeButton {
+        @include square(30);
+    }
+
+    &__buttons {
+        @include fluid-text(20, 16);
+
+        display: flex;
+        justify-content: space-evenly;
+
+        @include mobile {
+            flex-direction: column;
+            gap: $block-gap-small;
+        }
+    }
+
+    &__button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: $block-gap-small;
+
+        &_delete {
+            @include mobile {
+                justify-content: space-between;
+            }
+        }
+    }
+}
