@@ -3,7 +3,7 @@ import React, { ReactNode, RefObject } from 'react';
 import useClickOutside from '@/hooks/useClickOutside.tsx';
 import classNames from 'classnames';
 import { createPortal } from 'react-dom';
-import { CloseIcon } from '@assets/icons/icons.ts';
+import { CloseIcon } from '@assets/icons';
 import { useEscapeKey } from '@hooks/useEscapeKey.tsx';
 
 interface ModalProps {

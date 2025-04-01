@@ -4,7 +4,7 @@
 
 .eventCard {
     background-color: $color-background;
-    flex: 1 1 calc(25% - $block-gap-small); //todo вынести отсюда
+    width: calc(25% - $block-gap-small);
     padding: 20px !important;
     position: relative;
     overflow: hidden;
@@ -13,11 +13,11 @@
     gap: $block-gap-small;
 
     @include tablet {
-        flex: 1 1 calc(50% - $block-gap-small);
+        width: calc(50% - $block-gap-small);
     }
 
     @include mobile {
-        flex: 1 1 100%;
+        width: 100%;
     }
 
     @include hover {

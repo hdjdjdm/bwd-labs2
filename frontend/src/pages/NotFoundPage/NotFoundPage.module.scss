@@ -11,7 +11,7 @@
     }
 
     &__image {
-        @include avatar(300);
+        @include rounded(300);
 
         margin-bottom: $block-gap-small;
         aspect-ratio: 1;

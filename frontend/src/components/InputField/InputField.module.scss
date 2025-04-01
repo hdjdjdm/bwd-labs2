@@ -26,6 +26,7 @@
         outline: none;
         border: $border-large;
         transition: all $transition-duration ease, font-size 0s;
+        cursor: text;
 
         &_withIcon {
             padding-right: 40px;

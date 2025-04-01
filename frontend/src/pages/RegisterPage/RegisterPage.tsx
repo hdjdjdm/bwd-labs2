@@ -2,13 +2,22 @@ import styles from './RegisterPage.module.scss';
 import Header from '@components/Header/Header.tsx';
 import classNames from 'classnames';
 import AuthForm from '@components/AuthForm/AuthForm.tsx';
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { register } from '@api/authService.ts';
 import { showCustomToast } from '@utils/customToastUtils.ts';
+import { AuthContext } from '@contexts/AuthContext.tsx';
+import { parseError } from '@utils/errorUtils.ts';
 
 const RegisterPage: React.FC = () => {
     const navigate = useNavigate();
+    const { user } = useContext(AuthContext)!;
+
+    useEffect(() => {
+        if (user) {
+            navigate('/events');
+        }
+    }, [navigate, user]);
 
     const handleRegister = async (
         email: string,
@@ -21,26 +30,20 @@ const RegisterPage: React.FC = () => {
             if (result.status === 201) {
                 showCustomToast(
                     result.message,
-                    result.status.toString(),
                     'success',
+                    result.status.toString(),
                 );
                 navigate('/login');
             } else {
                 showCustomToast(
                     result.message,
-                    result.status.toString(),
                     'warning',
+                    result.status.toString(),
                 );
             }
         } catch (e: unknown) {
-            let errorMessage = 'Registration failed';
-            let errorStatus = '500';
-            if (e instanceof Error) {
-                const parsedError = JSON.parse(e.message);
-                errorMessage = parsedError.errorMessage || errorMessage;
-                errorStatus = parsedError.status || errorStatus;
-            }
-            showCustomToast(errorMessage, errorStatus, 'error');
+            const { status, errorMessage } = parseError(e);
+            showCustomToast(errorMessage, 'error', status.toString());
         }
     };
 

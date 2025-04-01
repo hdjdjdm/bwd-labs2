@@ -14,3 +14,4 @@ export { default as CloseIcon } from './close.svg';
 export { default as AccountLockIcon } from './account-lock.svg';
 export { default as AccountLockOpenIcon } from './account-lock-open.svg';
 export { default as ExitRunIcon } from './exit-run.svg';
+export { default as PlusIcon } from './plus.svg';

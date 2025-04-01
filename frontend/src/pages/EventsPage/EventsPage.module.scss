@@ -53,4 +53,19 @@
         @include hover {
         }
     }
+
+    &__addEventButton {
+        @include rounded(60);
+        @include flex-center();
+
+        position: fixed;
+        bottom: 50px;
+        left: 50px;
+        padding: 0 !important;
+        z-index: 50;
+    }
+
+    &__addEventIcon {
+
+    }
 }

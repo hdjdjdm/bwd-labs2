@@ -1,6 +1,6 @@
-import { AxiosError } from 'axios';
 import { baseApi } from '@api/axios.ts';
 import { LoginResponse, RegisterResponse } from '@/types';
+import { parseError } from '@utils/errorUtils.ts';
 
 export const login = async (
     email: string,
@@ -13,15 +13,8 @@ export const login = async (
         });
 
         return data;
-    } catch (error: unknown) {
-        if (error instanceof AxiosError) {
-            const errorMessage = error.response?.data?.error || 'Auth error';
-            const status = error.response?.status;
-            throw new Error(JSON.stringify({ status, errorMessage }));
-        }
-        throw new Error(
-            JSON.stringify({ status: 500, errorMessage: 'Unknown error' }),
-        );
+    } catch (e: unknown) {
+        throw parseError(e);
     }
 };
 
@@ -40,16 +33,7 @@ export const register = async (
         const message = data.message;
 
         return { status, message };
-    } catch (error: unknown) {
-        if (error instanceof AxiosError) {
-            //todo error util
-            const errorMessage =
-                error.response?.data?.error || 'Register error';
-            const status = error.response?.status;
-            throw new Error(JSON.stringify({ status, errorMessage }));
-        }
-        throw new Error(
-            JSON.stringify({ status: 500, errorMessage: 'Unknown error' }),
-        );
+    } catch (e: unknown) {
+        throw parseError(e);
     }
 };

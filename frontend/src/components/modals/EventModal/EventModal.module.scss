@@ -3,6 +3,15 @@
 @use '@styles/media' as *;
 
 .eventModal {
+    width: 800px;
+
+    @include  tablet {
+        width: 500px;
+    }
+
+    @include mobile {
+        width: 90%;
+    }
 
     &__mainInfo {
         display: flex;
@@ -50,6 +59,7 @@
 
         display: flex;
         justify-content: space-between;
+        gap: $block-gap-small;
 
         @include small-mobile {
             flex-direction: column;

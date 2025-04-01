@@ -9,7 +9,7 @@ import {
     AtIcon,
     EyeOffOutlineIcon,
     EyeOutlineIcon,
-} from '@assets/icons/icons.ts';
+} from '@assets/icons';
 import { showCustomToast } from '@utils/customToastUtils.ts';
 
 type AuthFormProps =

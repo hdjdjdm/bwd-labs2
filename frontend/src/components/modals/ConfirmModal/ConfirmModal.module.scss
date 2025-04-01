@@ -3,34 +3,12 @@
 @use '@styles/media' as *;
 
 .confirmModal {
-    width: 600px;
-
-    @include  tablet {
-        width: 400px;
-    }
 
     @include mobile {
         width: 80%;
     }
 
     &__inner {
-        display: flex;
-        flex-direction: column;
-        gap: $block-gap-small;
-    }
-
-    &__header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    &__modalTitle {
-
-    }
-
-    &__closeButton {
-        @include square(30);
     }
 
     &__buttons {

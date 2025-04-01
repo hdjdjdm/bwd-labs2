@@ -17,6 +17,7 @@
             "@models/*": ["models/*"],
             "@routes/*": ["routes/*"],
             "@services/*": ["services/*"],
+            "@types/*": ["types/*"],
             "@utils/*": ["utils/*"]
         },
         "resolveJsonModule": true,

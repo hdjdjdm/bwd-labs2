@@ -8,10 +8,10 @@ import { ErrorCodes } from '@constants/Errors.js';
 
 class EventController {
     async createEvent(req: Request, res: Response, next: NextFunction): Promise<void> {
-        const { title, description, date, createdBy } = req.body as EventDTO;
+        const { title, description, date } = req.body as EventDTO;
 
-        if (!title || !createdBy) {
-            return next(new CustomError(ErrorCodes.BadRequest, 'Title and creator are required'));
+        if (!title) {
+            return next(new CustomError(ErrorCodes.BadRequest, 'Title are required'));
         }
 
         const eventDate = date ? new Date(date) : undefined;
@@ -19,15 +19,11 @@ class EventController {
             return next(new CustomError(ErrorCodes.BadRequest, 'Invalid date format'));
         }
 
-        EventController.validateEventData({ title, description, createdBy, date: eventDate });
+        EventController.validateEventData({ title, description, date: eventDate });
 
-        const user = await User.findOne({
-            where: {
-                id: createdBy,
-            },
-        });
-
-        if (!user) {
+        const user = req.user as User;
+        const createdBy = user.id;
+        if (!createdBy) {
             return next(new CustomError(ErrorCodes.BadRequest, `User with the ID ${createdBy} not found`));
         }
 
@@ -159,16 +155,16 @@ class EventController {
         }
 
         if (typeof data.description === 'string') {
-            if (data.description.trim() === '') {
-                throw new CustomError(ErrorCodes.BadRequest, 'Description must not be empty.');
-            }
             data.description = data.description.trim();
         }
 
         if (data.date !== undefined) {
-            if (isNaN(data.date.getTime())) {
+            const parsedDate = new Date(data.date);
+
+            if (isNaN(parsedDate.getTime())) {
                 throw new CustomError(ErrorCodes.BadRequest, 'Invalid date format.');
             }
+            data.date = parsedDate;
         }
     }
 }

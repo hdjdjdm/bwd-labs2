@@ -39,15 +39,15 @@ h3 {
 }
 
 h4 {
-    @include fluid-text(20, 24);
+    @include fluid-text(24, 20);
 }
 
 h5 {
-    @include fluid-text(14, 18);
+    @include fluid-text(18, 14);
 }
 
 h6 {
-    @include fluid-text(10, 12);
+    @include fluid-text(12, 10);
 }
 
 a {

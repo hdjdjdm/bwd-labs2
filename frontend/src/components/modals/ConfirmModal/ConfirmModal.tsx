@@ -20,18 +20,15 @@ const ConfirmModal = ({
     onClose,
     anchorRef,
     onAccept,
-    afterChoice,
     itemName,
     prefix = 'Удалить',
 }: ConfirmModalProps) => {
     function handleConfirm() {
         onAccept();
-        afterChoice?.();
         onClose();
     }
 
     function handleCancel() {
-        afterChoice?.();
         onClose();
     }
 

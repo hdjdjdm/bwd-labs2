@@ -17,6 +17,7 @@
     padding: 0;
     background-color: transparent;
     border: none;
+    border-radius: 0;
 }
 
 @mixin flex-center($isInline: false) {
@@ -42,11 +43,10 @@
     aspect-ratio: 1;
 }
 
-@mixin avatar($size) {
+@mixin rounded($size) {
     @include square($size);
 
-    border-radius: 50%;
-    border: $border;
+    border-radius: 50% !important;
 }
 
 @mixin hide {

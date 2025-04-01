@@ -7,11 +7,18 @@ import {
     LoginIcon,
     LogoIcon,
     LogoMobileIcon,
-} from '@assets/icons/icons.ts';
-import { useContext, useEffect } from 'react';
+} from '@assets/icons';
+import { useContext, useRef, useState } from 'react';
 import { AuthContext } from '@/contexts/AuthContext.tsx';
+import ConfirmModal from '@components/modals/ConfirmModal/ConfirmModal.tsx';
+import NavMenu from '@components/Header/components/NavMenu/NavMenu.tsx';
+import useIsScrolled from '@hooks/useIsScrolled.tsx';
 
 const Header = () => {
+    const isScrolled = useIsScrolled();
+    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+    const logoutButtonRef = useRef<HTMLButtonElement>(null);
+
     const navigate = useNavigate();
     const auth = useContext(AuthContext);
     if (!auth) {
@@ -20,10 +27,17 @@ const Header = () => {
 
     const { user, logout } = auth;
 
-    useEffect(() => {}, [user]);
+    const toggleConfirmModal = () => {
+        setIsConfirmModalOpen(!isConfirmModalOpen);
+    };
 
     return (
-        <header className={styles.header}>
+        <header
+            className={classNames(
+                styles.header,
+                isScrolled && styles.header_scrolled,
+            )}
+        >
             <div className={classNames(styles.header__inner, 'container')}>
                 <div className={styles.header__top}>
                     <img
@@ -45,39 +59,16 @@ const Header = () => {
                         )}
                         onClick={() => navigate('/')}
                     />
-                    <nav
-                        className={classNames(
-                            styles.header__nav,
-                            'hidden-mobile',
-                        )}
-                    >
-                        <a
-                            className={styles.header__navItem}
-                            onClick={() => navigate('/')}
-                        >
-                            Главная
-                        </a>
-                        <a
-                            className={styles.header__navItem}
-                            onClick={() => navigate('/events')}
-                        >
-                            События
-                        </a>
-                        <a
-                            className={styles.header__navItem}
-                            onClick={() => navigate('/about')}
-                        >
-                            О нас
-                        </a>
-                    </nav>
+                    <NavMenu />
                     <div className={styles.header__buttons}>
                         {user ? (
                             <>
-                                <span className={styles.header__username}>
+                                <h3 className={styles.header__username}>
                                     {user.username}
-                                </span>
+                                </h3>
                                 <button
-                                    onClick={logout}
+                                    ref={logoutButtonRef}
+                                    onClick={toggleConfirmModal}
                                     className={classNames(
                                         styles.header__button,
                                         'button',
@@ -160,33 +151,19 @@ const Header = () => {
                         )}
                     </div>
                 </div>
-                <nav
-                    className={classNames(
-                        styles.header__nav,
-                        styles.header__nav_mobile,
-                        'visible-mobile',
-                    )}
-                >
-                    <a
-                        className={styles.header__navItem}
-                        onClick={() => navigate('/')}
-                    >
-                        Главная
-                    </a>
-                    <a
-                        className={styles.header__navItem}
-                        onClick={() => navigate('/events')}
-                    >
-                        События
-                    </a>
-                    <a
-                        className={styles.header__navItem}
-                        onClick={() => navigate('/about')}
-                    >
-                        О нас
-                    </a>
-                </nav>
+                <NavMenu mobile={true} />
             </div>
+
+            {isConfirmModalOpen && (
+                <ConfirmModal
+                    isOpen={isConfirmModalOpen}
+                    onClose={toggleConfirmModal}
+                    anchorRef={logoutButtonRef}
+                    onAccept={logout}
+                    itemName={user!.username}
+                    prefix={'Выйти из аккаунта'}
+                />
+            )}
         </header>
     );
 };

@@ -6,6 +6,11 @@
     position: sticky;
     top: 0;
     z-index: 1000;
+    transition: opacity $transition-duration ease;
+
+    &_scrolled {
+        opacity: 0.95;
+    }
 
     &__inner {
         background-color: $color-background;
@@ -44,50 +49,23 @@
         }
     };
 
-    &__nav {
-        display: flex;
-        gap: $block-gap;
-        padding: $block-padding-small;
-        transition: gap $transition-duration ease;
+    &__username {
+        font-family: $font-family-accent;
+        color: $color-accent;
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
 
         @include tablet {
-            gap: $block-gap-small;
+            @include fluid-text(24, 20);
+
+            max-width: 150px;
         }
 
-        &_mobile {
-            padding-top: 20px;
-        }
-    }
+        @include small-mobile {
+            @include fluid-text(20, 18);
 
-    &__navItem {
-        @include fluid-text(22, 18);
-
-        font-family: $font-family-accent;
-        color: $color-text;
-        position: relative;
-        white-space: nowrap;
-
-        @include mobile {
-            font-size: $font-size-base;
-        }
-
-        &:after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            height: 2px;
-            width: 0;
-            background-color: $color-text;
-            transform: translateX(-50%);
-            transition: all $transition-duration ease;
-        }
-
-        @include hover {
-            &:after {
-                background-color: $color-accent;
-                width: 100%;
-            }
+            max-width: 80px;
         }
     }
 
@@ -99,11 +77,14 @@
         @include tablet {
             gap: 10px;
         }
+
+        @include mobile {
+            gap: 3px;
+        }
     }
 
     &__button {
         @include fluid-text(22, 16);
-
 
         @include small-mobile {
             @include flex-center();

@@ -6,7 +6,7 @@ import {
     AccountLockOpenIcon,
     DeleteAlertIcon,
     DeleteIcon,
-} from '@assets/icons/icons.ts';
+} from '@assets/icons';
 import InputField from '@components/InputField/InputField.tsx';
 import { useAutoResizeTextarea } from '@/hooks/useAutoResizeTextarea.tsx';
 import { EventDto } from '@/dtos';
@@ -17,9 +17,16 @@ interface ModalProps {
     isOpen: boolean;
     onClose: () => void;
     anchorRef: React.RefObject<HTMLElement | null>;
-    event: EventDto;
-    toggleConfirmModal: () => void;
-    confirmModalButtonRef: React.RefObject<HTMLButtonElement | null>;
+    event?: EventDto;
+    toggleConfirmModal?: () => void;
+    confirmModalButtonRef?: React.RefObject<HTMLButtonElement | null>;
+    isCreateMode?: boolean;
+    onSave: (
+        title: string,
+        description: string,
+        date: Date,
+        id?: number,
+    ) => void;
 }
 
 const EventModal: React.FC<ModalProps> = ({
@@ -29,10 +36,12 @@ const EventModal: React.FC<ModalProps> = ({
     event,
     toggleConfirmModal,
     confirmModalButtonRef,
+    isCreateMode = false,
+    onSave,
 }) => {
-    const [title, setTitle] = useState(event.title);
-    const [description, setDescription] = useState(event.description ?? '');
-    const [date, setDate] = useState(event.date ?? new Date());
+    const [title, setTitle] = useState(event?.title ?? '');
+    const [description, setDescription] = useState(event?.description ?? '');
+    const [date, setDate] = useState(event?.date ?? new Date());
     const [isPublic, setIsPublic] = useState<boolean>(false);
 
     const textareaRef = useAutoResizeTextarea(description);
@@ -41,12 +50,17 @@ const EventModal: React.FC<ModalProps> = ({
         setIsPublic(checked);
     };
 
+    const handleSave = () => {
+        onSave(title, description, date, event?.id);
+        onClose();
+    };
+
     return (
         <>
             <Modal
                 isOpen={isOpen}
                 onClose={onClose}
-                title={event.title}
+                title={isCreateMode ? 'Добавить событие' : event!.title}
                 anchorRef={anchorRef}
             >
                 <div className={styles.eventModal__mainInfo}>
@@ -72,7 +86,7 @@ const EventModal: React.FC<ModalProps> = ({
                     >
                         <InputField
                             type="date"
-                            value={date}
+                            value={new Date(date)}
                             onChange={(e) => setDate(new Date(e.target.value))}
                             label="Дата"
                             required
@@ -84,6 +98,7 @@ const EventModal: React.FC<ModalProps> = ({
                     ref={textareaRef}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
+                    placeholder={'Описание'}
                 />
                 <span className={styles.eventModal__publicSwitch}>
                     Публичное
@@ -94,48 +109,51 @@ const EventModal: React.FC<ModalProps> = ({
                         nonCheckedIcon={AccountLockIcon}
                     />
                 </span>
-                <div className={styles.eventModal__deleteButtons}>
-                    <button
-                        ref={confirmModalButtonRef}
-                        onClick={() => toggleConfirmModal()}
-                        className={classNames(
-                            styles.eventModal__button_delete,
-                            styles.eventModal__button,
-                            'button',
-                        )}
-                    >
-                        Удалить
-                        <img
-                            src={DeleteIcon}
-                            alt="softDeleteIcon"
-                            className="svg-small"
-                        />
-                    </button>
-                    <button
-                        ref={confirmModalButtonRef}
-                        onClick={() => toggleConfirmModal()}
-                        className={classNames(
-                            styles.eventModal__button,
-                            styles.eventModal__button_delete,
-                            'button',
-                        )}
-                    >
-                        Удалить навсегда
-                        <img
-                            src={DeleteAlertIcon}
-                            alt="hardDeleteIcon"
-                            className="svg-small"
-                        />
-                    </button>
-                </div>
+                {!isCreateMode && (
+                    <div className={styles.eventModal__deleteButtons}>
+                        <button
+                            ref={confirmModalButtonRef}
+                            onClick={() => toggleConfirmModal!()}
+                            className={classNames(
+                                styles.eventModal__button_delete,
+                                styles.eventModal__button,
+                                'button',
+                            )}
+                        >
+                            Удалить
+                            <img
+                                src={DeleteIcon}
+                                alt="softDeleteIcon"
+                                className="svg-small"
+                            />
+                        </button>
+                        <button
+                            ref={confirmModalButtonRef}
+                            onClick={() => toggleConfirmModal!()}
+                            className={classNames(
+                                styles.eventModal__button,
+                                styles.eventModal__button_delete,
+                                'button',
+                            )}
+                        >
+                            Удалить навсегда
+                            <img
+                                src={DeleteAlertIcon}
+                                alt="hardDeleteIcon"
+                                className="svg-small"
+                            />
+                        </button>
+                    </div>
+                )}
                 <button
                     className={classNames(
                         styles.eventModal__button,
                         'button',
                         'button_accent',
                     )}
+                    onClick={handleSave}
                 >
-                    Сохранить
+                    {isCreateMode ? 'Добавить' : 'Сохранить'}
                 </button>
             </Modal>
         </>

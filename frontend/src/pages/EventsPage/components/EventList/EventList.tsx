@@ -2,73 +2,34 @@ import styles from './EventList.module.scss';
 import EventCard from '@pages/EventsPage/components/EventCard/EventCard.tsx';
 import classNames from 'classnames';
 import { EventDto } from '@/dtos';
+import React from 'react';
 
-const events: EventDto[] = [
-    {
-        id: 1,
-        title: 'Конференция по React',
-        description: 'Обсуждение новых возможностей React 19',
-        date: new Date('2025-04-10'),
-        createdBy: 1,
-    },
-    {
-        id: 2,
-        title: 'Встреча TypeScript разработчиков',
-        description: 'Обсуждение лучших практик использования TypeScript',
-        date: new Date('2025-04-15'),
-        createdBy: 1,
-    },
-    {
-        id: 3,
-        title: 'Хакатон AI Solutions',
-        description: 'Создание AI-проектов за 48 часов',
-        date: new Date('2025-04-20'),
-        createdBy: 1,
-    },
-    {
-        id: 4,
-        title: 'Онлайн-лекция по OMNeT++',
-        description: 'Основы моделирования сетей в OMNeT++',
-        date: new Date('2025-04-25'),
-        createdBy: 1,
-    },
-    {
-        id: 5,
-        title: 'Курс по SCSS',
-        description: 'Глубокое погружение в мир стилей с использованием SCSS',
-        date: new Date('2025-05-02'),
-        createdBy: 1,
-    },
-    {
-        id: 6,
-        title: 'Мастер-класс по Docker',
-        description: 'Создание контейнеризированных приложений',
-        date: new Date('2025-05-05'),
-        createdBy: 1,
-    },
-    {
-        id: 7,
-        title: 'Практикум по GraphQL',
-        description: 'Работа с API с использованием GraphQL',
-        date: new Date('2025-05-10'),
-        createdBy: 1,
-    },
-    {
-        id: 8,
-        title: 'Форум по кибербезопасности',
-        description: 'Обсуждение современных угроз и методов защиты',
-        date: new Date('2025-05-20'),
-        createdBy: 1,
-    },
-];
+interface EventListProps {
+    events: EventDto[];
+    onUpdate: (updatedEvent: EventDto) => void;
+    onDelete: (id: number) => void;
+}
 
 //todo сортировка по датам
-const EventList = () => {
+const EventList: React.FC<EventListProps> = ({
+    events,
+    onUpdate,
+    onDelete,
+}) => {
     return (
         <ul className={classNames(styles.eventList, 'container', 'block')}>
-            {events.map((event) => (
-                <EventCard key={event.id} event={event} />
-            ))}
+            {events.length > 0 ? (
+                events?.map((event) => (
+                    <EventCard
+                        key={event.id}
+                        event={event}
+                        onUpdate={onUpdate}
+                        onDelete={onDelete}
+                    />
+                ))
+            ) : (
+                <p>Нет событий:(</p>
+            )}
         </ul>
     );
 };

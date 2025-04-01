@@ -9,16 +9,7 @@
     transform: translate(-50%, -50%);
     border: $border;
     background-color: $color-background;
-    width: 800px;
     transition: width $transition-duration ease;
-
-    @include  tablet {
-        width: 500px;
-    }
-
-    @include mobile {
-        width: 90%;
-    }
 
     &__inner {
         display: flex;
@@ -45,6 +36,8 @@
 
     &__closeButton {
         @include square(30);
+
+        cursor: pointer;
     }
 
     &__content {

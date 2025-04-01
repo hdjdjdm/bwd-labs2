@@ -108,5 +108,5 @@
 }
 
 .avatar {
-    @include avatar(45);
+    @include rounded(45);
 }

@@ -1,16 +1,23 @@
 import styles from './LoginPage.module.scss';
 import Header from '@components/Header/Header.tsx';
 import classNames from 'classnames';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import AuthForm from '@components/AuthForm/AuthForm.tsx';
 import { useNavigate } from 'react-router-dom';
 import { login as apiLogin } from '@api/authService.ts';
 import { AuthContext } from '@contexts/AuthContext.tsx';
 import { showCustomToast } from '@utils/customToastUtils.ts';
+import { parseError } from '@utils/errorUtils.ts';
 
 const LoginPage: React.FC = () => {
     const navigate = useNavigate();
-    const { login } = useContext(AuthContext)!;
+    const { user, login } = useContext(AuthContext)!;
+
+    useEffect(() => {
+        if (user) {
+            navigate('/events');
+        }
+    }, [user]);
 
     const handleLogin = async (email: string, password: string) => {
         try {
@@ -19,18 +26,12 @@ const LoginPage: React.FC = () => {
                 password,
             );
             login(username, token);
-            showCustomToast(message, '200', 'success');
+            showCustomToast(message, 'success', '200');
 
             navigate('/events');
         } catch (e: unknown) {
-            let errorMessage = 'Login failed';
-            let errorStatus = '500';
-            if (e instanceof Error) {
-                const parsedError = JSON.parse(e.message);
-                errorMessage = parsedError.errorMessage || errorMessage;
-                errorStatus = parsedError.status || errorStatus;
-            }
-            showCustomToast(errorMessage, errorStatus, 'error'); //todo сделать красоту
+            const { status, errorMessage } = parseError(e);
+            showCustomToast(errorMessage, 'error', status.toString());
         }
     };
 
