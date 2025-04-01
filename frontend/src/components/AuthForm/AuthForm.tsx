@@ -3,18 +3,21 @@ import classNames from 'classnames';
 import { useState } from 'react';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import InputField from '@components/InputField/InputField.tsx';
 import {
     AccountIcon,
     AtIcon,
     EyeOffOutlineIcon,
     EyeOutlineIcon,
 } from '@assets/icons/icons.ts';
-import InputField from '@components/InputField/InputField.tsx';
+import { showCustomToast } from '@utils/customToastUtils.ts';
 
-interface AuthFormProps {
-    type: 'login' | 'register';
-    onSubmit: (email: string, password: string, username?: string) => void;
-}
+type AuthFormProps =
+    | { type: 'login'; onSubmit: (email: string, password: string) => void }
+    | {
+          type: 'register';
+          onSubmit: (email: string, password: string, username: string) => void;
+      };
 
 const AuthForm: React.FC<AuthFormProps> = ({ type, onSubmit }) => {
     const navigate = useNavigate();
@@ -28,8 +31,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSubmit }) => {
         setIsPasswordShow((prev) => !prev);
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
         if (type === 'register') {
             onSubmit(email, password, username);
         } else {
@@ -84,7 +88,12 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSubmit }) => {
                 />
             </span>
             {type === 'login' && (
-                <a className={styles.authForm__link}>Забыли пароль?</a> //todo И это печально (˘･_･˘)
+                <a
+                    onClick={() => showCustomToast('И это печально (˘･_･˘)')}
+                    className={styles.authForm__link}
+                >
+                    Забыли пароль?
+                </a>
             )}
             <button
                 className={classNames(

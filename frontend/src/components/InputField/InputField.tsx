@@ -41,6 +41,7 @@ const InputField: React.FC<InputFieldProps> = ({
                 value={inputValue as string}
                 onChange={onChange}
                 placeholder={placeholder}
+                minLength={type === 'password' ? 6 : 3}
                 required={required}
             />
             <label className={styles.inputField__label}>{label}</label>

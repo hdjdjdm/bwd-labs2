@@ -23,8 +23,6 @@ const ConfirmModal = ({
     afterChoice,
     itemName,
     prefix = 'Удалить',
-    modalClassName,
-    zIndex,
 }: ConfirmModalProps) => {
     function handleConfirm() {
         onAccept();
@@ -44,8 +42,7 @@ const ConfirmModal = ({
                 onClose={onClose}
                 title={'Подтверждение'}
                 anchorRef={anchorRef}
-                modalClassName={modalClassName}
-                zIndex={zIndex}
+                modalClassName={styles.confirmModal}
             >
                 <span className={styles.confirmModal__text}>
                     <span className={styles.confirmModal__prefix}>

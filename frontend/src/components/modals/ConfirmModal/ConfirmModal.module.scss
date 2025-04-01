@@ -3,6 +3,15 @@
 @use '@styles/media' as *;
 
 .confirmModal {
+    width: 600px;
+
+    @include  tablet {
+        width: 400px;
+    }
+
+    @include mobile {
+        width: 80%;
+    }
 
     &__inner {
         display: flex;

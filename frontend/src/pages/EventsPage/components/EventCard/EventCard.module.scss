@@ -43,14 +43,30 @@
     }
 
     &__title {
-        @include fluid-text(32, 26);
+        @include fluid-text(22, 18);
 
-        overflow: hidden;
-        text-overflow: ellipsis;
-        text-wrap: nowrap;
         border-radius: $border-radius-small;
         padding: 0 $block-padding-small;
 
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        @include tablet-above {
+            height: 3em;
+            word-break: break-word;
+            white-space: normal;
+        }
+
+        @include tablet {
+            @include fluid-text(26, 20);
+        }
+
+        @include mobile {
+            max-height: 3em;
+            word-break: break-word;
+            white-space: normal;
+        }
     }
 
     &__settingsIcon {

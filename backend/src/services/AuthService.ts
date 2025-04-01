@@ -18,7 +18,7 @@ class AuthService {
         return { user, token };
     }
 
-    async loginUser(email: string, password: string): Promise<string> {
+    async loginUser(email: string, password: string): Promise<{ user: User; token: string }> {
         const user = await User.findOne({
             where: { email },
         });
@@ -32,7 +32,8 @@ class AuthService {
             throw new CustomError(ErrorCodes.BadRequest, 'Invalid password.');
         }
 
-        return AuthService.generateToken(user);
+        const token = AuthService.generateToken(user);
+        return { user, token };
     }
 
     private static generateToken(user: User): string {

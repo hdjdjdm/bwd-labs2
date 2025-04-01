@@ -37,6 +37,12 @@
       "@components/*": [
         "src/components/*"
       ],
+      "@constants/*": [
+        "src/constants/*"
+      ],
+      "@contexts/*": [
+        "src/contexts/*"
+      ],
       "@dtos/*": [
         "src/dtos/*"
       ],

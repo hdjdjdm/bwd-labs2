@@ -14,9 +14,6 @@
         }
     }
 
-    &__title {
-    }
-
     &__description {
         font-family: $font-family-light;
         border: $border-large;
@@ -42,13 +39,19 @@
         }
     }
 
+    &__publicSwitch {
+        display: flex;
+        align-items: center;
+        gap: $block-padding-small;
+    }
+
     &__deleteButtons {
         @include fluid-text(20, 16);
 
         display: flex;
         justify-content: space-between;
 
-        @include mobile {
+        @include small-mobile {
             flex-direction: column;
             gap: $block-gap-small;
         }
@@ -61,7 +64,7 @@
         gap: $block-gap-small;
 
         &_delete {
-            @include mobile {
+            @include small-mobile {
                 justify-content: space-between;
             }
         }

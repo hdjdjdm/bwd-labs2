@@ -4,17 +4,44 @@ import classNames from 'classnames';
 import AuthForm from '@components/AuthForm/AuthForm.tsx';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { register } from '@api/authService.ts';
+import { showCustomToast } from '@utils/customToastUtils.ts';
 
 const RegisterPage: React.FC = () => {
     const navigate = useNavigate();
 
-    const handleRegister = (
+    const handleRegister = async (
         email: string,
         password: string,
-        username?: string,
+        username: string,
     ) => {
-        console.log('Регистрация ', email, password, username);
-        navigate('/events');
+        try {
+            const result = await register(email, password, username);
+
+            if (result.status === 201) {
+                showCustomToast(
+                    result.message,
+                    result.status.toString(),
+                    'success',
+                );
+                navigate('/login');
+            } else {
+                showCustomToast(
+                    result.message,
+                    result.status.toString(),
+                    'warning',
+                );
+            }
+        } catch (e: unknown) {
+            let errorMessage = 'Registration failed';
+            let errorStatus = '500';
+            if (e instanceof Error) {
+                const parsedError = JSON.parse(e.message);
+                errorMessage = parsedError.errorMessage || errorMessage;
+                errorStatus = parsedError.status || errorStatus;
+            }
+            showCustomToast(errorMessage, errorStatus, 'error');
+        }
     };
 
     return (

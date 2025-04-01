@@ -17,13 +17,15 @@
     }
 
     @include mobile {
-        width: 300px;
+        width: 90%;
     }
 
     &__inner {
         display: flex;
         flex-direction: column;
         gap: $block-gap-small;
+        overflow-x: hidden;
+
     }
 
     &__header {
@@ -33,7 +35,12 @@
     }
 
     &__title {
+        @include fluid-text(32, 24);
 
+        font-family: $font-family-accent;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-height: 3em;
     }
 
     &__closeButton {

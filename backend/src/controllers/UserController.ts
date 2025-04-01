@@ -80,29 +80,6 @@ class UserController {
             throw new CustomError(ErrorCodes.BadRequest, 'Invalid user ID. It must be a positive integer.');
         }
     }
-
-    private static validateUserData(data: Partial<UserDTO>): void {
-        if (data.name) {
-            if (data.name.trim() === '') {
-                throw new CustomError(ErrorCodes.BadRequest, 'Title must be a non-empty string.');
-            }
-            data.name = data.name.trim();
-        }
-
-        if (data.email) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(data.email)) {
-                throw new CustomError(ErrorCodes.BadRequest, 'Invalid email format.');
-            }
-            data.email = data.email.trim();
-        }
-
-        if (data.password) {
-            if (data.password.trim() === '') {
-                throw new CustomError(ErrorCodes.BadRequest, 'Title must be a non-empty string.');
-            }
-        }
-    }
 }
 
 export default new UserController();

@@ -8,8 +8,7 @@ import { UniqueConstraintError } from 'sequelize';
 class AuthController {
     async registerUser(req: Request, res: Response, next: NextFunction) {
         try {
-            const { name, email, password }: UserDTO = req.body;
-
+            const { email, password, name }: UserDTO = req.body;
             if (!name || !email || !password) {
                 return next(new CustomError(ErrorCodes.BadRequest, 'Email, password and name are required.'));
             }
@@ -22,9 +21,12 @@ class AuthController {
             const trimmedPassword = String(password).trim();
             const trimmedEmail = email.trim();
 
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(trimmedEmail)) {
+            if (!AuthController.isValidEmail(trimmedEmail)) {
                 return next(new CustomError(ErrorCodes.BadRequest, 'Invalid email format.'));
+            }
+
+            if (!AuthController.isValidPassword(trimmedPassword)) {
+                return next(new CustomError(ErrorCodes.BadRequest, 'Password must be at least 6 characters long.'));
             }
 
             const { user, token } = await AuthService.registerUser({
@@ -62,21 +64,31 @@ class AuthController {
 
             const trimmedEmail: string = email.trim();
 
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(trimmedEmail)) {
+            if (!AuthController.isValidEmail(trimmedEmail)) {
                 return next(new CustomError(ErrorCodes.BadRequest, 'Invalid email format.'));
             }
 
-            const token = await AuthService.loginUser(trimmedEmail, password);
+            const { user, token } = await AuthService.loginUser(trimmedEmail, password);
 
             res.status(200).json({
                 message: 'Login successfully',
                 token,
+                username: user.name,
             });
         } catch (e) {
             next(e);
         }
     }
+
+    private static isValidEmail = (email: string): boolean => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email.trim());
+    };
+
+    private static isValidPassword = (password: string): boolean => {
+        const minLength = 6;
+        return password.length >= minLength;
+    };
 }
 
 export default new AuthController();

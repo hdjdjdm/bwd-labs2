@@ -28,6 +28,10 @@
     border-radius: $border-radius;
     border: $border;
     padding: 5px 20px;
+    background-color: $color-background;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 
     &_accent {
         background-color: $color-accent;

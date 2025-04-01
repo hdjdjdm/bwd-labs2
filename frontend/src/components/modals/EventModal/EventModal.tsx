@@ -1,11 +1,17 @@
 import styles from './EventModal.module.scss';
 import React, { useState } from 'react';
 import classNames from 'classnames';
-import { DeleteAlertIcon, DeleteIcon } from '@assets/icons/icons.ts';
+import {
+    AccountLockIcon,
+    AccountLockOpenIcon,
+    DeleteAlertIcon,
+    DeleteIcon,
+} from '@assets/icons/icons.ts';
 import InputField from '@components/InputField/InputField.tsx';
 import { useAutoResizeTextarea } from '@/hooks/useAutoResizeTextarea.tsx';
 import { EventDto } from '@/dtos';
 import Modal from '@components/modals/Modal/Modal.tsx';
+import CustomSwitch from '@components/Switch/CustomSwitch.tsx';
 
 interface ModalProps {
     isOpen: boolean;
@@ -27,8 +33,13 @@ const EventModal: React.FC<ModalProps> = ({
     const [title, setTitle] = useState(event.title);
     const [description, setDescription] = useState(event.description ?? '');
     const [date, setDate] = useState(event.date ?? new Date());
+    const [isPublic, setIsPublic] = useState<boolean>(false);
 
     const textareaRef = useAutoResizeTextarea(description);
+
+    const handleSwitchChange = (checked: boolean) => {
+        setIsPublic(checked);
+    };
 
     return (
         <>
@@ -74,6 +85,15 @@ const EventModal: React.FC<ModalProps> = ({
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                 />
+                <span className={styles.eventModal__publicSwitch}>
+                    Публичное
+                    <CustomSwitch
+                        checked={isPublic}
+                        onChange={handleSwitchChange}
+                        checkedIcon={AccountLockOpenIcon}
+                        nonCheckedIcon={AccountLockIcon}
+                    />
+                </span>
                 <div className={styles.eventModal__deleteButtons}>
                     <button
                         ref={confirmModalButtonRef}
