@@ -4,23 +4,23 @@
 
 .eventCard {
     background-color: $color-background;
-    width: calc(25% - $block-gap-small);
     padding: 20px !important;
     position: relative;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    gap: $block-gap-small;
+    gap: 10px;
+    transition: all $transition-duration ease;
 
-    @include tablet {
-        width: calc(50% - $block-gap-small);
+    @include hover {
+        box-shadow: $shadow-accent;
+        transform: scale(105%);
     }
 
     @include mobile {
-        width: 100%;
-    }
-
-    @include hover {
+        @include hover {
+            transform: none;
+        }
     }
 
     &__head {
@@ -43,8 +43,6 @@
     }
 
     &__title {
-        @include fluid-text(22, 18);
-
         border-radius: $border-radius-small;
         padding: 0 $block-padding-small;
 
@@ -53,13 +51,13 @@
         white-space: nowrap;
 
         @include tablet-above {
-            height: 3em;
+            max-height: 3em;
             word-break: break-word;
             white-space: normal;
         }
 
         @include tablet {
-            @include fluid-text(26, 20);
+            @include fluid-text(26, 22);
         }
 
         @include mobile {
@@ -76,7 +74,18 @@
         width: $svg-size !important;
 
         @include hover {
-            transform: rotate(90deg);
+            transform: rotate(90deg) scale(120%);
         }
+    }
+
+    &__creator {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__creatorName {
+        font-family: $font-family-light;
+        color: $color-accent;
     }
 }

@@ -12,15 +12,6 @@ $color-text-secondary: #6C757D;
 // Границы
 $color-border: #000000;
 
-// Цвета состояний
-$color-success: #28A745;
-$color-warning: #FFC107;
-$color-error: #DC3545;
-
-// Дополнительные цвета
-$color-info: #17A2B8;
-$color-disabled: #F8F9FA;
-
 // Границы и радиусы
 $border: 1px solid $color-border;
 $border-large: 2px solid $color-border;
@@ -52,12 +43,17 @@ $block-padding-small: 10px;
 // Кнопки
 $button-height: 40px;
 
+// Тени
+$shadow-small: 2px 5px 10px rgba(0, 0, 0, 0.2);
+$shadow-big: 0px 0px 10px rgba(0, 0, 0, 0.8);
+$shadow-accent: 0px 0px 20px rgba(40, 167, 69, 0.5);
+
 // Переходы
 $transition-duration: 0.4s;
 
 // SVG
 $svg-size: 35px;
-$svg-size-large: 40px;
+$svg-size-large: 50px;
 $svg-size-small: 22px;
 $svg-color-white: invert(100%) sepia(100%) saturate(0%) hue-rotate(43deg) brightness(104%) contrast(105%);
 $svg-color-accent: invert(46%) sepia(17%) saturate(1378%) hue-rotate(81deg) brightness(107%) contrast(122%);

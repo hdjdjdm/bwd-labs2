@@ -1,5 +1,7 @@
 import User from '@models/User.js';
 import Event from '@models/Event.js';
 
-User.hasMany(Event, { foreignKey: 'createdBy' });
-Event.belongsTo(User, { foreignKey: 'createdBy' });
+export const setupAssociations = async () => {
+    User.hasMany(Event, { sourceKey: 'id', foreignKey: 'createdBy' });
+    Event.belongsTo(User, { foreignKey: 'createdBy', as: 'creator' });
+};

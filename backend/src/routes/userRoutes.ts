@@ -24,6 +24,8 @@ const router: Router = Router();
  */
 router.get('/', UserController.getAllUsers);
 
+router.get('/:id', UserController.getUser);
+
 /**
  * @swagger
  * /users/{id}:

@@ -39,8 +39,8 @@
 }
 
 @mixin square($size) {
-    width: #{$size}px;
-    aspect-ratio: 1;
+    width: #{$size}px !important;
+    aspect-ratio: 1 !important;
 }
 
 @mixin rounded($size) {

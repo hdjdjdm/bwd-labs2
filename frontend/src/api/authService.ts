@@ -1,15 +1,14 @@
 import { baseApi } from '@api/axios.ts';
-import { LoginResponse, RegisterResponse } from '@/types';
+import { LoginRequest, LoginResponse, RegisterResponse } from '@/types';
 import { parseError } from '@utils/errorUtils.ts';
 
 export const login = async (
-    email: string,
-    password: string,
+    credentials: LoginRequest,
 ): Promise<LoginResponse> => {
     try {
         const { data } = await baseApi.post('/auth/login', {
-            email,
-            password,
+            email: credentials.email,
+            password: credentials.password,
         });
 
         return data;

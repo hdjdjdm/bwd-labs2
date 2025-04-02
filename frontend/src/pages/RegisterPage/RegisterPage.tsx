@@ -6,8 +6,8 @@ import React, { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { register } from '@api/authService.ts';
 import { showCustomToast } from '@utils/customToastUtils.ts';
-import { AuthContext } from '@contexts/AuthContext.tsx';
 import { parseError } from '@utils/errorUtils.ts';
+import AuthContext from '@contexts/AuthContext.tsx';
 
 const RegisterPage: React.FC = () => {
     const navigate = useNavigate();

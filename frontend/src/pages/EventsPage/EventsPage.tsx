@@ -1,23 +1,22 @@
 import styles from './EventsPage.module.scss';
 import Header from '@components/Header/Header.tsx';
 import classNames from 'classnames';
-import EventList from '@pages/EventsPage/components/EventList/EventList.tsx';
-import useIsScrolled from '@/hooks/useIsScrolled.tsx';
 import { useEffect, useRef, useState } from 'react';
 import { PlusIcon } from '@assets/icons';
 import EventModal from '@components/modals/EventModal/EventModal.tsx';
 import { createEvent, getEvents } from '@api/eventService.ts';
-import { EventDto } from '@/dtos';
 import { parseError } from '@utils/errorUtils.ts';
 import { showCustomToast } from '@utils/customToastUtils.ts';
-
-type Category = 'my' | 'public';
+import EventCard from '@pages/EventsPage/components/EventCard/EventCard.tsx';
+import { EventPageCategory } from '@/types';
+import EventPanel from '@pages/EventsPage/components/EventPanel/EventPanel.tsx';
+import EventDto from '@dtos/EventDto.ts';
 
 const EventsPage = () => {
     const [events, setEvents] = useState<EventDto[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [chosenCategory, setChosenCategory] = useState<Category>('my');
-    const isScrolled = useIsScrolled();
+    const [chosenCategory, setChosenCategory] =
+        useState<EventPageCategory>('my');
 
     const modalButtonRef = useRef<HTMLButtonElement | null>(null);
 
@@ -53,7 +52,7 @@ const EventsPage = () => {
         setIsModalOpen((prev) => !prev);
     };
 
-    const handleCategoryChange = (category: Category) => {
+    const handleCategoryChange = (category: EventPageCategory) => {
         setChosenCategory(category);
     };
 
@@ -61,9 +60,15 @@ const EventsPage = () => {
         title: string,
         description: string,
         date: Date,
+        isPublic: boolean,
     ) => {
         try {
-            const newEvent = await createEvent(title, description, date);
+            const newEvent = await createEvent(
+                title,
+                description,
+                date,
+                isPublic,
+            );
             setEvents((prevEvents) => [...prevEvents, newEvent]);
             showCustomToast(`Событие '${title}' добавлено`, 'success');
         } catch (e: unknown) {
@@ -78,60 +83,50 @@ const EventsPage = () => {
             <div
                 className={classNames(styles.eventsPage__inner, 'page__inner')}
             >
-                <span
+                <EventPanel
+                    chosenCategory={chosenCategory}
+                    handleCategoryChange={handleCategoryChange}
+                    modalButtonRef={modalButtonRef}
+                    toggleModal={toggleModal}
+                />
+                <ul
                     className={classNames(
-                        styles.eventsPage__categories,
-                        isScrolled
-                            ? styles.eventsPage__categories_scrolled
-                            : null,
+                        styles.eventsPage__eventList,
+                        'container',
                         'block',
                     )}
                 >
-                    <p
-                        className={classNames(
-                            styles.eventsPage__categoriesItem,
-                            chosenCategory === 'my'
-                                ? styles.eventsPage__categoriesItem_active
-                                : null,
-                        )}
-                        onClick={() => handleCategoryChange('my')}
-                    >
-                        Мои
-                        <span className={'hidden-mobile'}> события</span>
-                    </p>
-                    <p
-                        className={classNames(
-                            styles.eventsPage__categoriesItem,
-                            chosenCategory === 'public'
-                                ? styles.eventsPage__categoriesItem_active
-                                : null,
-                        )}
-                        onClick={() => handleCategoryChange('public')}
-                    >
-                        Публичные
-                        <span className={'hidden-mobile'}> события</span>
-                    </p>
-                </span>
-                <EventList
-                    events={events}
-                    onUpdate={updateEventInList}
-                    onDelete={removeEventFromList}
-                />
+                    {events.length > 0 ? (
+                        events?.map((event) => (
+                            <EventCard
+                                key={event.id}
+                                event={event}
+                                onUpdate={updateEventInList}
+                                onDelete={removeEventFromList}
+                                className={styles.eventsPage__eventCard}
+                            />
+                        ))
+                    ) : (
+                        <p>Нет событий:(</p>
+                    )}
+                </ul>
                 <button
                     ref={modalButtonRef}
                     className={classNames(
                         styles.eventsPage__addEventButton,
-                        'button',
+                        styles.eventsPage__addEventButton_mobile,
                         'block',
+                        'visible-mobile',
                     )}
                     type="button"
+                    title="Добавить событие"
                     onClick={() => toggleModal()}
                 >
                     <img
                         src={PlusIcon}
                         alt="addEventButton"
                         className={classNames(
-                            styles.eventPage__addEventIcon,
+                            styles.eventsPage__addEventIcon,
                             'svg-large',
                             'svg-accent',
                         )}

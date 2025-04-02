@@ -9,9 +9,9 @@ import {
 } from '@assets/icons';
 import InputField from '@components/InputField/InputField.tsx';
 import { useAutoResizeTextarea } from '@/hooks/useAutoResizeTextarea.tsx';
-import { EventDto } from '@/dtos';
 import Modal from '@components/modals/Modal/Modal.tsx';
 import CustomSwitch from '@components/Switch/CustomSwitch.tsx';
+import EventDto from '@dtos/EventDto.ts';
 
 interface ModalProps {
     isOpen: boolean;
@@ -25,6 +25,7 @@ interface ModalProps {
         title: string,
         description: string,
         date: Date,
+        isPublic: boolean,
         id?: number,
     ) => void;
 }
@@ -34,7 +35,7 @@ const EventModal: React.FC<ModalProps> = ({
     onClose,
     anchorRef,
     event,
-    toggleConfirmModal,
+    toggleConfirmModal, //todo хард делете
     confirmModalButtonRef,
     isCreateMode = false,
     onSave,
@@ -42,7 +43,7 @@ const EventModal: React.FC<ModalProps> = ({
     const [title, setTitle] = useState(event?.title ?? '');
     const [description, setDescription] = useState(event?.description ?? '');
     const [date, setDate] = useState(event?.date ?? new Date());
-    const [isPublic, setIsPublic] = useState<boolean>(false);
+    const [isPublic, setIsPublic] = useState<boolean>(event?.isPublic ?? true);
 
     const textareaRef = useAutoResizeTextarea(description);
 
@@ -50,8 +51,10 @@ const EventModal: React.FC<ModalProps> = ({
         setIsPublic(checked);
     };
 
-    const handleSave = () => {
-        onSave(title, description, date, event?.id);
+    const handleSave = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        onSave(title, description, date, isPublic, event?.id);
         onClose();
     };
 
@@ -60,101 +63,110 @@ const EventModal: React.FC<ModalProps> = ({
             <Modal
                 isOpen={isOpen}
                 onClose={onClose}
-                title={isCreateMode ? 'Добавить событие' : event!.title}
+                title={isCreateMode ? 'Добавить событие' : 'Данные события'}
                 anchorRef={anchorRef}
             >
-                <div className={styles.eventModal__mainInfo}>
-                    <span
-                        className={classNames(
-                            styles.eventModal__input,
-                            styles.eventModal__input_title,
-                        )}
-                    >
-                        <InputField
-                            type="text"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            label="Название"
-                            required
-                        />
-                    </span>
-                    <span
-                        className={classNames(
-                            styles.eventModal__input,
-                            styles.eventModal__input_date,
-                        )}
-                    >
-                        <InputField
-                            type="date"
-                            value={new Date(date)}
-                            onChange={(e) => setDate(new Date(e.target.value))}
-                            label="Дата"
-                            required
-                        />
-                    </span>
-                </div>
-                <textarea
-                    className={classNames(styles.eventModal__description)}
-                    ref={textareaRef}
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder={'Описание'}
-                />
-                <span className={styles.eventModal__publicSwitch}>
-                    Публичное
-                    <CustomSwitch
-                        checked={isPublic}
-                        onChange={handleSwitchChange}
-                        checkedIcon={AccountLockOpenIcon}
-                        nonCheckedIcon={AccountLockIcon}
-                    />
-                </span>
-                {!isCreateMode && (
-                    <div className={styles.eventModal__deleteButtons}>
-                        <button
-                            ref={confirmModalButtonRef}
-                            onClick={() => toggleConfirmModal!()}
+                <form className={styles.eventModal__form} onSubmit={handleSave}>
+                    <div className={styles.eventModal__mainInfo}>
+                        <span
                             className={classNames(
-                                styles.eventModal__button_delete,
-                                styles.eventModal__button,
-                                'button',
+                                styles.eventModal__input,
+                                styles.eventModal__input_title,
                             )}
                         >
-                            Удалить
-                            <img
-                                src={DeleteIcon}
-                                alt="softDeleteIcon"
-                                className="svg-small"
+                            <InputField
+                                type="text"
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
+                                label="Название"
+                                maxLength={100}
+                                required
                             />
-                        </button>
-                        <button
-                            ref={confirmModalButtonRef}
-                            onClick={() => toggleConfirmModal!()}
+                        </span>
+                        <span
                             className={classNames(
-                                styles.eventModal__button,
-                                styles.eventModal__button_delete,
-                                'button',
+                                styles.eventModal__input,
+                                styles.eventModal__input_date,
                             )}
                         >
-                            Удалить навсегда
-                            <img
-                                src={DeleteAlertIcon}
-                                alt="hardDeleteIcon"
-                                className="svg-small"
+                            <InputField
+                                type="date"
+                                value={new Date(date)}
+                                onChange={(e) =>
+                                    setDate(new Date(e.target.value))
+                                }
+                                label="Дата"
+                                required
                             />
-                        </button>
+                        </span>
                     </div>
-                )}
-                <button
-                    className={classNames(
-                        styles.eventModal__button,
-                        'button',
-                        'button_accent',
+                    <textarea
+                        className={classNames(styles.eventModal__description)}
+                        ref={textareaRef}
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        maxLength={200}
+                        placeholder={'Описание'}
+                    />
+                    <span className={styles.eventModal__publicSwitch}>
+                        Публичное
+                        <CustomSwitch
+                            checked={isPublic}
+                            onChange={handleSwitchChange}
+                            checkedIcon={AccountLockOpenIcon}
+                            nonCheckedIcon={AccountLockIcon}
+                        />
+                    </span>
+                    {!isCreateMode && (
+                        <div className={styles.eventModal__deleteButtons}>
+                            <button
+                                ref={confirmModalButtonRef}
+                                onClick={() => toggleConfirmModal!()}
+                                type="button"
+                                className={classNames(
+                                    styles.eventModal__button_delete,
+                                    styles.eventModal__button,
+                                    'button',
+                                )}
+                            >
+                                Удалить
+                                <img
+                                    src={DeleteIcon}
+                                    alt="softDeleteIcon"
+                                    className="svg-small"
+                                />
+                            </button>
+                            <button
+                                ref={confirmModalButtonRef}
+                                onClick={() => toggleConfirmModal!()}
+                                type="button"
+                                className={classNames(
+                                    styles.eventModal__button,
+                                    styles.eventModal__button_delete,
+                                    'button',
+                                )}
+                            >
+                                Удалить навсегда
+                                <img
+                                    src={DeleteAlertIcon}
+                                    alt="hardDeleteIcon"
+                                    className="svg-small"
+                                />
+                            </button>
+                        </div>
                     )}
-                    onClick={handleSave}
-                >
-                    {isCreateMode ? 'Добавить' : 'Сохранить'}
-                </button>
+                    <button
+                        className={classNames(
+                            styles.eventModal__button,
+                            'button',
+                            'button_accent',
+                        )}
+                        type="submit"
+                        onClick={handleSave}
+                    >
+                        {isCreateMode ? 'Добавить' : 'Сохранить'}
+                    </button>
+                </form>
             </Modal>
         </>
     );

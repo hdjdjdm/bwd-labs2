@@ -9,10 +9,10 @@ import {
     LogoMobileIcon,
 } from '@assets/icons';
 import { useContext, useRef, useState } from 'react';
-import { AuthContext } from '@/contexts/AuthContext.tsx';
 import ConfirmModal from '@components/modals/ConfirmModal/ConfirmModal.tsx';
 import NavMenu from '@components/Header/components/NavMenu/NavMenu.tsx';
 import useIsScrolled from '@hooks/useIsScrolled.tsx';
+import AuthContext from '@contexts/AuthContext.tsx';
 
 const Header = () => {
     const isScrolled = useIsScrolled();
@@ -20,12 +20,7 @@ const Header = () => {
     const logoutButtonRef = useRef<HTMLButtonElement>(null);
 
     const navigate = useNavigate();
-    const auth = useContext(AuthContext);
-    if (!auth) {
-        throw new Error('AuthContext must be used within an AuthProvider');
-    }
-
-    const { user, logout } = auth;
+    const { user, logout } = useContext(AuthContext)!;
 
     const toggleConfirmModal = () => {
         setIsConfirmModalOpen(!isConfirmModalOpen);
@@ -63,8 +58,11 @@ const Header = () => {
                     <div className={styles.header__buttons}>
                         {user ? (
                             <>
-                                <h3 className={styles.header__username}>
-                                    {user.username}
+                                <h3
+                                    className={styles.header__username}
+                                    title={user.name}
+                                >
+                                    {user.name}
                                 </h3>
                                 <button
                                     ref={logoutButtonRef}
@@ -160,7 +158,7 @@ const Header = () => {
                     onClose={toggleConfirmModal}
                     anchorRef={logoutButtonRef}
                     onAccept={logout}
-                    itemName={user!.username}
+                    itemName={user!.name}
                     prefix={'Выйти из аккаунта'}
                 />
             )}

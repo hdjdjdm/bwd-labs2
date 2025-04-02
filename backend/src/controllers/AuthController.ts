@@ -1,14 +1,16 @@
 import { NextFunction, Request, Response } from 'express';
 import AuthService from '@services/AuthService.js';
-import UserDTO from '@dto/UserDTO.js';
 import CustomError from '@utils/CustomError.js';
 import { ErrorCodes } from '@constants/Errors.js';
 import { UniqueConstraintError } from 'sequelize';
+import UserMapper from '@mappers/UserMapper.js';
+import { CreateUserDto, LoginUserDto } from '@dto/UserDto.js';
+import userMapper from '@mappers/UserMapper.js';
 
 class AuthController {
     async registerUser(req: Request, res: Response, next: NextFunction) {
         try {
-            const { email, password, name }: UserDTO = req.body;
+            const { email, password, name }: CreateUserDto = req.body;
             if (!name || !email || !password) {
                 return next(new CustomError(ErrorCodes.BadRequest, 'Email, password and name are required.'));
             }
@@ -35,16 +37,10 @@ class AuthController {
                 password: trimmedPassword,
             });
 
-            const response: Pick<UserDTO, 'email' | 'name' | 'role'> = {
-                email: user.email,
-                name: user.name,
-                role: user.role,
-            };
-
             res.status(201).json({
                 message: 'User successfully registered',
                 token: token,
-                ...response,
+                user: userMapper.toResponseDto(user),
             });
         } catch (e) {
             if (e instanceof UniqueConstraintError) {
@@ -56,8 +52,7 @@ class AuthController {
 
     async loginUser(req: Request, res: Response, next: NextFunction) {
         try {
-            const { email, password }: Pick<UserDTO, 'email' | 'password'> = req.body;
-
+            const { email, password }: LoginUserDto = req.body;
             if (!email || !password) {
                 return next(new CustomError(ErrorCodes.BadRequest, 'Email and password are required.'));
             }
@@ -73,7 +68,7 @@ class AuthController {
             res.status(200).json({
                 message: 'Login successfully',
                 token,
-                username: user.name,
+                user: UserMapper.toResponseDto(user),
             });
         } catch (e) {
             next(e);

@@ -13,6 +13,7 @@
             "@constants/*": ["constants/*"],
             "@controllers/*": ["controllers/*"],
             "@dto/*": ["dto/*"],
+            "@mappers/*": ["mappers/*"],
             "@middleware/*": ["middleware/*"],
             "@models/*": ["models/*"],
             "@routes/*": ["routes/*"],

@@ -5,9 +5,9 @@ import React, { useContext, useEffect } from 'react';
 import AuthForm from '@components/AuthForm/AuthForm.tsx';
 import { useNavigate } from 'react-router-dom';
 import { login as apiLogin } from '@api/authService.ts';
-import { AuthContext } from '@contexts/AuthContext.tsx';
 import { showCustomToast } from '@utils/customToastUtils.ts';
 import { parseError } from '@utils/errorUtils.ts';
+import AuthContext from '@contexts/AuthContext.tsx';
 
 const LoginPage: React.FC = () => {
     const navigate = useNavigate();
@@ -21,13 +21,14 @@ const LoginPage: React.FC = () => {
 
     const handleLogin = async (email: string, password: string) => {
         try {
-            const { token, username, message } = await apiLogin(
+            const { token, user, message } = await apiLogin({
                 email,
                 password,
-            );
-            login(username, token);
-            showCustomToast(message, 'success', '200');
+            });
 
+            login(user, token);
+
+            showCustomToast(message, 'success', '200');
             navigate('/events');
         } catch (e: unknown) {
             const { status, errorMessage } = parseError(e);

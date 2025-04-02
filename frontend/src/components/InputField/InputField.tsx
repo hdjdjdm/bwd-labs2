@@ -12,6 +12,7 @@ interface InputFieldProps {
     alt?: string;
     onClickIcon?: () => void;
     required?: boolean;
+    maxLength?: number;
 }
 
 const InputField: React.FC<InputFieldProps> = ({
@@ -23,6 +24,7 @@ const InputField: React.FC<InputFieldProps> = ({
     iconSrc,
     alt,
     onClickIcon,
+    maxLength,
     required = false,
 }) => {
     const inputValue =
@@ -42,6 +44,7 @@ const InputField: React.FC<InputFieldProps> = ({
                 onChange={onChange}
                 placeholder={placeholder}
                 minLength={type === 'password' ? 6 : 3}
+                maxLength={maxLength}
                 required={required}
             />
             <label className={styles.inputField__label}>{label}</label>

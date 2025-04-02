@@ -1,65 +1,64 @@
 import Event from '@models/Event.js';
 import User from '@models/User.js';
-import EventDTO from '@dto/EventDTO.js';
 import CustomError from '@utils/CustomError.js';
 import { ErrorCodes } from '@constants/Errors.js';
+import { CreateEventDto, UpdateEventDto } from '@dto/EventDto.js';
 
 class EventService {
-    async createEvent(data: EventDTO): Promise<Event> {
-        return await Event.create({
+    async createEvent(data: CreateEventDto): Promise<Event> {
+        const event = await Event.create({
             title: data.title,
             description: data.description,
             date: data.date,
             createdBy: data.createdBy,
+            isPublic: data.isPublic,
         });
+
+        return this.getEvent(event.id);
     }
 
     async getAllEvents(withDeleted: boolean): Promise<Event[]> {
         return await Event.findAll({
             paranoid: !withDeleted,
+            include: [
+                {
+                    model: User,
+                    as: 'creator',
+                },
+            ],
         });
     }
 
     async getEvent(id: number): Promise<Event> {
-        const event = await Event.findByPk(id, { paranoid: false });
-        if (!event) {
-            throw new CustomError(ErrorCodes.NotFoundedError, `Event with ID ${id} not found.`);
-        }
-
-        return event;
+        return await Event.findByPk(id, {
+            paranoid: false,
+            rejectOnEmpty: new CustomError(ErrorCodes.NotFoundedError, `Event with ID ${id} not found.`),
+            include: [
+                {
+                    model: User,
+                    as: 'creator',
+                },
+            ],
+        });
     }
 
     async getEventCreator(id: number): Promise<User> {
-        const event = await Event.findByPk(id, { paranoid: false });
-        if (!event) {
-            throw new CustomError(ErrorCodes.NotFoundedError, `Event with ID ${id} not found.`);
-        }
+        const event = await this.getEvent(id);
 
-        const user = await User.findByPk(event.createdBy);
-        if (!user) {
-            throw new CustomError(ErrorCodes.NotFoundedError, `User with ID ${event.createdBy} not found.`);
-        }
-
-        return user;
+        return await User.findByPk(event.createdBy, {
+            rejectOnEmpty: new CustomError(ErrorCodes.NotFoundedError, `User with ID ${event.createdBy} not found.`),
+        });
     }
 
-    async updateEvent(id: number, updateData: Partial<EventDTO>): Promise<Event> {
-        const event = await Event.findByPk(id, { paranoid: false });
-        if (!event) {
-            throw new CustomError(ErrorCodes.NotFoundedError, `Event with id ${id} not found`);
-        }
+    async updateEvent(id: number, updateData: Partial<UpdateEventDto>): Promise<Event> {
+        const event = await this.getEvent(id);
 
         await event.update(updateData);
-        return event;
+        return this.getEvent(event.id);
     }
 
     async deleteEvent(id: number, hardDelete: boolean = false): Promise<{ message: string }> {
-        const event = await Event.findByPk(id, {
-            paranoid: !hardDelete,
-        });
-        if (!event) {
-            throw new CustomError(ErrorCodes.NotFoundedError, `Event with id ${id} not found`);
-        }
+        const event = await this.getEvent(id);
 
         await event.destroy({
             force: hardDelete,
@@ -70,12 +69,7 @@ class EventService {
     }
 
     async restoreEvent(id: number): Promise<{ message: string }> {
-        const event = await Event.findByPk(id, {
-            paranoid: false,
-        });
-        if (!event) {
-            throw new CustomError(ErrorCodes.NotFoundedError, `Event with id ${id} not found`);
-        }
+        const event = await this.getEvent(id);
 
         await event.restore();
         return {

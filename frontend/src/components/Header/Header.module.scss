@@ -17,14 +17,15 @@
         //border-bottom: $border;
         //border-color: $color-text-secondary;
 
-        padding: 40px 20px 10px;
+        padding: 10px 20px 10px;
+        margin-top: 40px;
 
         @include desktop {
-            padding-top: 30px;
+            margin-top: 30px;
         }
 
         @include mobile {
-            padding-top: 20px;
+            margin-top: 20px;
         }
     }
 
@@ -55,6 +56,7 @@
         max-width: 200px;
         overflow: hidden;
         text-overflow: ellipsis;
+        white-space: nowrap;
 
         @include tablet {
             @include fluid-text(24, 20);

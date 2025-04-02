@@ -1,0 +1,78 @@
+@use '@styles/variables' as *;
+@use '@styles/mixins' as *;
+@use '@styles/media' as *;
+
+.eventPanel {
+    @include flex-center();
+
+    position: sticky;
+    z-index: 25;
+    top: 160px;
+    gap: $block-gap;
+
+    @include tablet {
+        top: 130px;
+    }
+
+    @include mobile {
+        width: 100%;
+        top: 160px;
+    }
+
+    &__categories {
+        @include flex-center();
+
+        background-color: $color-light;
+        padding: $block-padding-small $block-padding;
+        gap: $block-gap-small;
+        transition: all $transition-duration ease;
+
+        &_scrolled {
+            background-color: $color-secondary;
+            opacity: 0.8;
+        }
+
+        @include hover {
+            opacity: 1;
+            transform: scale(105%);
+            box-shadow: $shadow-accent;
+        }
+    }
+
+    &__categoriesItem {
+        @include fluid-text(24, 18);
+
+        cursor: pointer;
+        padding: 0 $container-padding-x;
+        border-radius: $border-radius-large; //todo МЕГА ЭФФЕКТ СЛАЙД
+
+        &_active {
+            background-color: $color-accent;
+            color: $color-background;
+        }
+
+        @include hover {
+        }
+    }
+
+    &__addEventButton {
+        @include rounded(50);
+        @include flex-center();
+
+        background-color: $color-light;
+        padding: 0 !important;
+        z-index: 50;
+        border: none;
+
+        &_scrolled {
+            background-color: $color-secondary;
+            opacity: 0.8;
+        }
+
+        @include hover {
+            transform: scale(120%);
+            opacity: 1;
+            box-shadow: $shadow-accent;
+        }
+    }
+}

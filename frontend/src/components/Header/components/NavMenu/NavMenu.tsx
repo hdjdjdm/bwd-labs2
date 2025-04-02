@@ -1,13 +1,20 @@
 import styles from './NavMenu.module.scss';
 import classNames from 'classnames';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface NavMenuProps {
     mobile?: boolean;
 }
 
+const pages = [
+    { label: 'Главная', path: '/' },
+    { label: 'События', path: '/events' },
+    { label: 'О нас', path: '/about' },
+];
+
 const NavMenu = ({ mobile = false }: NavMenuProps) => {
     const navigate = useNavigate();
+    const location = useLocation();
 
     return (
         <nav
@@ -17,21 +24,18 @@ const NavMenu = ({ mobile = false }: NavMenuProps) => {
                 mobile ? 'visible-mobile' : 'hidden-mobile',
             )}
         >
-            <a className={styles.navMenu__item} onClick={() => navigate('/')}>
-                Главная
-            </a>
-            <a
-                className={styles.navMenu__item}
-                onClick={() => navigate('/events')}
-            >
-                События
-            </a>
-            <a
-                className={styles.navMenu__item}
-                onClick={() => navigate('/about')}
-            >
-                О нас
-            </a>
+            {pages.map(({ label, path }) => (
+                <a
+                    key={path}
+                    className={classNames(styles.navMenu__item, {
+                        [styles.navMenu__item_active]:
+                            location.pathname === path,
+                    })}
+                    onClick={() => navigate(path)}
+                >
+                    {label}
+                </a>
+            ))}
         </nav>
     );
 };

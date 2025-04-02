@@ -3,19 +3,25 @@ import classNames from 'classnames';
 import { CogIcon } from '@assets/icons';
 import React, { useRef, useState } from 'react';
 import EventModal from '@components/modals/EventModal/EventModal.tsx';
-import { EventDto } from '@/dtos';
 import ConfirmModal from '@components/modals/ConfirmModal/ConfirmModal.tsx';
 import { parseError } from '@utils/errorUtils.ts';
 import { showCustomToast } from '@utils/customToastUtils.ts';
 import { deleteEvent, updateEvent } from '@api/eventService.ts';
+import EventDto from '@dtos/EventDto.ts';
 
 interface EventCardProps {
     event: EventDto;
     onUpdate: (updatedEvent: EventDto) => void;
     onDelete: (id: number) => void;
+    className?: string;
 }
 
-const EventCard: React.FC<EventCardProps> = ({ event, onUpdate, onDelete }) => {
+const EventCard: React.FC<EventCardProps> = ({
+    event,
+    onUpdate,
+    onDelete,
+    className,
+}) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
@@ -34,6 +40,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, onUpdate, onDelete }) => {
         title: string,
         description: string,
         date: Date,
+        isPublic: boolean,
     ) => {
         if (!event?.id) {
             return;
@@ -44,6 +51,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, onUpdate, onDelete }) => {
                 title,
                 description,
                 date,
+                isPublic,
             });
             onUpdate(updatedEvent);
         } catch (e: unknown) {
@@ -76,7 +84,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, onUpdate, onDelete }) => {
     };
 
     return (
-        <div className={classNames(styles.eventCard, 'block')}>
+        <div className={classNames(styles.eventCard, 'block', className)}>
             <div className={styles.eventCard__head}>
                 {event.date && (
                     <p className={classNames(styles.eventCard__date)}>
@@ -94,8 +102,17 @@ const EventCard: React.FC<EventCardProps> = ({ event, onUpdate, onDelete }) => {
                     onClick={() => toggleModal()}
                 />
             </div>
+            <h4 className={classNames(styles.eventCard__creator)}>
+                by&nbsp;
+                <u
+                    className={styles.eventCard__creatorName}
+                    title={event?.createdBy?.name}
+                >
+                    {event?.createdBy?.name}
+                </u>
+            </h4>
             <div className={styles.eventCard__info}>
-                <h2
+                <h4
                     className={classNames(
                         styles.eventCard__title,
                         'text-accent',
@@ -103,7 +120,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, onUpdate, onDelete }) => {
                     title={event.title}
                 >
                     {event.title}
-                </h2>
+                </h4>
             </div>
 
             {isModalOpen && (

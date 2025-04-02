@@ -41,10 +41,22 @@
         }
 
         @include hover {
+            color: $color-text;
+
+            &:after {
+                width: 100%;
+            }
+        }
+
+        &_active {
+            color: $color-accent !important;
+
             &:after {
                 background-color: $color-accent;
                 width: 100%;
             }
         }
+
+
     }
 }

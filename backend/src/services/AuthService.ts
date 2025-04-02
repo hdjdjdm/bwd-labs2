@@ -2,12 +2,12 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import config from '@config/config.js';
 import User from '@models/User.js';
-import UserDTO from '@dto/UserDTO.js';
 import CustomError from '@utils/CustomError.js';
 import { ErrorCodes } from '@constants/Errors.js';
+import { CreateUserDto } from '@dto/UserDto.js';
 
 class AuthService {
-    async registerUser(data: Pick<UserDTO, 'name' | 'email' | 'password'>): Promise<{ user: User; token: string }> {
+    async registerUser(data: CreateUserDto): Promise<{ user: User; token: string }> {
         const user = await User.create({
             name: data.name,
             email: data.email,

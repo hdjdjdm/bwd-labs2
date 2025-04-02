@@ -13,6 +13,12 @@
         width: 90%;
     }
 
+    &__form {
+        display: flex;
+        flex-direction: column;
+        gap: $block-gap-small
+    }
+
     &__mainInfo {
         display: flex;
         justify-content: space-between;

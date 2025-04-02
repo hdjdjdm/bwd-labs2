@@ -4,46 +4,70 @@ import {
     removeFromLocalStorage,
     saveToLocalStorage,
 } from '@utils/localStorageUtils.ts';
-
-interface User {
-    username: string;
-}
+import { jwtDecode } from 'jwt-decode';
+import { showCustomToast } from '@utils/customToastUtils.ts';
+import UserDto from '@dtos/UserDto.ts';
 
 interface AuthContextType {
-    user: User | null;
-    login: (username: string, token: string) => void;
+    user: UserDto | null;
+    login: (userData: UserDto, token: string) => void;
     logout: () => void;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(
-    undefined,
-);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
     children: ReactNode;
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState<UserDto | null>(null);
 
     useEffect(() => {
-        const token = getFromLocalStorage('token');
-        const username = getFromLocalStorage('username');
-        if (token && username) {
-            setUser({ username });
-        }
+        checkTokenValidity();
+        const interval = setInterval(checkTokenValidity, 60 * 1000);
+        return () => clearInterval(interval);
     }, []);
 
-    const login = (username: string, token: string) => {
+    const login = (userData: UserDto, token: string) => {
         saveToLocalStorage('token', token);
-        saveToLocalStorage('username', username);
-        setUser({ username });
+        saveToLocalStorage('user', JSON.stringify(userData));
+        setUser(userData);
     };
 
     const logout = () => {
         removeFromLocalStorage('token');
-        removeFromLocalStorage('username');
+        removeFromLocalStorage('user');
         setUser(null);
+    };
+
+    const checkTokenValidity = () => {
+        const token = getFromLocalStorage('token');
+        const userDataStr = getFromLocalStorage('user');
+
+        if (token && userDataStr) {
+            try {
+                const decoded: { exp: number } = jwtDecode(token);
+                const currentTime = Math.floor(Date.now() / 1000);
+
+                if (decoded.exp > currentTime) {
+                    const userData: UserDto = JSON.parse(userDataStr);
+                    setUser(userData);
+                } else {
+                    showCustomToast(
+                        'Время сеанса истекло! Необходима повторная авторизация',
+                        'warning',
+                    );
+                    logout();
+                }
+            } catch (error) {
+                showCustomToast('Неверный токен', 'error');
+                console.error('Неверный токен:', error);
+                logout();
+            }
+        } else {
+            logout();
+        }
     };
 
     return (
@@ -52,3 +76,5 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         </AuthContext.Provider>
     );
 };
+
+export default AuthContext;

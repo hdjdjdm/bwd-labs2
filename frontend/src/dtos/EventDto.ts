@@ -1,8 +1,11 @@
-export interface EventDto {
+import UserDto from '@dtos/UserDto.ts';
+
+export default interface EventDto {
     id: number;
     title: string;
     description?: string | null;
     date?: Date;
-    createdBy: number;
+    isPublic: boolean;
     deletedAt?: Date | null;
+    createdBy: UserDto;
 }

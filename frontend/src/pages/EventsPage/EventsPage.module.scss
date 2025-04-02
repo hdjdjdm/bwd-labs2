@@ -8,64 +8,52 @@
         @include flex-center();
     }
 
-    &__categories {
-        @include flex-center();
-
-        position: sticky;
-        z-index: 25;
-        background-color: $color-light;
-        padding: $block-padding-small $block-padding;
+    &__eventList {
+        display: flex;
+        flex-wrap: wrap;
         gap: $block-gap-small;
-        transition: all $transition-duration ease;
-        top: 180px;
+        background-color: $color-light;
+        padding: 20px;
+    }
+
+    &__eventCard {
+        width: calc(33% - $block-gap-small);
 
         @include tablet {
-            top: 150px;
+            width: calc(50% - $block-gap-small);
         }
 
         @include mobile {
             width: 100%;
-            top: 160px;
-        }
-
-        &_scrolled {
-            background-color: $color-secondary;
-            opacity: 0.8;
-        }
-
-        @include hover {
-            opacity: 1;
-        }
-    }
-
-    &__categoriesItem {
-        @include fluid-text(24, 18);
-
-        cursor: pointer;
-        padding: 0 $container-padding-x;
-        border-radius: $border-radius-large;
-
-        &_active {
-            background-color: $color-accent;
-            color: $color-background;
-        }
-
-        @include hover {
         }
     }
 
     &__addEventButton {
-        @include rounded(60);
+        @include rounded(50);
         @include flex-center();
 
-        position: fixed;
-        bottom: 50px;
-        left: 50px;
+        background-color: $color-light;
         padding: 0 !important;
         z-index: 50;
+        border: none;
+
+        &_mobile {
+            @include rounded(70);
+
+            position: fixed;
+            bottom: 50px;
+            left: 50px;
+            background-color: $color-background;
+            box-shadow: $shadow-big !important;
+        }
+
+        @include hover {
+            transform: scale(110%);
+            box-shadow: $shadow-accent !important;
+        }
     }
 
     &__addEventIcon {
-
+        width: auto !important;
     }
 }
