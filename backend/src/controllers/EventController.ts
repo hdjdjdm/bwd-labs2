@@ -53,6 +53,29 @@ class EventController {
         }
     }
 
+    async getPublicEvents(req: Request, res: Response, next: NextFunction) {
+        try {
+            const withDeleted = ['true', '1', 'yes'].includes(String(req.query.withDeleted).toLowerCase());
+            const events = await EventService.getPublicEvents(withDeleted);
+            const responseData = events.map((event) => EventMapper.toResponseDto(event));
+            res.status(200).json(responseData);
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    async getUserEvents(req: Request, res: Response, next: NextFunction) {
+        try {
+            const user = req.user as User;
+            const withDeleted = ['true', '1', 'yes'].includes(String(req.query.withDeleted).toLowerCase());
+            const events = await EventService.getUserEvents(user.id, withDeleted);
+            const responseData = events.map((event) => EventMapper.toResponseDto(event));
+            res.status(200).json(responseData);
+        } catch (e) {
+            next(e);
+        }
+    }
+
     async getEvent(req: Request, res: Response, next: NextFunction) {
         try {
             const id = Number(req.params.id);

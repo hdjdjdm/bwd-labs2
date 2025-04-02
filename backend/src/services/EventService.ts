@@ -29,6 +29,32 @@ class EventService {
         });
     }
 
+    async getPublicEvents(withDeleted: boolean): Promise<Event[]> {
+        return await Event.findAll({
+            paranoid: !withDeleted,
+            where: { isPublic: true },
+            include: [
+                {
+                    model: User,
+                    as: 'creator',
+                },
+            ],
+        });
+    }
+
+    async getUserEvents(userId: number, withDeleted: boolean): Promise<Event[]> {
+        return await Event.findAll({
+            paranoid: !withDeleted,
+            where: { createdBy: userId },
+            include: [
+                {
+                    model: User,
+                    as: 'creator',
+                },
+            ],
+        });
+    }
+
     async getEvent(id: number): Promise<Event> {
         return await Event.findByPk(id, {
             paranoid: false,

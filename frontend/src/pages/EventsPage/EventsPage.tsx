@@ -23,7 +23,7 @@ const EventsPage = () => {
     useEffect(() => {
         const fetchEvents = async () => {
             try {
-                const data = await getEvents();
+                const data = await getEvents(chosenCategory);
                 setEvents(data);
             } catch (e: unknown) {
                 const { status, errorMessage } = parseError(e);
@@ -32,7 +32,7 @@ const EventsPage = () => {
         };
 
         fetchEvents();
-    }, []);
+    }, [chosenCategory]);
 
     const updateEventInList = (updatedEvent: EventDto) => {
         setEvents((prevEvents) =>

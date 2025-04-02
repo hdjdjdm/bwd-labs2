@@ -17,14 +17,14 @@
     }
 
     &__eventCard {
-        width: calc(33% - $block-gap-small);
+        flex: 0 1 calc(33% - $block-gap-small);
 
         @include tablet {
-            width: calc(50% - $block-gap-small);
+            flex: 0 1 calc(50% - $block-gap-small);
         }
 
         @include mobile {
-            width: 100%;
+            flex: 0 1 100%;
         }
     }
 

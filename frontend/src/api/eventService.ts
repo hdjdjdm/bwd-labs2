@@ -1,11 +1,13 @@
 import { baseApi } from '@api/axios.ts';
 import { parseError } from '@utils/errorUtils.ts';
-import { DeleteEventResponse } from '@/types';
+import { DeleteEventResponse, EventPageCategory } from '@/types';
 import EventDto from '@dtos/EventDto.ts';
 
-export const getEvents = async (): Promise<EventDto[]> => {
+export const getEvents = async (
+    category: EventPageCategory,
+): Promise<EventDto[]> => {
     try {
-        const { data } = await baseApi.get('/events');
+        const { data } = await baseApi.get(`/events/${category}`);
         return data;
     } catch (e: unknown) {
         throw parseError(e);
