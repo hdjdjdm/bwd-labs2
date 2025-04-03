@@ -1,7 +1,7 @@
 import styles from './EventsPage.module.scss';
 import Header from '@components/Header/Header.tsx';
 import classNames from 'classnames';
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { PlusIcon } from '@assets/icons';
 import EventModal from '@components/modals/EventModal/EventModal.tsx';
 import { createEvent, getEvents } from '@api/eventService.ts';
@@ -11,19 +11,22 @@ import EventCard from '@pages/EventsPage/components/EventCard/EventCard.tsx';
 import { EventPageCategory } from '@/types';
 import EventPanel from '@pages/EventsPage/components/EventPanel/EventPanel.tsx';
 import EventDto from '@dtos/EventDto.ts';
+import authContext from '@contexts/AuthContext.tsx';
 
 const EventsPage = () => {
+    const { user } = useContext(authContext)!;
+
     const [events, setEvents] = useState<EventDto[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [chosenCategory, setChosenCategory] =
-        useState<EventPageCategory>('my');
+        useState<EventPageCategory>('public');
+    const [withDeleted, setWithDeleted] = useState<boolean>(false);
 
     const modalButtonRef = useRef<HTMLButtonElement | null>(null);
-
     useEffect(() => {
         const fetchEvents = async () => {
             try {
-                const data = await getEvents(chosenCategory);
+                const data = await getEvents(chosenCategory, withDeleted);
                 setEvents(data);
             } catch (e: unknown) {
                 const { status, errorMessage } = parseError(e);
@@ -32,20 +35,27 @@ const EventsPage = () => {
         };
 
         fetchEvents();
-    }, [chosenCategory]);
+    }, [chosenCategory, withDeleted]);
 
     const updateEventInList = (updatedEvent: EventDto) => {
-        setEvents((prevEvents) =>
-            prevEvents.map((event) =>
+        setEvents((prevEvents) => {
+            if (updatedEvent.deletedAt === null && !withDeleted) {
+                return [...prevEvents, updatedEvent];
+            }
+
+            return prevEvents.map((event) =>
                 event.id === updatedEvent.id ? updatedEvent : event,
-            ),
-        );
+            );
+        });
     };
 
-    const removeEventFromList = (eventId: number) => {
-        setEvents((prevEvents) =>
-            prevEvents.filter((event) => event.id !== eventId),
-        );
+    const removeEventFromList = (id: number, isHardDelete: boolean) => {
+        setEvents((prevEvents) => {
+            if (isHardDelete || !withDeleted) {
+                return prevEvents.filter((event) => event.id !== id);
+            }
+            return prevEvents;
+        });
     };
 
     const toggleModal = () => {
@@ -83,12 +93,16 @@ const EventsPage = () => {
             <div
                 className={classNames(styles.eventsPage__inner, 'page__inner')}
             >
-                <EventPanel
-                    chosenCategory={chosenCategory}
-                    handleCategoryChange={handleCategoryChange}
-                    modalButtonRef={modalButtonRef}
-                    toggleModal={toggleModal}
-                />
+                {user && (
+                    <EventPanel
+                        chosenCategory={chosenCategory}
+                        handleCategoryChange={handleCategoryChange}
+                        modalButtonRef={modalButtonRef}
+                        toggleModal={toggleModal}
+                        withDeleted={withDeleted}
+                        setWithDeleted={setWithDeleted}
+                    />
+                )}
                 <ul
                     className={classNames(
                         styles.eventsPage__eventList,
@@ -110,36 +124,37 @@ const EventsPage = () => {
                         <p>Нет событий:(</p>
                     )}
                 </ul>
-                <button
-                    ref={modalButtonRef}
-                    className={classNames(
-                        styles.eventsPage__addEventButton,
-                        styles.eventsPage__addEventButton_mobile,
-                        'block',
-                        'visible-mobile',
-                    )}
-                    type="button"
-                    title="Добавить событие"
-                    onClick={() => toggleModal()}
-                >
-                    <img
-                        src={PlusIcon}
-                        alt="addEventButton"
+                {user && (
+                    <button
+                        ref={modalButtonRef}
                         className={classNames(
-                            styles.eventsPage__addEventIcon,
-                            'svg-large',
-                            'svg-accent',
+                            styles.eventsPage__addEventButton,
+                            styles.eventsPage__addEventButton_mobile,
+                            'block',
+                            'visible-mobile',
                         )}
-                    />
-                </button>
+                        type="button"
+                        title="Добавить событие"
+                        onClick={() => toggleModal()}
+                    >
+                        <img
+                            src={PlusIcon}
+                            alt="addEventButton"
+                            className={classNames(
+                                styles.eventsPage__addEventIcon,
+                                'svg-large',
+                                'svg-accent',
+                            )}
+                        />
+                    </button>
+                )}
             </div>
 
             {isModalOpen && (
                 <EventModal
                     isOpen={isModalOpen}
                     onClose={toggleModal}
-                    anchorRef={modalButtonRef}
-                    isCreateMode={true}
+                    type={'create'}
                     onSave={handleAddEvent}
                 />
             )}

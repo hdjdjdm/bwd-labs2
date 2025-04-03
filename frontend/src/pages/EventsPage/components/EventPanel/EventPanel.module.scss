@@ -1,6 +1,7 @@
 @use '@styles/variables' as *;
 @use '@styles/mixins' as *;
 @use '@styles/media' as *;
+@use '@styles/animations' as *;
 
 .eventPanel {
     @include flex-center();
@@ -35,7 +36,7 @@
         @include hover {
             opacity: 1;
             transform: scale(105%);
-            box-shadow: $shadow-accent;
+            animation: $animation-glowing;
         }
     }
 
@@ -55,6 +56,15 @@
         }
     }
 
+    &__withDeletedToggle {
+        position: absolute;
+        bottom: -45px;
+        z-index: -1;
+        padding-top: 30px !important;
+        display: flex;
+        justify-content: center;
+    }
+
     &__addEventButton {
         @include rounded(50);
         @include flex-center();
@@ -72,7 +82,7 @@
         @include hover {
             transform: scale(120%);
             opacity: 1;
-            box-shadow: $shadow-accent;
+            animation: $animation-glowing;
         }
     }
 }

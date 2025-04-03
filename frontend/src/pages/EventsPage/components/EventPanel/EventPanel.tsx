@@ -4,12 +4,15 @@ import { PlusIcon } from '@assets/icons';
 import React, { Ref } from 'react';
 import useIsScrolled from '@hooks/useIsScrolled.tsx';
 import { EventPageCategory } from '@/types';
+import CustomSwitch from '@components/Switch/CustomSwitch.tsx';
 
 interface EventPanelProps {
     chosenCategory: EventPageCategory;
     handleCategoryChange: (category: EventPageCategory) => void;
     modalButtonRef: Ref<HTMLButtonElement>;
     toggleModal: () => void;
+    withDeleted: boolean;
+    setWithDeleted: (withDeleted: boolean) => void;
 }
 
 const EventPanel: React.FC<EventPanelProps> = ({
@@ -17,12 +20,18 @@ const EventPanel: React.FC<EventPanelProps> = ({
     handleCategoryChange,
     modalButtonRef,
     toggleModal,
+    withDeleted,
+    setWithDeleted,
 }) => {
     const isScrolled = useIsScrolled();
 
+    const handleSwitchChange = (checked: boolean) => {
+        setWithDeleted(checked);
+    };
+
     return (
         <div className={classNames(styles.eventPanel)}>
-            <span
+            <div
                 className={classNames(
                     styles.eventPanel__categories,
                     isScrolled ? styles.eventPanel__categories_scrolled : null,
@@ -51,7 +60,21 @@ const EventPanel: React.FC<EventPanelProps> = ({
                 >
                     Публичные
                 </p>
-            </span>
+                {chosenCategory === 'my' && (
+                    <div
+                        className={classNames(
+                            styles.eventPanel__withDeletedToggle,
+                            'block',
+                        )}
+                    >
+                        Удаленные?&nbsp;
+                        <CustomSwitch
+                            checked={withDeleted}
+                            onChange={handleSwitchChange}
+                        />
+                    </div>
+                )}
+            </div>
             <button
                 ref={modalButtonRef}
                 className={classNames(

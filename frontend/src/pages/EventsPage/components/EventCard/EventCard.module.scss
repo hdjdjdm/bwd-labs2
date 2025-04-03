@@ -1,6 +1,7 @@
 @use '@styles/variables' as *;
 @use '@styles/mixins' as *;
 @use '@styles/media' as *;
+@use '@styles/animations' as *;
 
 .eventCard {
     background-color: $color-background;
@@ -13,8 +14,8 @@
     transition: all $transition-duration ease;
 
     @include hover {
-        box-shadow: $shadow-accent;
         transform: scale(105%);
+        animation: $animation-glowing;
     }
 
     @include mobile {
@@ -67,14 +68,16 @@
         }
     }
 
-    &__settingsIcon {
+    &__openModalIcon {
         cursor: pointer;
         filter: $svg-color-accent;
         transition: all $transition-duration ease;
         width: $svg-size !important;
 
-        @include hover {
-            transform: rotate(90deg) scale(120%);
+        &_creator {
+            @include hover {
+                transform: rotate(90deg) scale(120%);
+            }
         }
     }
 

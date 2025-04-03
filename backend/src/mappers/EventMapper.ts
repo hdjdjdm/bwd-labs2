@@ -18,6 +18,7 @@ class EventMapper {
             description: event.description ?? '',
             date: event.date,
             createdBy: event.creator ? UserMapper.toResponseDto(event.creator) : fallbackUser,
+            deletedAt: event.deletedAt ?? null,
             isPublic: event.isPublic ?? false,
         };
     }

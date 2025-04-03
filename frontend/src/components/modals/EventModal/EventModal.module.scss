@@ -54,10 +54,18 @@
         }
     }
 
-    &__publicSwitch {
+    &__publicField {
         display: flex;
         align-items: center;
         gap: $block-padding-small;
+    }
+
+    &__publicValue {
+
+        &_active {
+            color: $color-accent;
+            text-decoration: underline;
+        }
     }
 
     &__deleteButtons {

@@ -32,4 +32,5 @@ export interface EventResponseDto {
     date: Date;
     createdBy: UserResponseDto;
     isPublic: boolean;
+    deletedAt?: Date | null;
 }

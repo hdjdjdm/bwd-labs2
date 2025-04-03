@@ -13,6 +13,7 @@ interface InputFieldProps {
     onClickIcon?: () => void;
     required?: boolean;
     maxLength?: number;
+    disabled?: boolean;
 }
 
 const InputField: React.FC<InputFieldProps> = ({
@@ -26,6 +27,7 @@ const InputField: React.FC<InputFieldProps> = ({
     onClickIcon,
     maxLength,
     required = false,
+    disabled = false,
 }) => {
     const inputValue =
         type === 'date' && value instanceof Date
@@ -38,6 +40,7 @@ const InputField: React.FC<InputFieldProps> = ({
                 className={classNames(
                     styles.inputField__input,
                     iconSrc && styles.inputField__input_withIcon,
+                    disabled && styles.inputField__input_disabled,
                 )}
                 type={type}
                 value={inputValue as string}
@@ -46,6 +49,7 @@ const InputField: React.FC<InputFieldProps> = ({
                 minLength={type === 'password' ? 6 : 3}
                 maxLength={maxLength}
                 required={required}
+                disabled={disabled}
             />
             <label className={styles.inputField__label}>{label}</label>
             <img

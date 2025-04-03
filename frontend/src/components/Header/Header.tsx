@@ -156,7 +156,6 @@ const Header = () => {
                 <ConfirmModal
                     isOpen={isConfirmModalOpen}
                     onClose={toggleConfirmModal}
-                    anchorRef={logoutButtonRef}
                     onAccept={logout}
                     itemName={user!.name}
                     prefix={'Выйти из аккаунта'}

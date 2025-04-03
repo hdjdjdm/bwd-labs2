@@ -1,26 +1,31 @@
 import styles from './EventModal.module.scss';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
     AccountLockIcon,
     AccountLockOpenIcon,
     DeleteAlertIcon,
     DeleteIcon,
+    DeleteRestoreIcon,
 } from '@assets/icons';
 import InputField from '@components/InputField/InputField.tsx';
 import { useAutoResizeTextarea } from '@/hooks/useAutoResizeTextarea.tsx';
 import Modal from '@components/modals/Modal/Modal.tsx';
 import CustomSwitch from '@components/Switch/CustomSwitch.tsx';
 import EventDto from '@dtos/EventDto.ts';
+import { EventModalType } from '@/types';
+import ConfirmModal from '@components/modals/ConfirmModal/ConfirmModal.tsx';
+import { deleteEvent, restoreEvent } from '@api/eventService.ts';
+import { showCustomToast } from '@utils/customToastUtils.ts';
+import { parseError } from '@utils/errorUtils.ts';
 
 interface ModalProps {
     isOpen: boolean;
     onClose: () => void;
-    anchorRef: React.RefObject<HTMLElement | null>;
     event?: EventDto;
-    toggleConfirmModal?: () => void;
-    confirmModalButtonRef?: React.RefObject<HTMLButtonElement | null>;
-    isCreateMode?: boolean;
+    type: EventModalType;
+    onDelete?: (id: number, isHardDelete: boolean) => void;
+    onUpdate?: (updatedEvent: EventDto) => void;
     onSave: (
         title: string,
         description: string,
@@ -33,19 +38,42 @@ interface ModalProps {
 const EventModal: React.FC<ModalProps> = ({
     isOpen,
     onClose,
-    anchorRef,
     event,
-    toggleConfirmModal, //todo хард делете
-    confirmModalButtonRef,
-    isCreateMode = false,
+    type = 'info',
+    onDelete,
+    onUpdate,
     onSave,
 }) => {
     const [title, setTitle] = useState(event?.title ?? '');
     const [description, setDescription] = useState(event?.description ?? '');
     const [date, setDate] = useState(event?.date ?? new Date());
     const [isPublic, setIsPublic] = useState<boolean>(event?.isPublic ?? true);
+    const [isConfirmModalOpen, setIsConfirmModalOpen] =
+        useState<boolean>(false);
+    const [confirmAction, setConfirmAction] = useState<() => void>(() => {});
+    const [confirmPrefix, setConfirmPrefix] = useState<string>('');
 
+    const confirmModalButtonRef = useRef<HTMLButtonElement>(null);
     const textareaRef = useAutoResizeTextarea(description);
+
+    const toggleConfirmModal = (
+        action?: () => void,
+        actionType?: 'restore' | 'softDelete' | 'hardDelete',
+    ) => {
+        setConfirmAction(() => action);
+
+        switch (actionType) {
+            case 'restore':
+                setConfirmPrefix('Восстановить');
+                break;
+            case 'hardDelete':
+                setConfirmPrefix('Удалить навсегда');
+                break;
+            default:
+                setConfirmPrefix('Переместить в удаленные');
+        }
+        setIsConfirmModalOpen((prev) => !prev);
+    };
 
     const handleSwitchChange = (checked: boolean) => {
         setIsPublic(checked);
@@ -58,13 +86,75 @@ const EventModal: React.FC<ModalProps> = ({
         onClose();
     };
 
+    const handleDeleteEvent = async (
+        id: number,
+        isHardDelete: boolean = false,
+    ) => {
+        if (!event) return;
+
+        try {
+            const result = await deleteEvent(id, isHardDelete);
+            console.log(result);
+            if (result.status === 200) {
+                onDelete!(id, true);
+                if (result.event) {
+                    onUpdate!(result.event);
+                }
+                showCustomToast(
+                    result.message,
+                    'success',
+                    result.status.toString(),
+                );
+                onClose();
+            } else {
+                showCustomToast(
+                    result.message,
+                    'warning',
+                    result.status.toString(),
+                );
+            }
+        } catch (e: unknown) {
+            const { status, errorMessage } = parseError(e);
+            showCustomToast(errorMessage, 'error', status.toString());
+        }
+    };
+
+    const handleRestoreEvent = async (id: number) => {
+        if (!event) return;
+
+        try {
+            const result = await restoreEvent(id);
+            if (result.status === 200 && result.event) {
+                if (onUpdate) {
+                    onUpdate(result.event);
+                }
+                showCustomToast(
+                    result.message,
+                    'success',
+                    result.status.toString(),
+                );
+                onClose();
+            } else {
+                showCustomToast(
+                    result.message,
+                    'warning',
+                    result.status.toString(),
+                );
+            }
+        } catch (e: unknown) {
+            const { status, errorMessage } = parseError(e);
+            showCustomToast(errorMessage, 'error', status.toString());
+        }
+    };
+
     return (
         <>
             <Modal
                 isOpen={isOpen}
                 onClose={onClose}
-                title={isCreateMode ? 'Добавить событие' : 'Данные события'}
-                anchorRef={anchorRef}
+                title={
+                    type === 'create' ? 'Добавить событие' : 'Данные события'
+                }
             >
                 <form className={styles.eventModal__form} onSubmit={handleSave}>
                     <div className={styles.eventModal__mainInfo}>
@@ -81,6 +171,7 @@ const EventModal: React.FC<ModalProps> = ({
                                 label="Название"
                                 maxLength={100}
                                 required
+                                disabled={type === 'info'}
                             />
                         </span>
                         <span
@@ -97,6 +188,7 @@ const EventModal: React.FC<ModalProps> = ({
                                 }
                                 label="Дата"
                                 required
+                                disabled={type === 'info'}
                             />
                         </span>
                     </div>
@@ -107,38 +199,121 @@ const EventModal: React.FC<ModalProps> = ({
                         onChange={(e) => setDescription(e.target.value)}
                         maxLength={200}
                         placeholder={'Описание'}
+                        disabled={type === 'info'}
                     />
-                    <span className={styles.eventModal__publicSwitch}>
-                        Публичное
-                        <CustomSwitch
-                            checked={isPublic}
-                            onChange={handleSwitchChange}
-                            checkedIcon={AccountLockOpenIcon}
-                            nonCheckedIcon={AccountLockIcon}
-                        />
-                    </span>
-                    {!isCreateMode && (
-                        <div className={styles.eventModal__deleteButtons}>
-                            <button
-                                ref={confirmModalButtonRef}
-                                onClick={() => toggleConfirmModal!()}
-                                type="button"
-                                className={classNames(
-                                    styles.eventModal__button_delete,
-                                    styles.eventModal__button,
-                                    'button',
-                                )}
-                            >
-                                Удалить
+
+                    <span className={styles.eventModal__publicField}>
+                        {type === 'info' ? (
+                            <>
+                                <h5
+                                    className={classNames(
+                                        styles.eventModal__publicValue,
+                                        styles.eventModal__publicValue_active,
+                                    )}
+                                >
+                                    {isPublic ? 'Публичное' : 'Приватное'}
+                                </h5>
                                 <img
-                                    src={DeleteIcon}
-                                    alt="softDeleteIcon"
-                                    className="svg-small"
+                                    src={
+                                        isPublic
+                                            ? AccountLockOpenIcon
+                                            : AccountLockIcon
+                                    }
+                                    alt="publicEventIcon"
+                                    className={classNames(
+                                        styles.eventModal__publicIcon,
+                                        'svg',
+                                        'svg-accent',
+                                    )}
                                 />
-                            </button>
+                            </>
+                        ) : (
+                            <>
+                                <h5
+                                    className={classNames(
+                                        styles.eventModal__publicValue,
+                                        !isPublic &&
+                                            styles.eventModal__publicValue_active,
+                                    )}
+                                >
+                                    Приватное
+                                </h5>
+                                <CustomSwitch
+                                    checked={isPublic}
+                                    onChange={handleSwitchChange}
+                                    checkedIcon={AccountLockOpenIcon}
+                                    nonCheckedIcon={AccountLockIcon}
+                                />
+                                <h5
+                                    className={classNames(
+                                        styles.eventModal__publicValue,
+                                        isPublic &&
+                                            styles.eventModal__publicValue_active,
+                                    )}
+                                >
+                                    Публичное
+                                </h5>
+                            </>
+                        )}
+                    </span>
+                    {type === 'edit' && (
+                        <div className={styles.eventModal__deleteButtons}>
+                            {event?.deletedAt ? (
+                                <button
+                                    ref={confirmModalButtonRef}
+                                    onClick={() =>
+                                        toggleConfirmModal(
+                                            () => handleRestoreEvent(event.id),
+                                            'restore',
+                                        )
+                                    }
+                                    type="button"
+                                    className={classNames(
+                                        styles.eventModal__button_delete,
+                                        styles.eventModal__button,
+                                        'button',
+                                    )}
+                                >
+                                    Восстановить
+                                    <img
+                                        src={DeleteRestoreIcon}
+                                        alt="restoreIcon"
+                                        className="svg-small"
+                                    />
+                                </button>
+                            ) : (
+                                <button
+                                    ref={confirmModalButtonRef}
+                                    onClick={() =>
+                                        toggleConfirmModal(
+                                            () => handleDeleteEvent(event!.id),
+                                            'softDelete',
+                                        )
+                                    }
+                                    type="button"
+                                    className={classNames(
+                                        styles.eventModal__button_delete,
+                                        styles.eventModal__button,
+                                        'button',
+                                    )}
+                                >
+                                    Удалить
+                                    <img
+                                        src={DeleteIcon}
+                                        alt="softDeleteIcon"
+                                        className="svg-small"
+                                    />
+                                </button>
+                            )}
                             <button
                                 ref={confirmModalButtonRef}
-                                onClick={() => toggleConfirmModal!()}
+                                onClick={() =>
+                                    toggleConfirmModal(
+                                        () =>
+                                            handleDeleteEvent(event!.id, true),
+                                        'hardDelete',
+                                    )
+                                }
                                 type="button"
                                 className={classNames(
                                     styles.eventModal__button,
@@ -155,18 +330,30 @@ const EventModal: React.FC<ModalProps> = ({
                             </button>
                         </div>
                     )}
-                    <button
-                        className={classNames(
-                            styles.eventModal__button,
-                            'button',
-                            'button_accent',
-                        )}
-                        type="submit"
-                        onClick={handleSave}
-                    >
-                        {isCreateMode ? 'Добавить' : 'Сохранить'}
-                    </button>
+                    {type !== 'info' && (
+                        <button
+                            className={classNames(
+                                styles.eventModal__button,
+                                'button',
+                                'button_accent',
+                            )}
+                            type="submit"
+                            onClick={handleSave}
+                        >
+                            {type === 'create' ? 'Добавить' : 'Сохранить'}
+                        </button>
+                    )}
                 </form>
+
+                {isConfirmModalOpen && event && (
+                    <ConfirmModal
+                        isOpen={isConfirmModalOpen}
+                        onClose={() => setIsConfirmModalOpen(false)}
+                        onAccept={confirmAction}
+                        itemName={title}
+                        prefix={confirmPrefix}
+                    />
+                )}
             </Modal>
         </>
     );

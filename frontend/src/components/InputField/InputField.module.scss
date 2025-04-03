@@ -56,6 +56,10 @@
             font-size: 28px;
             letter-spacing: 2px;
         }
+
+        &_disabled {
+            cursor: default;
+        }
     }
 
     &__inputIcon {

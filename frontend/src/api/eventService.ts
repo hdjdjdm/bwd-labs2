@@ -5,9 +5,12 @@ import EventDto from '@dtos/EventDto.ts';
 
 export const getEvents = async (
     category: EventPageCategory,
+    withDeleted: boolean = false,
 ): Promise<EventDto[]> => {
     try {
-        const { data } = await baseApi.get(`/events/${category}`);
+        const { data } = await baseApi.get(
+            `/events/${category}?withDeleted=${withDeleted}`,
+        );
         return data;
     } catch (e: unknown) {
         throw parseError(e);
@@ -56,7 +59,23 @@ export const deleteEvent = async (
             `/events/${eventId}?hardDelete=${hardDelete}`,
         );
         const message = data.message;
-        return { status, message };
+        const event = data.event;
+        return { status, message, event };
+    } catch (e: unknown) {
+        throw parseError(e);
+    }
+};
+
+export const restoreEvent = async (
+    eventId: number,
+): Promise<DeleteEventResponse> => {
+    try {
+        const { status, data } = await baseApi.patch(
+            `/events/${eventId}/restore`,
+        );
+        const message = data.message;
+        const event = data.event;
+        return { status, message, event };
     } catch (e: unknown) {
         throw parseError(e);
     }

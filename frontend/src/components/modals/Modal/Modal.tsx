@@ -1,5 +1,5 @@
 import styles from './Modal.module.scss';
-import React, { ReactNode, RefObject } from 'react';
+import React, { ReactNode, useRef } from 'react';
 import useClickOutside from '@/hooks/useClickOutside.tsx';
 import classNames from 'classnames';
 import { createPortal } from 'react-dom';
@@ -9,7 +9,6 @@ import { useEscapeKey } from '@hooks/useEscapeKey.tsx';
 interface ModalProps {
     isOpen: boolean;
     onClose: () => void;
-    anchorRef: RefObject<HTMLElement | null>;
     title: string;
     modalClassName?: string;
     zIndex?: number;
@@ -19,27 +18,27 @@ interface ModalProps {
 const Modal: React.FC<ModalProps> = ({
     isOpen,
     onClose,
-    anchorRef,
     title,
     modalClassName,
-    zIndex = 1500,
     children,
 }) => {
-    const modalRef = useClickOutside(
-        onClose,
-        anchorRef,
-    ) as React.RefObject<HTMLDivElement>;
+    const modalRef = useRef<HTMLDivElement>(null);
+    useClickOutside(modalRef, onClose);
 
     useEscapeKey(isOpen, onClose);
 
     if (!isOpen) return null;
 
     return createPortal(
-        <div className="overlay" style={{ zIndex: zIndex }}>
+        <div className="overlay">
             <div
                 ref={modalRef}
-                className={classNames(styles.modal, 'block', modalClassName)}
-                style={{ zIndex: zIndex + 1 }}
+                className={classNames(
+                    styles.modal,
+                    'block',
+                    'modal',
+                    modalClassName,
+                )}
             >
                 <div className={styles.modal__inner}>
                     <div className={styles.modal__header}>

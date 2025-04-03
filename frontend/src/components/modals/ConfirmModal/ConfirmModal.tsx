@@ -1,24 +1,20 @@
 import styles from './ConfirmModal.module.scss';
 import classNames from 'classnames';
-import { RefObject } from 'react';
 import Modal from '@components/modals/Modal/Modal.tsx';
 
 type ConfirmModalProps = {
     isOpen: boolean;
     onClose: () => void;
-    anchorRef: RefObject<HTMLButtonElement | null>;
     onAccept: () => void;
     afterChoice?: () => void;
     itemName: string;
     prefix?: string;
     modalClassName?: string;
-    zIndex?: number;
 };
 
 const ConfirmModal = ({
     isOpen,
     onClose,
-    anchorRef,
     onAccept,
     itemName,
     prefix = 'Удалить',
@@ -38,7 +34,6 @@ const ConfirmModal = ({
                 isOpen={isOpen}
                 onClose={onClose}
                 title={'Подтверждение'}
-                anchorRef={anchorRef}
                 modalClassName={styles.confirmModal}
             >
                 <span className={styles.confirmModal__text}>

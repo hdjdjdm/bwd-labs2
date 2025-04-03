@@ -55,8 +55,7 @@ class EventController {
 
     async getPublicEvents(req: Request, res: Response, next: NextFunction) {
         try {
-            const withDeleted = ['true', '1', 'yes'].includes(String(req.query.withDeleted).toLowerCase());
-            const events = await EventService.getPublicEvents(withDeleted);
+            const events = await EventService.getPublicEvents();
             const responseData = events.map((event) => EventMapper.toResponseDto(event));
             res.status(200).json(responseData);
         } catch (e) {
@@ -118,7 +117,7 @@ class EventController {
         try {
             const id = Number(req.params.id);
 
-            const hardDelete = ['true', '1', 'yes'].includes(String(req.query.withDeleted).toLowerCase());
+            const hardDelete = ['true', '1', 'yes'].includes(String(req.query.hardDelete).toLowerCase());
 
             EventController.validateEventId(id);
 
@@ -128,8 +127,8 @@ class EventController {
                 );
             }
 
-            const result = await EventService.deleteEvent(id, hardDelete);
-            res.status(200).json(result);
+            const { message, event } = await EventService.deleteEvent(id, hardDelete);
+            res.status(200).json({ message: message, event: event ? EventMapper.toResponseDto(event) : null });
         } catch (e) {
             next(e);
         }
@@ -147,8 +146,8 @@ class EventController {
                 );
             }
 
-            const result = await EventService.restoreEvent(id);
-            res.status(200).json(result);
+            const { message, event } = await EventService.restoreEvent(id);
+            res.status(200).json({ message: message, event: EventMapper.toResponseDto(event) });
         } catch (e) {
             next(e);
         }

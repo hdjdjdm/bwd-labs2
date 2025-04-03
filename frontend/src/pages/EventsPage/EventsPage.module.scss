@@ -1,6 +1,7 @@
 @use '@styles/variables' as *;
 @use '@styles/mixins' as *;
 @use '@styles/media' as *;
+@use '@styles/animations' as *;
 
 .eventsPage {
 
@@ -49,7 +50,7 @@
 
         @include hover {
             transform: scale(110%);
-            box-shadow: $shadow-accent !important;
+            animation: $animation-glowing;
         }
     }
 

@@ -29,9 +29,8 @@ class EventService {
         });
     }
 
-    async getPublicEvents(withDeleted: boolean): Promise<Event[]> {
+    async getPublicEvents(): Promise<Event[]> {
         return await Event.findAll({
-            paranoid: !withDeleted,
             where: { isPublic: true },
             include: [
                 {
@@ -83,23 +82,33 @@ class EventService {
         return this.getEvent(event.id);
     }
 
-    async deleteEvent(id: number, hardDelete: boolean = false): Promise<{ message: string }> {
+    async deleteEvent(id: number, hardDelete: boolean = false): Promise<{ message: string; event: Event | null }> {
         const event = await this.getEvent(id);
+        const eventTitle = event.title;
 
         await event.destroy({
             force: hardDelete,
         });
+
+        let updatedEvent;
+        if (!hardDelete) {
+            updatedEvent = await this.getEvent(id);
+        }
+
         return {
-            message: `Event with id ${id} ${hardDelete ? 'permanently deleted' : 'deleted successfully'}`,
+            message: `Event ${eventTitle} ${hardDelete ? 'permanently deleted' : 'move to deleted'}`,
+            event: updatedEvent as Event | null,
         };
     }
 
-    async restoreEvent(id: number): Promise<{ message: string }> {
+    async restoreEvent(id: number): Promise<{ message: string; event: Event }> {
         const event = await this.getEvent(id);
+        const eventTitle = event?.title;
 
         await event.restore();
         return {
-            message: `Event with id ${id} restore successfully`,
+            message: `Event ${eventTitle} restored successfully`,
+            event: event,
         };
     }
 }

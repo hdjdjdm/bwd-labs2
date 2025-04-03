@@ -16,7 +16,7 @@
         flex-direction: column;
         gap: $block-gap-small;
         overflow-x: hidden;
-
+        padding: $block-padding-small;
     }
 
     &__header {
