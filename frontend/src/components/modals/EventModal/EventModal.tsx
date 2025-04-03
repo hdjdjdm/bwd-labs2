@@ -94,11 +94,13 @@ const EventModal: React.FC<ModalProps> = ({
 
         try {
             const result = await deleteEvent(id, isHardDelete);
-            console.log(result);
             if (result.status === 200) {
-                onDelete!(id, true);
-                if (result.event) {
-                    onUpdate!(result.event);
+                if (isHardDelete) {
+                    onDelete?.(id, true);
+                } else {
+                    if (result.event) {
+                        onUpdate?.(result.event);
+                    }
                 }
                 showCustomToast(
                     result.message,

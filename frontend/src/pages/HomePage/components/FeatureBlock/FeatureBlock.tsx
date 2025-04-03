@@ -5,7 +5,6 @@ import classNames from 'classnames';
 interface FeatureBlockProps {
     title: string;
     description: string;
-    icon?: string;
 }
 
 const FeatureBlock: React.FC<FeatureBlockProps> = ({ title, description }) => {

@@ -13,6 +13,7 @@ interface EventCardProps {
     event: EventDto;
     onUpdate: (updatedEvent: EventDto) => void;
     onDelete: (id: number, isHardDelete: boolean) => void;
+    onReplace: (updatedEvent: EventDto) => void;
     className?: string;
 }
 
@@ -20,6 +21,7 @@ const EventCard: React.FC<EventCardProps> = ({
     event,
     onUpdate,
     onDelete,
+    onReplace,
     className,
 }) => {
     const { user } = useContext(AuthContext)!;
@@ -50,7 +52,7 @@ const EventCard: React.FC<EventCardProps> = ({
                 date,
                 isPublic,
             });
-            onUpdate(updatedEvent);
+            onReplace(updatedEvent);
             showCustomToast(`Событие ${title} успешно изменено`, 'success');
         } catch (e: unknown) {
             const { status, errorMessage } = parseError(e);
@@ -65,6 +67,17 @@ const EventCard: React.FC<EventCardProps> = ({
                     <p className={classNames(styles.eventCard__date)}>
                         {new Date(event.date).toLocaleDateString('ru-RU')}
                     </p>
+                )}
+                {event.deletedAt && (
+                    <h6
+                        className={classNames(
+                            styles.eventCard__deletedAt,
+                            'text-accent',
+                        )}
+                    >
+                        Удален{' '}
+                        {new Date(event.deletedAt).toLocaleDateString('ru-RU')}
+                    </h6>
                 )}
                 {isCreator ? (
                     <img

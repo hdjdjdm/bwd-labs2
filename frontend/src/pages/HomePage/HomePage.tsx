@@ -7,25 +7,20 @@ import FeatureBlock from '@pages/HomePage/components/FeatureBlock/FeatureBlock.t
 const HomePage = () => {
     const features = [
         {
-            icon: 'icon-speed.svg',
-            title: 'Быстро и удобно',
-            description: 'Наш сайт работает мгновенно, экономя ваше время.',
+            title: 'Текст 1',
+            description: 'ввввввввввввввввввввв',
         },
         {
-            icon: 'icon-design.svg',
-            title: 'Современный дизайн',
-            description: 'Удобный интерфейс и приятная анимация.',
+            title: 'Текст 2',
+            description: 'аааааааааааааааааааааааааааааааа.',
         },
         {
-            icon: 'icon-security.svg',
-            title: 'Безопасность',
-            description:
-                'Ваши данные защищены с использованием современных технологий.',
+            title: 'Текст 3',
+            description: 'Ваыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыый.',
         },
         {
-            icon: 'icon-support.svg',
-            title: 'Поддержка 24/7',
-            description: 'Наша команда всегда готова помочь вам.',
+            title: 'Текст 4',
+            description: 'йаущщщщщщщщщщщщщщщщщ.',
         },
     ];
 
@@ -40,7 +35,6 @@ const HomePage = () => {
                             key={index}
                             title={feature.title}
                             description={feature.description}
-                            icon={feature.icon}
                         />
                     ))}
                 </div>

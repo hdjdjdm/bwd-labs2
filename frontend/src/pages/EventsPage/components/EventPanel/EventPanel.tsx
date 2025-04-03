@@ -67,7 +67,7 @@ const EventPanel: React.FC<EventPanelProps> = ({
                             'block',
                         )}
                     >
-                        Удаленные?&nbsp;
+                        С удаленными?&nbsp;
                         <CustomSwitch
                             checked={withDeleted}
                             onChange={handleSwitchChange}

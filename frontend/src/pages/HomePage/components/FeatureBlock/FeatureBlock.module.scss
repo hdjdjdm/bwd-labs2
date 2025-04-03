@@ -3,13 +3,16 @@
 @use '@styles/media' as *;
 
 .featureBlock {
-    flex: 1 1 calc(25% - $block-gap-small);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 0 1 calc(33% - $block-gap-small);
 
     @include tablet {
-        flex: 1 1 calc(50% - $block-gap-small);
+        flex: 0 1 calc(66% - $block-gap-small);
     }
 
     @include mobile {
-        flex: 1 1 100%;
+        flex: 0 1 100%;
     }
 }

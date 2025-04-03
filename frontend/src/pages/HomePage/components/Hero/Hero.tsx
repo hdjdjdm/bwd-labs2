@@ -24,7 +24,7 @@ const Hero = () => {
     ];
 
     return (
-        <div className={classNames(styles.hero, 'block')}>
+        <div className={classNames(styles.hero)}>
             <Swiper
                 modules={[Autoplay, Pagination, Scrollbar]}
                 centeredSlides={true}

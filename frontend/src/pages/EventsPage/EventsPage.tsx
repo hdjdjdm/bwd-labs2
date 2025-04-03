@@ -43,6 +43,12 @@ const EventsPage = () => {
                 return [...prevEvents, updatedEvent];
             }
 
+            if (updatedEvent.deletedAt && !withDeleted) {
+                return prevEvents.filter(
+                    (event) => event.id !== updatedEvent.id,
+                );
+            }
+
             return prevEvents.map((event) =>
                 event.id === updatedEvent.id ? updatedEvent : event,
             );
@@ -50,12 +56,19 @@ const EventsPage = () => {
     };
 
     const removeEventFromList = (id: number, isHardDelete: boolean) => {
-        setEvents((prevEvents) => {
-            if (isHardDelete || !withDeleted) {
-                return prevEvents.filter((event) => event.id !== id);
-            }
-            return prevEvents;
-        });
+        if (isHardDelete || !withDeleted) {
+            setEvents((prevEvents) =>
+                prevEvents.filter((event) => event.id !== id),
+            );
+        }
+    };
+
+    const replaceEventInList = (updatedEvent: EventDto) => {
+        setEvents((prevEvents) =>
+            prevEvents.map((event) =>
+                event.id === updatedEvent.id ? updatedEvent : event,
+            ),
+        );
     };
 
     const toggleModal = () => {
@@ -117,6 +130,7 @@ const EventsPage = () => {
                                 event={event}
                                 onUpdate={updateEventInList}
                                 onDelete={removeEventFromList}
+                                onReplace={replaceEventInList}
                                 className={styles.eventsPage__eventCard}
                             />
                         ))
