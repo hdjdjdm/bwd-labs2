@@ -1,0 +1,69 @@
+// Основные цвета
+$color-primary: #e1ffed;
+$color-secondary: #f7fff4;
+$color-accent: #28A745;
+$color-light: #d9ffd3;
+
+// Фон и текст
+$color-background: #ffffff;
+$color-text: #000000;
+$color-text-secondary: #6C757D;
+
+// Границы
+$color-border: #000000;
+
+// Границы и радиусы
+$border: 1px solid $color-border;
+$border-large: 2px solid $color-border;
+$border-radius: 20px;
+$border-radius-small: 10px;
+$border-radius-large: 30px;
+
+// Шрифты
+$font-family-base: 'Montserrat Regular', sans-serif;
+$font-family-accent: 'Montserrat Medium', sans-serif;
+$font-family-light: 'Montserrat Light', sans-serif;
+
+// Текст
+$font-size-accent: 24px;
+$font-size-base: 20px;
+$font-size-large: 32px;
+$font-size-small: 16px;
+
+// Контейнер
+$container-width: 1950px;
+$container-padding-x: 20px;
+
+// Блоки
+$block-gap: 40px;
+$block-gap-small: 20px;
+$block-padding: 40px;
+$block-padding-small: 10px;
+
+// Кнопки
+$button-height: 40px;
+
+// Тени
+$shadow-small: 2px 5px 10px rgba(0, 0, 0, 0.2);
+$shadow-big: 0px 0px 10px rgba(0, 0, 0, 0.8);
+$shadow-accent: 0px 0px 20px rgba(40, 167, 69, 0.5);
+
+// Переходы
+$transition-duration: 0.4s;
+
+// SVG
+$svg-size: 35px;
+$svg-size-large: 50px;
+$svg-size-small: 22px;
+$svg-color-white: invert(100%) sepia(100%) saturate(0%) hue-rotate(43deg) brightness(104%) contrast(105%);
+$svg-color-accent: invert(46%) sepia(17%) saturate(1378%) hue-rotate(81deg) brightness(107%) contrast(122%);
+
+// Ширина устройств
+$desktop: 1280px;
+$desktop-above: 1281px;
+$tablet: 1024px;
+$tablet-above: 1025px;
+$mobile: 768px;
+$mobile-above: 769px;
+$small-mobile: 468px;
+$small-mobile-above: 469px;

@@ -36,7 +36,7 @@ const config: AppConfig = {
     },
     auth: {
         jwtSecret: process.env.JWT_SECRET as string,
-        jwtExpiresIn: process.env.JWT_EXPIRES_IN as string,
+        jwtExpiresIn: (process.env.JWT_EXPIRES_IN as string) || '1h',
     },
 };
 

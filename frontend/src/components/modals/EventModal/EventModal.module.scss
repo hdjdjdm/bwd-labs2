@@ -1,0 +1,96 @@
+@use '@styles/variables' as *;
+@use '@styles/mixins' as *;
+@use '@styles/media' as *;
+
+.eventModal {
+    width: 800px;
+
+    @include  tablet {
+        width: 500px;
+    }
+
+    @include mobile {
+        width: 90%;
+    }
+
+    &__form {
+        display: flex;
+        flex-direction: column;
+        gap: $block-gap-small
+    }
+
+    &__mainInfo {
+        display: flex;
+        justify-content: space-between;
+        gap: $block-gap-small;
+
+        @include mobile {
+            flex-direction: column;
+        }
+    }
+
+    &__description {
+        font-family: $font-family-light;
+        border: $border-large;
+        border-radius: $border-radius;
+        resize: none;
+        padding: $block-padding-small;
+        overflow-y: auto;
+        max-height: 30lvh;
+    }
+
+    &__input {
+
+        &_title {
+            flex: 1;
+        }
+
+        &_date {
+            width: 160px;
+
+            @include mobile {
+                width: 100%;
+            }
+        }
+    }
+
+    &__publicField {
+        display: flex;
+        align-items: center;
+        gap: $block-padding-small;
+    }
+
+    &__publicValue {
+
+        &_active {
+            color: $color-accent;
+            text-decoration: underline;
+        }
+    }
+
+    &__deleteButtons {
+        @include fluid-text(20, 16);
+
+        display: flex;
+        justify-content: space-between;
+        gap: $block-gap-small;
+
+        @include small-mobile {
+            flex-direction: column;
+            gap: $block-gap-small;
+        }
+    }
+
+    &__button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: $block-gap-small;
+
+        &_delete {
+            @include small-mobile {
+                justify-content: space-between;
+            }
+        }
+    }
+}

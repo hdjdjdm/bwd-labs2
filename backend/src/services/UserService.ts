@@ -11,20 +11,17 @@ class UserService {
     }
 
     async getUser(id: number): Promise<User> {
-        const user = await User.findByPk(id, { paranoid: false });
-        if (!user) {
-            throw new CustomError(ErrorCodes.NotFoundedError, `User with ID ${id} not found`);
-        }
-        return user;
+        return await User.findByPk(id, {
+            paranoid: false,
+            rejectOnEmpty: new CustomError(ErrorCodes.NotFoundedError, `User with ID ${id} not found`),
+        });
     }
 
     async deleteUser(id: number, hardDelete: boolean = false): Promise<{ message: string }> {
         const user = await User.findByPk(id, {
             paranoid: !hardDelete,
+            rejectOnEmpty: new CustomError(ErrorCodes.NotFoundedError, `User with id ${id} not found`),
         });
-        if (!user) {
-            throw new CustomError(ErrorCodes.NotFoundedError, `User with id ${id} not found`);
-        }
 
         await user.destroy({
             force: hardDelete,
@@ -37,10 +34,8 @@ class UserService {
     async restoreUser(id: number): Promise<{ message: string }> {
         const user = await User.findByPk(id, {
             paranoid: false,
+            rejectOnEmpty: new CustomError(ErrorCodes.NotFoundedError, `User with id ${id} not found`),
         });
-        if (!user) {
-            throw new CustomError(ErrorCodes.NotFoundedError, `User with id ${id} not found`);
-        }
 
         await user.restore();
         return {
@@ -49,19 +44,13 @@ class UserService {
     }
 
     async getUserRole(id: number): Promise<{ role: string }> {
-        const user = await User.findByPk(id, { paranoid: false });
-        if (!user) {
-            throw new CustomError(ErrorCodes.NotFoundedError, `User with id ${id} not found`);
-        }
+        const user = await this.getUser(id);
 
         return { role: user.role };
     }
 
     async setUserRole(id: number, newRole: Roles): Promise<{ message: string }> {
-        const user = await User.findByPk(id, { paranoid: false });
-        if (!user) {
-            throw new CustomError(ErrorCodes.NotFoundedError, `User with id ${id} not found`);
-        }
+        const user = await this.getUser(id);
 
         user.role = newRole;
         await user.save();

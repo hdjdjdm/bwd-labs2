@@ -1,13 +1,15 @@
 import { Router } from 'express';
 import EventController from '@controllers/EventController.js';
 import jwtAuthMiddleware from '@middleware/jwtAuthMiddleware.js';
+import { checkRole } from '@middleware/authMiddleware.js';
+import { Roles } from '@constants/Roles.js';
 
 const router: Router = Router();
 
 /**
  * @swagger
  * tags:
- *   name: Events
+ *   name: EventsPage
  *   description: API for managing events
  */
 
@@ -16,7 +18,7 @@ const router: Router = Router();
  * /events:
  *   get:
  *     summary: Get all events
- *     tags: [Events]
+ *     tags: [EventsPage]
  *     parameters:
  *       - in: query
  *         name: withDeleted
@@ -34,14 +36,18 @@ const router: Router = Router();
  *       500:
  *         description: Internal server error
  */
-router.get('/', EventController.getAllEvents);
+router.get('/all', jwtAuthMiddleware, checkRole(Roles.ADMIN), EventController.getAllEvents);
+
+router.get('/public', EventController.getPublicEvents);
+
+router.get('/my', jwtAuthMiddleware, EventController.getUserEvents);
 
 /**
  * @swagger
  * /events:
  *   post:
  *     summary: Create a new event
- *     tags: [Events]
+ *     tags: [EventsPage]
  *     requestBody:
  *       required: true
  *       content:
@@ -70,7 +76,7 @@ router.post('/', jwtAuthMiddleware, EventController.createEvent);
  * /events/{id}:
  *   get:
  *     summary: Get an event by ID
- *     tags: [Events]
+ *     tags: [EventsPage]
  *     parameters:
  *       - in: path
  *         name: id
@@ -93,7 +99,7 @@ router.get('/:id', jwtAuthMiddleware, EventController.getEvent);
  * /events/{id}:
  *   put:
  *     summary: Update an event
- *     tags: [Events]
+ *     tags: [EventsPage]
  *     parameters:
  *       - in: path
  *         name: id
@@ -128,7 +134,7 @@ router.put('/:id', jwtAuthMiddleware, EventController.updateEvent);
  * /events/{id}:
  *   delete:
  *     summary: Soft delete an event
- *     tags: [Events]
+ *     tags: [EventsPage]
  *     parameters:
  *       - in: path
  *         name: id
@@ -151,7 +157,7 @@ router.delete('/:id', jwtAuthMiddleware, EventController.deleteEvent);
  * /events/{id}/restore:
  *   patch:
  *     summary: Restore a soft-deleted event
- *     tags: [Events]
+ *     tags: [EventsPage]
  *     parameters:
  *       - in: path
  *         name: id

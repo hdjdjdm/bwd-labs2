@@ -1,15 +1,32 @@
-import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from 'sequelize';
+import {
+    DataTypes,
+    Association,
+    Model,
+    NonAttribute,
+    InferAttributes,
+    InferCreationAttributes,
+    CreationOptional,
+} from 'sequelize';
 import { sequelize } from '../config/db.js';
 import bcrypt from 'bcryptjs';
 import { Roles } from '@constants/Roles.js';
+import Event from './Event.js';
 
-export default class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
+export default class User extends Model<
+    InferAttributes<User, { omit: 'events' }>,
+    InferCreationAttributes<User, { omit: 'events' }>
+> {
     declare id: CreationOptional<number>;
     declare name: string;
     declare email: string;
     declare password: string;
     declare role: CreationOptional<Roles>;
     declare deletedAt: CreationOptional<Date | null>;
+    declare events?: NonAttribute<Event[]>;
+
+    declare static associations: {
+        events: Association<User, Event>;
+    };
 }
 
 User.init(

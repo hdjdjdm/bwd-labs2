@@ -1,0 +1,65 @@
+@use '@styles/variables' as *;
+@use '@styles/mixins' as *;
+@use '@styles/media' as *;
+
+.customSwitch {
+    position: relative;
+    display: inline-block;
+    width: 54px;
+    height: 28px;
+    cursor: pointer;
+
+    &__input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+
+        &:checked + .customSwitch__slider {
+            background-color: $color-accent;
+
+            &:before {
+                transform: translateX(25px);
+            }
+        }
+    }
+
+    &__slider {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        border-radius: $border-radius;
+        transition: background-color $transition-duration ease;
+        display: flex;
+        align-items: center;
+        padding: 0 4px;
+        pointer-events: none;
+
+        &:before {
+            content: "";
+            position: absolute;
+            height: 21px;
+            width: 21px;
+            background-color: $color-background;
+            border-radius: 50%;
+            transition: transform $transition-duration ease;
+            z-index: 2;
+        }
+    }
+
+    &__icon {
+        position: absolute;
+        z-index: 1;
+        pointer-events: none;
+
+        &_checked {
+            left: 6px;
+        }
+
+        &_nonChecked {
+            right: 6px;
+        }
+    }
+}

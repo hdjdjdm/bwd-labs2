@@ -1,0 +1,102 @@
+@use '@styles/variables' as *;
+@use '@styles/mixins' as *;
+@use '@styles/media' as *;
+
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    transition: opacity $transition-duration ease;
+
+    &_scrolled {
+        opacity: 0.95;
+    }
+
+    &__inner {
+        background-color: $color-background;
+        //border-bottom: $border;
+        //border-color: $color-text-secondary;
+
+        padding: 10px 20px 10px;
+        margin-top: 40px;
+
+        @include desktop {
+            margin-top: 30px;
+        }
+
+        @include mobile {
+            margin-top: 20px;
+        }
+    }
+
+    &__top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &__logo {
+        cursor: pointer;
+        width: 250px;
+        transition: width $transition-duration ease;
+
+        @include tablet {
+            width: 190px;
+        }
+
+        &_mobile {
+            width: 150px;
+            transition: width 0s ease;
+        }
+    };
+
+    &__username {
+        font-family: $font-family-accent;
+        color: $color-accent;
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        @include tablet {
+            @include fluid-text(24, 20);
+
+            max-width: 150px;
+        }
+
+        @include small-mobile {
+            @include fluid-text(20, 18);
+
+            max-width: 80px;
+        }
+    }
+
+    &__buttons {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+
+        @include tablet {
+            gap: 10px;
+        }
+
+        @include mobile {
+            gap: 3px;
+        }
+    }
+
+    &__button {
+        @include fluid-text(22, 16);
+
+        @include small-mobile {
+            @include flex-center();
+
+            padding: 0 !important;
+            width: 50px;
+            aspect-ratio: 1;
+        }
+    }
+
+    &__buttonIcon {
+    }
+}

@@ -1,0 +1,86 @@
+@use "_mixins.scss" as *;
+@use "variables.scss" as *;
+
+body {
+    @include fluid-text(18, 16);
+
+    font-family: $font-family-base, sans-serif;
+    font-size: 18px;
+    color: $color-text;
+    background-color: $color-background;
+}
+
+a,
+button,
+input,
+textarea,
+svg * {
+    transition-duration: $transition-duration;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+    font-weight: 500;
+}
+
+h1 {
+    @include fluid-text(60, 43);
+}
+
+h2 {
+    @include fluid-text(40, 36);
+}
+
+h3 {
+    @include fluid-text(30, 26);
+}
+
+h4 {
+    @include fluid-text(24, 20);
+}
+
+h5 {
+    @include fluid-text(20, 16);
+}
+
+h6 {
+    @include fluid-text(12, 10);
+}
+
+a {
+    color: $color-primary;
+    text-decoration: none;
+    cursor: pointer;
+
+    @include hover {
+        color:  $color-accent;
+    }
+}
+
+ul {
+    font-size: 22px;
+}
+
+ol li {
+    font-size: 18px;
+    margin-left: 20px;
+}
+
+// Для Hero swiper
+.swiper-horizontal > .swiper-pagination-bullets.swiper-pagination-bullets-dynamic,
+.swiper-pagination-horizontal.swiper-pagination-bullets.swiper-pagination-bullets-dynamic {
+    background-color: $color-background;
+    border-bottom-width: 0;
+    border-radius: $border-radius $border-radius 0 0;
+    bottom: 0;
+    padding-top: 2px;
+}
+
+.swiper-pagination-bullet.swiper-pagination-bullet-active {
+    background-color: $color-accent;
+}
+
+// Toastify
+.Toastify__toast {
+    border: $border;
+}

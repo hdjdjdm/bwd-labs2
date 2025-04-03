@@ -1,0 +1,54 @@
+@use '@styles/variables' as *;
+@use '@styles/mixins' as *;
+@use '@styles/media' as *;
+
+.authForm {
+    padding: $block-padding !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $block-gap-small;
+    width: 500px;
+    transition: width $transition-duration ease;
+
+    @include tablet {
+        width: 400px;
+    }
+
+    @include small-mobile {
+        width: 300px;
+    }
+
+    &__title {
+        margin: 0;
+
+        @include small-mobile {
+            font-size: $font-size-accent;
+        }
+    }
+
+    &__input {
+        width: 100%;
+    }
+
+    &__link {
+        @include fluid-text(10, 16);
+
+        color: $color-accent;
+        margin-right: auto;
+        font-family: $font-family-base;
+
+        @include hover {
+            text-decoration: underline;
+        }
+    }
+
+    &__button {
+    }
+
+    &__nonAccountText {
+        @include fluid-text(10, 16);
+
+        font-family: $font-family-light;
+    }
+}

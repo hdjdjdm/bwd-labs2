@@ -1,0 +1,94 @@
+@use '@styles/variables' as *;
+@use '@styles/mixins' as *;
+@use '@styles/media' as *;
+@use '@styles/animations' as *;
+
+.eventCard {
+    background-color: $color-background;
+    padding: 20px !important;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: all $transition-duration ease;
+
+    @include hover {
+        transform: scale(105%);
+        animation: $animation-glowing;
+    }
+
+    @include mobile {
+        @include hover {
+            transform: none;
+        }
+    }
+
+    &__head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    &__date {
+        @include fluid-text(22, 20);
+
+        font-family: $font-family-light;
+    }
+
+    &__info {
+        display: flex;
+        flex-direction: column;
+        gap: $block-gap-small;
+        overflow: hidden;
+    }
+
+    &__title {
+        border-radius: $border-radius-small;
+        padding: 0 $block-padding-small;
+
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        @include tablet-above {
+            max-height: 3em;
+            word-break: break-word;
+            white-space: normal;
+        }
+
+        @include tablet {
+            @include fluid-text(26, 22);
+        }
+
+        @include mobile {
+            max-height: 3em;
+            word-break: break-word;
+            white-space: normal;
+        }
+    }
+
+    &__openModalIcon {
+        cursor: pointer;
+        filter: $svg-color-accent;
+        transition: all $transition-duration ease;
+        width: $svg-size !important;
+
+        &_creator {
+            @include hover {
+                transform: rotate(90deg) scale(120%);
+            }
+        }
+    }
+
+    &__creator {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__creatorName {
+        font-family: $font-family-light;
+        color: $color-accent;
+    }
+}

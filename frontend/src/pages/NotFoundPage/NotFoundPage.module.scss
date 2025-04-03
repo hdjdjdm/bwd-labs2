@@ -1,0 +1,44 @@
+@use '@styles/variables' as *;
+@use '@styles/mixins' as *;
+@use '@styles/media' as *;
+
+.notFoundPage {
+
+    &__inner {
+        @include flex-center();
+
+        gap: 0 !important;
+    }
+
+    &__image {
+        @include rounded(300);
+
+        margin-bottom: $block-gap-small;
+        aspect-ratio: 1;
+        animation: logo-spin 1s infinite linear;
+    }
+
+    &__info {
+        @include flex-center();
+
+        flex-direction: column;
+        gap: $block-gap-small;
+        background-color: $color-light;
+    }
+
+    &__button {
+    }
+}
+
+@keyframes logo-spin {
+    0% {
+        transform: rotate3d(1, 5, 1, 0deg);
+    }
+    50% {
+        transform: rotate3d(5, 3, 2, 180deg);
+        filter: invert(1);
+    }
+    100% {
+        transform: rotate3d(3, 1, 4, 360deg);
+    }
+}

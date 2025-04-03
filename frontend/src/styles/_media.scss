@@ -1,0 +1,49 @@
+@use 'variables' as *;
+
+@mixin desktop-above {
+    @media (min-width: $desktop) {
+        @content;
+    }
+}
+
+@mixin desktop {
+    @media (max-width: $desktop) {
+        @content;
+    }
+}
+
+@mixin tablet-above {
+    @media (min-width: $tablet) {
+        @content;
+    }
+}
+
+@mixin tablet {
+    @media (max-width: $tablet) {
+        @content;
+    }
+}
+
+@mixin mobile-above {
+    @media (min-width: $mobile-above) {
+        @content;
+    }
+}
+
+@mixin mobile {
+    @media (max-width: $mobile) {
+        @content;
+    }
+}
+
+@mixin small-mobile-above {
+    @media (min-width: $small-mobile) {
+        @content;
+    }
+}
+
+@mixin small-mobile {
+    @media (max-width: $small-mobile) {
+        @content;
+    }
+}

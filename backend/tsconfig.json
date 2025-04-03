@@ -13,10 +13,12 @@
             "@constants/*": ["constants/*"],
             "@controllers/*": ["controllers/*"],
             "@dto/*": ["dto/*"],
+            "@mappers/*": ["mappers/*"],
             "@middleware/*": ["middleware/*"],
             "@models/*": ["models/*"],
             "@routes/*": ["routes/*"],
             "@services/*": ["services/*"],
+            "@types/*": ["types/*"],
             "@utils/*": ["utils/*"]
         },
         "resolveJsonModule": true,

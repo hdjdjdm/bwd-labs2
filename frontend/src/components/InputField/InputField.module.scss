@@ -1,0 +1,73 @@
+@use '@styles/variables' as *;
+@use '@styles/mixins' as *;
+@use '@styles/media' as *;
+
+.inputField {
+    @include flex-center();
+
+    position: relative;
+
+    &__label {
+        position: absolute;
+        z-index: 1;
+        left: 15px;
+        top: 25%;
+        pointer-events: none;
+        color: $color-text;
+        border-radius: $border-radius;
+        transition: all $transition-duration ease, background-color 0s;
+    }
+
+    &__input {
+        width: 100%;
+        height: 50px;
+        border-radius: $border-radius;
+        padding: 10px 15px;
+        outline: none;
+        border: $border-large;
+        transition: all $transition-duration ease, font-size 0s, letter-spacing 0s;
+        cursor: text;
+
+        &_withIcon {
+            padding-right: 40px;
+        }
+
+        &:focus {
+            border-color: $color-accent;
+        }
+
+        &:focus ~ .inputField__inputIcon {
+            filter: $svg-color-accent;
+        }
+
+        &:focus ~ .inputField__label,
+        &:not(:placeholder-shown) ~ .inputField__label {
+            top: -10px;
+            font-size: 12px;
+            padding: 0 5px;
+            background-color: $color-background;
+        }
+
+        &:focus ~ .inputField__label {
+            color: $color-accent;
+        }
+
+        &[type="password"] {
+            font-size: 28px;
+            letter-spacing: 2px;
+        }
+
+        &_disabled {
+            cursor: default;
+        }
+    }
+
+    &__inputIcon {
+        position: absolute;
+        right: 10px;
+
+        &_clickable {
+            cursor: pointer;
+        }
+    }
+}

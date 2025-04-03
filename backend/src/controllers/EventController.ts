@@ -2,16 +2,17 @@ import { NextFunction, Request, Response } from 'express';
 import EventService from '@services/EventService.js';
 import { Roles } from '@constants/Roles.js';
 import User from '@models/User.js';
-import EventDTO from '@dto/EventDTO.js';
 import CustomError from '@utils/CustomError.js';
 import { ErrorCodes } from '@constants/Errors.js';
+import { CreateEventDto, EventDto, UpdateEventDto } from '@dto/EventDto.js';
+import EventMapper from '@mappers/EventMapper.js';
 
 class EventController {
     async createEvent(req: Request, res: Response, next: NextFunction): Promise<void> {
-        const { title, description, date, createdBy } = req.body as EventDTO;
+        const { title, description, date, isPublic } = req.body as CreateEventDto;
 
-        if (!title || !createdBy) {
-            return next(new CustomError(ErrorCodes.BadRequest, 'Title and creator are required'));
+        if (!title) {
+            return next(new CustomError(ErrorCodes.BadRequest, 'Title are required'));
         }
 
         const eventDate = date ? new Date(date) : undefined;
@@ -19,15 +20,15 @@ class EventController {
             return next(new CustomError(ErrorCodes.BadRequest, 'Invalid date format'));
         }
 
-        EventController.validateEventData({ title, description, createdBy, date: eventDate });
+        try {
+            EventController.validateEventData({ title, description, date: eventDate });
+        } catch (e: unknown) {
+            return next(e);
+        }
 
-        const user = await User.findOne({
-            where: {
-                id: createdBy,
-            },
-        });
-
-        if (!user) {
+        const user = req.user as User;
+        const createdBy = user.id;
+        if (!createdBy) {
             return next(new CustomError(ErrorCodes.BadRequest, `User with the ID ${createdBy} not found`));
         }
 
@@ -36,15 +37,39 @@ class EventController {
             description,
             date: eventDate,
             createdBy,
+            isPublic,
         });
-        res.status(201).json(event);
+        res.status(201).json(EventMapper.toResponseDto(event));
     }
 
     async getAllEvents(req: Request, res: Response, next: NextFunction) {
         try {
-            const withDeleted = req.query.withDeleted === 'true' || req.query.withDeleted === '1';
+            const withDeleted = ['true', '1', 'yes'].includes(String(req.query.withDeleted).toLowerCase());
             const events = await EventService.getAllEvents(withDeleted);
-            res.status(200).json(events);
+            const responseData = events.map((event) => EventMapper.toResponseDto(event));
+            res.status(200).json(responseData);
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    async getPublicEvents(req: Request, res: Response, next: NextFunction) {
+        try {
+            const events = await EventService.getPublicEvents();
+            const responseData = events.map((event) => EventMapper.toResponseDto(event));
+            res.status(200).json(responseData);
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    async getUserEvents(req: Request, res: Response, next: NextFunction) {
+        try {
+            const user = req.user as User;
+            const withDeleted = ['true', '1', 'yes'].includes(String(req.query.withDeleted).toLowerCase());
+            const events = await EventService.getUserEvents(user.id, withDeleted);
+            const responseData = events.map((event) => EventMapper.toResponseDto(event));
+            res.status(200).json(responseData);
         } catch (e) {
             next(e);
         }
@@ -57,7 +82,7 @@ class EventController {
             EventController.validateEventId(id);
 
             const event = await EventService.getEvent(id);
-            res.status(200).json(event);
+            res.status(200).json(EventMapper.toResponseDto(event));
         } catch (e) {
             next(e);
         }
@@ -66,10 +91,14 @@ class EventController {
     async updateEvent(req: Request, res: Response, next: NextFunction) {
         try {
             const id = Number(req.params.id);
-            const eventData: Partial<EventDTO> = req.body;
+            const eventData: Partial<UpdateEventDto> = req.body;
 
-            EventController.validateEventId(id);
-            EventController.validateEventData(eventData);
+            try {
+                EventController.validateEventId(id);
+                EventController.validateEventData(eventData);
+            } catch (e: unknown) {
+                return next(e);
+            }
 
             if (!(await EventController.checkAccessToEvent(id, req.user as User))) {
                 return next(
@@ -78,7 +107,7 @@ class EventController {
             }
 
             const updatedEvent = await EventService.updateEvent(id, eventData);
-            res.status(200).json(updatedEvent);
+            res.status(200).json(EventMapper.toResponseDto(updatedEvent));
         } catch (e) {
             next(e);
         }
@@ -88,7 +117,7 @@ class EventController {
         try {
             const id = Number(req.params.id);
 
-            const hardDelete = req.query.hardDelete === 'true' || req.query.hardDelete === '1';
+            const hardDelete = ['true', '1', 'yes'].includes(String(req.query.hardDelete).toLowerCase());
 
             EventController.validateEventId(id);
 
@@ -98,8 +127,8 @@ class EventController {
                 );
             }
 
-            const result = await EventService.deleteEvent(id, hardDelete);
-            res.status(200).json(result);
+            const { message, event } = await EventService.deleteEvent(id, hardDelete);
+            res.status(200).json({ message: message, event: event ? EventMapper.toResponseDto(event) : null });
         } catch (e) {
             next(e);
         }
@@ -117,8 +146,8 @@ class EventController {
                 );
             }
 
-            const result = await EventService.restoreEvent(id);
-            res.status(200).json(result);
+            const { message, event } = await EventService.restoreEvent(id);
+            res.status(200).json({ message: message, event: EventMapper.toResponseDto(event) });
         } catch (e) {
             next(e);
         }
@@ -144,7 +173,7 @@ class EventController {
         }
     }
 
-    private static validateEventData(data: Partial<EventDTO>): void {
+    private static validateEventData(data: Partial<EventDto>): void {
         if (data.createdBy !== undefined) {
             if (!Number.isInteger(data.createdBy) || data.createdBy <= 0) {
                 throw new CustomError(ErrorCodes.BadRequest, 'Creator ID must be a positive integer.');
@@ -152,23 +181,32 @@ class EventController {
         }
 
         if (typeof data.title === 'string') {
-            if (data.title.trim() === '') {
+            data.title = data.title.trim();
+
+            if (data.title === '') {
                 throw new CustomError(ErrorCodes.BadRequest, 'Title must be a non-empty string.');
             }
-            data.title = data.title.trim();
+
+            if (data.title.length > 100) {
+                throw new CustomError(ErrorCodes.BadRequest, 'Title must not exceed 100 characters.');
+            }
         }
 
         if (typeof data.description === 'string') {
-            if (data.description.trim() === '') {
-                throw new CustomError(ErrorCodes.BadRequest, 'Description must not be empty.');
-            }
             data.description = data.description.trim();
+
+            if (data.description.length > 200) {
+                throw new CustomError(ErrorCodes.BadRequest, 'Description must not exceed 200 characters.');
+            }
         }
 
         if (data.date !== undefined) {
-            if (isNaN(data.date.getTime())) {
+            const parsedDate = new Date(data.date);
+
+            if (isNaN(parsedDate.getTime())) {
                 throw new CustomError(ErrorCodes.BadRequest, 'Invalid date format.');
             }
+            data.date = parsedDate;
         }
     }
 }

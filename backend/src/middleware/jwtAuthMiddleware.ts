@@ -12,7 +12,7 @@ const jwtAuthMiddleware = (req: Request, res: Response, next: NextFunction) => {
         if (!user) {
             return next(new CustomError(ErrorCodes.UnauthorizedError));
         }
-        req.user = user;
+        req.user = user as User;
         next();
     })(req, res, next);
 };

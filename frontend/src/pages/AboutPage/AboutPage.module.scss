@@ -1,0 +1,25 @@
+@use '@styles/variables' as *;
+@use '@styles/mixins' as *;
+@use '@styles/media' as *;
+
+.aboutPage {
+
+    &__inner {
+        @include flex-center();
+    }
+
+    &__info {
+        display: flex;
+        flex-direction: row;
+        gap: $block-gap-small;
+    }
+
+    &__image {
+        width: 200px;
+        border-radius: $border-radius;
+    }
+
+    &__text {
+
+    }
+}

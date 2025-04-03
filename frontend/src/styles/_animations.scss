@@ -1,0 +1,15 @@
+@use '@styles/variables' as *;
+
+$animation-glowing: glowing 5s infinite alternate ease-in-out;
+
+@keyframes glowing {
+    0% {
+        box-shadow: 0 0 2px $color-accent, 0 0 4px $color-accent, 0 0 8px darken($color-accent, 10%);
+    }
+    50% {
+        box-shadow: 0 0 4px lighten($color-accent, 5%), 0 0 8px lighten($color-accent, 5%);
+    }
+    100% {
+        box-shadow: 0 0 3px $color-accent, 0 0 6px $color-accent, 0 0 10px darken($color-accent, 10%);
+    }
+}

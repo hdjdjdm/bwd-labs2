@@ -1,0 +1,48 @@
+@use '@styles/variables' as *;
+@use '@styles/mixins' as *;
+@use '@styles/media' as *;
+
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: $border;
+    background-color: $color-background;
+    transition: width $transition-duration ease;
+
+    &__inner {
+        display: flex;
+        flex-direction: column;
+        gap: $block-gap-small;
+        overflow-x: hidden;
+        padding: $block-padding-small;
+    }
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &__title {
+        @include fluid-text(32, 24);
+
+        font-family: $font-family-accent;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-height: 3em;
+    }
+
+    &__closeButton {
+        @include square(30);
+
+        cursor: pointer;
+    }
+
+    &__content {
+        display: flex;
+        flex-direction: column;
+        gap: $block-gap-small;
+    }
+}
