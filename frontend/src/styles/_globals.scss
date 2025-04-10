@@ -80,6 +80,10 @@ ol li {
     background-color: $color-accent;
 }
 
+.swiper-button-prev::after, .swiper-button-next::after {
+    color: $color-accent;
+}
+
 // Toastify
 .Toastify__toast {
     border: $border;

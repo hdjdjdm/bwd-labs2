@@ -1,4 +1,6 @@
 @use '@styles/variables' as *;
+@use '@styles/mixins' as *;
+@use '@styles/media' as *;
 
 .hero {
     height: 400px;
@@ -8,7 +10,6 @@
     &__swiper {
         width: 100%;
         height: 100%;
-        border-radius: $border-radius-large;
     }
 
     &__swiperSlide {
@@ -34,13 +35,25 @@
         opacity: 95%;
         padding: 20px;
         border-radius: $border-radius-large;
+        max-width: 90%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
-        h1 {
-            margin-bottom: 10px;
+    &__title {
+        margin-bottom: 10px;
+        color: $color-accent;
+
+        @include mobile {
+            @include fluid-text(48, 28);
         }
+    }
 
-        p {
-            color: $color-text-secondary;
+    &__description {
+        color: $color-text-secondary;
+
+        @include mobile {
+            @include fluid-text(40, 14);
         }
     }
 }

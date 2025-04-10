@@ -1,4 +1,6 @@
 @use '@styles/variables' as *;
+@use '@styles/mixins' as *;
+@use '@styles/media' as *;
 
 .homePage {
 
@@ -6,9 +8,18 @@
     &__inner {
     }
 
-    &__features {
-        display: flex;
-        flex-wrap: wrap;
-        gap: $block-gap-small;
+    &__hero {
+        margin: 0 (-$block-padding);
+    }
+
+    &__startButton {
+        @include flex-center();
+
+        margin: $block-gap auto 0;
+        width: 30%;
+
+        @include mobile {
+            width: 100%;
+        }
     }
 }

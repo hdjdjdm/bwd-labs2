@@ -13,6 +13,17 @@
     gap: 10px;
     transition: all $transition-duration ease;
 
+    &_my:after {
+        content: '';
+        position: absolute;
+        background-color: $color-accent;
+        width: 60%;
+        height: 5px;
+        top: 0;
+        left: 20%;
+        z-index: 1;
+    }
+
     @include hover {
         transform: scale(105%);
         animation: $animation-glowing;

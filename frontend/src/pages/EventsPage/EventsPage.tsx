@@ -55,7 +55,7 @@ const EventsPage = () => {
         });
     };
 
-    const removeEventFromList = (id: number, isHardDelete: boolean) => {
+    const removeEventFromList = (id: number, isHardDelete: boolean = false) => {
         if (isHardDelete || !withDeleted) {
             setEvents((prevEvents) =>
                 prevEvents.filter((event) => event.id !== id),
@@ -64,6 +64,10 @@ const EventsPage = () => {
     };
 
     const replaceEventInList = (updatedEvent: EventDto) => {
+        if (!updatedEvent.isPublic && chosenCategory === 'public') {
+            removeEventFromList(updatedEvent.id);
+        }
+
         setEvents((prevEvents) =>
             prevEvents.map((event) =>
                 event.id === updatedEvent.id ? updatedEvent : event,
