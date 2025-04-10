@@ -28,6 +28,10 @@
             font-size: $font-size-base;
         }
 
+        @include small-mobile {
+            font-size: $font-size-small;
+        }
+
         &:after {
             content: '';
             position: absolute;

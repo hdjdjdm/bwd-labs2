@@ -36,7 +36,7 @@ const Header = () => {
             <div className={classNames(styles.header__inner, 'container')}>
                 <div className={styles.header__top}>
                     <img
-                        src={LogoIcon}
+                        src={isScrolled ? LogoMobileIcon : LogoIcon}
                         alt="logo"
                         className={classNames(
                             styles.header__logo,

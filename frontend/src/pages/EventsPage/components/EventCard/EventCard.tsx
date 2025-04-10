@@ -61,7 +61,14 @@ const EventCard: React.FC<EventCardProps> = ({
     };
 
     return (
-        <div className={classNames(styles.eventCard, 'block', className)}>
+        <div
+            className={classNames(
+                styles.eventCard,
+                'block',
+                className,
+                isCreator && styles.eventCard_my,
+            )}
+        >
             <div className={styles.eventCard__head}>
                 {event.date && (
                     <p className={classNames(styles.eventCard__date)}>

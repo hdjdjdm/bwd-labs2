@@ -1,3 +1,4 @@
+@use 'animations' as *;
 @use 'media' as *;
 @use 'mixins' as *;
 @use 'variables' as *;
@@ -40,6 +41,7 @@
 
     @include hover {
         text-decoration: underline;
+        animation: $animation-glowing;
     }
 }
 

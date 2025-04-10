@@ -1,6 +1,6 @@
 import styles from './Hero.module.scss';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, Pagination, Scrollbar } from 'swiper/modules';
+import { Autoplay, Navigation, Pagination, Scrollbar } from 'swiper/modules';
 import { HeroImage1, HeroImage2, HeroImage3 } from '@assets/images/images.ts';
 import classNames from 'classnames';
 
@@ -8,31 +8,34 @@ const Hero = () => {
     const slides = [
         {
             image: HeroImage1,
-            title: 'Ыаывывылашылы',
-            description: 'АААААААааааа',
+            title: `Добро пожаловать!`,
+            description: 'by Морзюков Максим (ПрИ-21).',
         },
         {
             image: HeroImage2,
-            title: 'ЫВывы',
-            description: 'ЫХХЫХЫ',
+            title: 'Для чего?',
+            description:
+                'На сайте вы можете создавать события и управлять ими, а так же просматривать события других людей',
         },
         {
             image: HeroImage3,
-            title: 'ВХХХ',
-            description: 'анигдод)',
+            title: 'Safe delete!',
+            description:
+                'У нас вы можете восстановить событие, если случайно удалили его!',
         },
     ];
 
     return (
         <div className={classNames(styles.hero)}>
             <Swiper
-                modules={[Autoplay, Pagination, Scrollbar]}
+                modules={[Autoplay, Pagination, Scrollbar, Navigation]}
                 centeredSlides={true}
                 autoplay={{
                     delay: 8000,
                     disableOnInteraction: false,
                 }}
                 loop={true}
+                navigation={true}
                 pagination={{
                     clickable: true,
                     dynamicBullets: true,
@@ -50,8 +53,12 @@ const Hero = () => {
                             style={{ backgroundImage: `url(${slide.image})` }}
                         >
                             <div className={styles.hero__text}>
-                                <h1>{slide.title}</h1>
-                                <p>{slide.description}</p>
+                                <h1 className={styles.hero__title}>
+                                    {slide.title}
+                                </h1>
+                                <p className={styles.hero__description}>
+                                    {slide.description}
+                                </p>
                             </div>
                         </div>
                     </SwiperSlide>

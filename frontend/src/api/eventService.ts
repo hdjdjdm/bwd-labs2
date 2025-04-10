@@ -30,7 +30,6 @@ export const createEvent = async (
             date,
             isPublic,
         });
-        console.log(data);
         return data;
     } catch (e: unknown) {
         throw parseError(e);
@@ -43,7 +42,6 @@ export const updateEvent = async (
 ): Promise<EventDto> => {
     try {
         const { data } = await baseApi.put(`/events/${eventId}`, updatedFields);
-        console.log(data);
         return data;
     } catch (e: unknown) {
         throw parseError(e);
