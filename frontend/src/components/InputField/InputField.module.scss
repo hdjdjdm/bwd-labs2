@@ -60,11 +60,26 @@
         &_disabled {
             cursor: default;
         }
+
+        &_warning {
+            border-color: red !important;
+            color: red !important;
+        }
+
+        &_warning ~ .inputField__label {
+            color: red !important;
+        }
+
+        &_warning ~ .inputField__inputIcon {
+            filter: $svg-color-warning !important;
+        }
     }
 
     &__inputIcon {
         position: absolute;
         right: 10px;
+        transition: all $transition-duration ease;
+        filter: none;
 
         &_clickable {
             cursor: pointer;
