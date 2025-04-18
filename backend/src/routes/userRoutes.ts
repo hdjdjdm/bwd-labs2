@@ -1,5 +1,8 @@
 import { Router } from 'express';
 import UserController from '@controllers/UserController.js';
+import { checkRole } from '@middleware/authMiddleware.js';
+import { Roles } from '@constants/Roles.js';
+import jwtAuthMiddleware from '@middleware/jwtAuthMiddleware.js';
 
 const router: Router = Router();
 
@@ -22,9 +25,11 @@ const router: Router = Router();
  *       500:
  *         description: Server error
  */
-router.get('/', UserController.getAllUsers);
+router.get('/', checkRole(Roles.ADMIN), UserController.getAllUsers);
 
-router.get('/:id', UserController.getUser);
+router.get('/:id', UserController.getUser); //todo если не админ, то показывать только его публичные события
+
+router.put('/:id', jwtAuthMiddleware, UserController.updateUser); //todo если не сам пользователь или не админ, нельзя
 
 /**
  * @swagger
@@ -52,7 +57,7 @@ router.get('/:id', UserController.getUser);
  *       500:
  *         description: Internal server error
  */
-router.delete('/:id', UserController.deleteUser);
+router.delete('/:id', UserController.deleteUser); //todo если не админ, то нельзя удалить чужой профиль
 
 /**
  * @swagger
@@ -75,7 +80,7 @@ router.delete('/:id', UserController.deleteUser);
  *       500:
  *         description: Internal server error
  */
-router.patch('/:id/restore', UserController.restoreUser);
+router.patch('/:id/restore', UserController.restoreUser); //todo аналогично
 
 /**
  * @swagger
@@ -152,6 +157,6 @@ router.get('/:id/role', UserController.getUserRole);
  *       500:
  *         description: Internal server error
  */
-router.post('/:id/role', UserController.setUserRole);
+router.post('/:id/role', checkRole(Roles.ADMIN), UserController.setUserRole);
 
 export default router;

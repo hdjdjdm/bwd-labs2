@@ -3,8 +3,9 @@ import UserService from '@services/UserService.js';
 import { Roles } from '@constants/Roles.js';
 import CustomError from '@utils/CustomError.js';
 import { ErrorCodes } from '@constants/Errors.js';
-import { ChangeUserRoleDto } from '@dto/UserDto.js';
+import { ChangeUserRoleDto, UserDto } from '@dto/UserDto.js';
 import UserMapper from '@mappers/UserMapper.js';
+import User from '@models/User.js';
 
 class UserController {
     async getAllUsers(req: Request, res: Response, next: NextFunction) {
@@ -26,6 +27,28 @@ class UserController {
 
             const user = await UserService.getUser(id);
             res.status(200).json(UserMapper.toResponseDto(user));
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    async updateUser(req: Request, res: Response, next: NextFunction) {
+        try {
+            const user = req.user as User;
+            const id = Number(req.params.id);
+            const userData: Partial<UserDto> = req.body;
+
+            UserController.validateUserId(id);
+            UserController.validateUserData(userData);
+
+            if (user.id !== id) {
+                return next(
+                    new CustomError(ErrorCodes.ForbiddenError, 'You do not have permission to access this resource.'),
+                );
+            }
+
+            const updatedUser = await UserService.updateUser(id, userData);
+            res.status(200).json(UserMapper.toResponseDto(updatedUser));
         } catch (e) {
             next(e);
         }
@@ -97,6 +120,20 @@ class UserController {
     private static validateUserId(id: number): void {
         if (!Number.isInteger(id) || id <= 0) {
             throw new CustomError(ErrorCodes.BadRequest, 'Invalid user ID. It must be a positive integer.');
+        }
+    }
+
+    private static validateUserData(data: Partial<UserDto>): void {
+        if (typeof data.name === 'string') {
+            data.name = data.name.trim();
+
+            if (data.name === '') {
+                throw new CustomError(ErrorCodes.BadRequest, 'Name must be a non-empty string.');
+            }
+
+            if (data.name.length > 30) {
+                throw new CustomError(ErrorCodes.BadRequest, 'Name must not exceed 30 characters.');
+            }
         }
     }
 }

@@ -63,7 +63,9 @@ const Header = () => {
                                 <h3
                                     className={styles.header__username}
                                     title={user.name}
-                                    onClick={() => navigate('/profile')}
+                                    onClick={() =>
+                                        navigate(`/profile/${user.id}`)
+                                    }
                                 >
                                     {user.name}
                                 </h3>

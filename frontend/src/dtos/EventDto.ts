@@ -4,8 +4,13 @@ export default interface EventDto {
     id: number;
     title: string;
     description?: string | null;
-    date?: Date;
+    date?: string;
     isPublic: boolean;
-    deletedAt?: Date | null;
+    deletedAt?: string | null;
     createdBy: UserDto;
 }
+
+export type EventCreateUpdateDto = Pick<
+    EventDto,
+    'title' | 'description' | 'date' | 'isPublic'
+>;

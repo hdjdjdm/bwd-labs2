@@ -44,8 +44,26 @@ class EventController {
 
     async getAllEvents(req: Request, res: Response, next: NextFunction) {
         try {
-            const withDeleted = ['true', '1', 'yes'].includes(String(req.query.withDeleted).toLowerCase());
-            const events = await EventService.getAllEvents(withDeleted);
+            const user = req.user as User;
+            let events;
+
+            if (!user) {
+                events = await EventService.getPublicEvents();
+            } else if (user.role === 'admin') {
+                events = await EventService.getAllEvents();
+            } else {
+                const publicEvents = await EventService.getPublicEvents();
+                const userEvents = await EventService.getUserEvents(user.id);
+
+                const eventsMap = new Map();
+
+                [...publicEvents, ...userEvents].forEach((event) => {
+                    eventsMap.set(event.id, event);
+                });
+
+                events = Array.from(eventsMap.values());
+            }
+
             const responseData = events.map((event) => EventMapper.toResponseDto(event));
             res.status(200).json(responseData);
         } catch (e) {
@@ -56,18 +74,6 @@ class EventController {
     async getPublicEvents(req: Request, res: Response, next: NextFunction) {
         try {
             const events = await EventService.getPublicEvents();
-            const responseData = events.map((event) => EventMapper.toResponseDto(event));
-            res.status(200).json(responseData);
-        } catch (e) {
-            next(e);
-        }
-    }
-
-    async getUserEvents(req: Request, res: Response, next: NextFunction) {
-        try {
-            const user = req.user as User;
-            const withDeleted = ['true', '1', 'yes'].includes(String(req.query.withDeleted).toLowerCase());
-            const events = await EventService.getUserEvents(user.id, withDeleted);
             const responseData = events.map((event) => EventMapper.toResponseDto(event));
             res.status(200).json(responseData);
         } catch (e) {
@@ -93,12 +99,8 @@ class EventController {
             const id = Number(req.params.id);
             const eventData: Partial<UpdateEventDto> = req.body;
 
-            try {
-                EventController.validateEventId(id);
-                EventController.validateEventData(eventData);
-            } catch (e: unknown) {
-                return next(e);
-            }
+            EventController.validateEventId(id);
+            EventController.validateEventData(eventData);
 
             if (!(await EventController.checkAccessToEvent(id, req.user as User))) {
                 return next(

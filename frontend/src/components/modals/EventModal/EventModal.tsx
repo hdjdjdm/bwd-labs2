@@ -12,27 +12,22 @@ import InputField from '@components/InputField/InputField.tsx';
 import { useAutoResizeTextarea } from '@/hooks/useAutoResizeTextarea.tsx';
 import Modal from '@components/modals/Modal/Modal.tsx';
 import CustomSwitch from '@components/Switch/CustomSwitch.tsx';
-import EventDto from '@dtos/EventDto.ts';
+import EventDto, { EventCreateUpdateDto } from '@dtos/EventDto.ts';
 import { EventModalType } from '@/types';
 import ConfirmModal from '@components/modals/ConfirmModal/ConfirmModal.tsx';
-import { deleteEvent, restoreEvent } from '@api/eventService.ts';
-import { showCustomToast } from '@utils/customToastUtils.ts';
-import { parseError } from '@utils/errorUtils.ts';
+import {
+    addEvent,
+    deleteEvent,
+    restoreEvent,
+    updateEvent,
+} from '@app/slices/eventsSlice.ts';
+import { useAppDispatch } from '@app/hooks.ts';
 
 interface ModalProps {
     isOpen: boolean;
     onClose: () => void;
     event?: EventDto;
     type: EventModalType;
-    onDelete?: (id: number, isHardDelete: boolean) => void;
-    onUpdate?: (updatedEvent: EventDto) => void;
-    onSave: (
-        title: string,
-        description: string,
-        date: Date,
-        isPublic: boolean,
-        id?: number,
-    ) => void;
 }
 
 const EventModal: React.FC<ModalProps> = ({
@@ -40,10 +35,8 @@ const EventModal: React.FC<ModalProps> = ({
     onClose,
     event,
     type = 'info',
-    onDelete,
-    onUpdate,
-    onSave,
 }) => {
+    const dispatch = useAppDispatch();
     const [title, setTitle] = useState(event?.title ?? '');
     const [description, setDescription] = useState(event?.description ?? '');
     const [date, setDate] = useState(event?.date ?? new Date());
@@ -81,8 +74,22 @@ const EventModal: React.FC<ModalProps> = ({
 
     const handleSave = (e: React.FormEvent) => {
         e.preventDefault();
+        const eventData: EventCreateUpdateDto = {
+            title,
+            description,
+            date: date.toString(),
+            isPublic,
+        };
 
-        onSave(title, description, date, isPublic, event?.id);
+        if (type === 'create') {
+            dispatch(addEvent(eventData));
+        } else if (type === 'edit') {
+            if (!event) {
+                return;
+            }
+
+            dispatch(updateEvent({ id: event.id, eventData }));
+        }
         onClose();
     };
 
@@ -92,61 +99,15 @@ const EventModal: React.FC<ModalProps> = ({
     ) => {
         if (!event) return;
 
-        try {
-            const result = await deleteEvent(id, isHardDelete);
-            if (result.status === 200) {
-                if (isHardDelete) {
-                    onDelete?.(id, true);
-                } else {
-                    if (result.event) {
-                        onUpdate?.(result.event);
-                    }
-                }
-                showCustomToast(
-                    result.message,
-                    'success',
-                    result.status.toString(),
-                );
-                onClose();
-            } else {
-                showCustomToast(
-                    result.message,
-                    'warning',
-                    result.status.toString(),
-                );
-            }
-        } catch (e: unknown) {
-            const { status, errorMessage } = parseError(e);
-            showCustomToast(errorMessage, 'error', status.toString());
-        }
+        dispatch(deleteEvent({ id, isHardDelete }));
+        onClose();
     };
 
     const handleRestoreEvent = async (id: number) => {
         if (!event) return;
 
-        try {
-            const result = await restoreEvent(id);
-            if (result.status === 200 && result.event) {
-                if (onUpdate) {
-                    onUpdate(result.event);
-                }
-                showCustomToast(
-                    result.message,
-                    'success',
-                    result.status.toString(),
-                );
-                onClose();
-            } else {
-                showCustomToast(
-                    result.message,
-                    'warning',
-                    result.status.toString(),
-                );
-            }
-        } catch (e: unknown) {
-            const { status, errorMessage } = parseError(e);
-            showCustomToast(errorMessage, 'error', status.toString());
-        }
+        dispatch(restoreEvent({ id }));
+        onClose();
     };
 
     return (

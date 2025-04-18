@@ -31,6 +31,9 @@
       "@api/*": [
         "src/api/*"
       ],
+      "@app/*": [
+        "src/app/*"
+      ],
       "@assets/*": [
         "src/assets/*"
       ],

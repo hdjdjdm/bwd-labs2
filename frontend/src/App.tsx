@@ -5,11 +5,25 @@ import LoginPage from '@pages/LoginPage/LoginPage.tsx';
 import EventsPage from '@pages/EventsPage/EventsPage.tsx';
 import NotFoundPage from '@pages/NotFoundPage/NotFoundPage.tsx';
 import AboutPage from '@pages/AboutPage/AboutPage.tsx';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Bounce, ToastContainer } from 'react-toastify';
 import ProfilePage from '@pages/ProfilePage/ProfilePage.tsx';
+import { useAppDispatch } from '@/app/hooks.ts';
+import { checkTokenValidity } from '@/app/slices/authSlice.ts';
 
 const App: React.FC = () => {
+    const dispatch = useAppDispatch();
+
+    useEffect(() => {
+        dispatch(checkTokenValidity());
+
+        const interval = setInterval(() => {
+            dispatch(checkTokenValidity());
+        }, 60000);
+
+        return () => clearInterval(interval);
+    }, [dispatch]);
+
     return (
         <>
             <BrowserRouter>
@@ -19,7 +33,7 @@ const App: React.FC = () => {
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/events" element={<EventsPage />} />
                     <Route path="/about" element={<AboutPage />} />
-                    <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="/profile/:id" element={<ProfilePage />} />
 
                     <Route path="*" element={<NotFoundPage />} />
                 </Routes>

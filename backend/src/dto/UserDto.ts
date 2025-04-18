@@ -1,5 +1,13 @@
 import { Roles } from '@constants/Roles.js';
 
+export interface UserDto {
+    id: number;
+    name: string;
+    email: string;
+    password: string;
+    role: Roles;
+}
+
 export interface CreateUserDto {
     name: string;
     email: string;

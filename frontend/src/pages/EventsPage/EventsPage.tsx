@@ -1,41 +1,20 @@
 import styles from './EventsPage.module.scss';
 import Header from '@components/Header/Header.tsx';
 import classNames from 'classnames';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { PlusIcon } from '@assets/icons';
 import EventModal from '@components/modals/EventModal/EventModal.tsx';
-import { createEvent, getEvents } from '@api/eventService.ts';
-import { parseError } from '@utils/errorUtils.ts';
-import { showCustomToast } from '@utils/customToastUtils.ts';
-import EventCard from '@components/Events/EventCard/EventCard.tsx';
-import { EventPageCategory } from '@/types';
 import EventPanel from '@components/Events/EventPanel/EventPanel.tsx';
 import EventDto from '@dtos/EventDto.ts';
 import { useAppSelector } from '@/app/hooks.ts';
+import EventsList from '@components/Events/EventsList/EventsList.tsx';
 
 const EventsPage = () => {
     const user = useAppSelector((state) => state.auth.user);
 
-    const [events, setEvents] = useState<EventDto[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [chosenCategory, setChosenCategory] =
-        useState<EventPageCategory>('public');
-    const [withDeleted, setWithDeleted] = useState<boolean>(false);
 
     const modalButtonRef = useRef<HTMLButtonElement | null>(null);
-    useEffect(() => {
-        const fetchEvents = async () => {
-            try {
-                const data = await getEvents(chosenCategory, withDeleted);
-                setEvents(data);
-            } catch (e: unknown) {
-                const { status, errorMessage } = parseError(e);
-                showCustomToast(errorMessage, 'error', status.toString());
-            }
-        };
-
-        fetchEvents();
-    }, [chosenCategory, withDeleted]);
 
     const updateEventInList = (updatedEvent: EventDto) => {
         setEvents((prevEvents) => {
@@ -63,45 +42,20 @@ const EventsPage = () => {
         }
     };
 
-    const replaceEventInList = (updatedEvent: EventDto) => {
-        if (!updatedEvent.isPublic && chosenCategory === 'public') {
-            removeEventFromList(updatedEvent.id);
-        }
-
-        setEvents((prevEvents) =>
-            prevEvents.map((event) =>
-                event.id === updatedEvent.id ? updatedEvent : event,
-            ),
-        );
-    };
+    // const replaceEventInList = (updatedEvent: EventDto) => {
+    //     if (!updatedEvent.isPublic && chosenCategory === 'public') {
+    //         removeEventFromList(updatedEvent.id);
+    //     }
+    //
+    //     setEvents((prevEvents) =>
+    //         prevEvents.map((event) =>
+    //             event.id === updatedEvent.id ? updatedEvent : event,
+    //         ),
+    //     );
+    // };
 
     const toggleModal = () => {
         setIsModalOpen((prev) => !prev);
-    };
-
-    const handleCategoryChange = (category: EventPageCategory) => {
-        setChosenCategory(category);
-    };
-
-    const handleAddEvent = async (
-        title: string,
-        description: string,
-        date: Date,
-        isPublic: boolean,
-    ) => {
-        try {
-            const newEvent = await createEvent(
-                title,
-                description,
-                date,
-                isPublic,
-            );
-            setEvents((prevEvents) => [...prevEvents, newEvent]);
-            showCustomToast(`Событие '${title}' добавлено`, 'success');
-        } catch (e: unknown) {
-            const { status, errorMessage } = parseError(e);
-            showCustomToast(errorMessage, 'error', status.toString());
-        }
     };
 
     return (
@@ -112,36 +66,13 @@ const EventsPage = () => {
             >
                 {user && (
                     <EventPanel
-                        chosenCategory={chosenCategory}
-                        handleCategoryChange={handleCategoryChange}
                         modalButtonRef={modalButtonRef}
                         toggleModal={toggleModal}
-                        withDeleted={withDeleted}
-                        setWithDeleted={setWithDeleted}
                     />
                 )}
-                <ul
-                    className={classNames(
-                        styles.eventsPage__eventList,
-                        'container',
-                        'block',
-                    )}
-                >
-                    {events.length > 0 ? (
-                        events?.map((event) => (
-                            <EventCard
-                                key={event.id}
-                                event={event}
-                                onUpdate={updateEventInList}
-                                onDelete={removeEventFromList}
-                                onReplace={replaceEventInList}
-                                className={styles.eventsPage__eventCard}
-                            />
-                        ))
-                    ) : (
-                        <p>Нет событий:(</p>
-                    )}
-                </ul>
+                <div className={styles.eventsPage__eventsList}>
+                    <EventsList />
+                </div>
                 {user && (
                     <button
                         ref={modalButtonRef}
@@ -173,7 +104,6 @@ const EventsPage = () => {
                     isOpen={isModalOpen}
                     onClose={toggleModal}
                     type={'create'}
-                    onSave={handleAddEvent}
                 />
             )}
         </div>

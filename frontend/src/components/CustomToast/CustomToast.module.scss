@@ -1,0 +1,7 @@
+@use '@styles/variables' as *;
+
+.customToast {
+    &__title {
+        color: $color-accent;
+    }
+}

@@ -1,16 +1,11 @@
 import { baseApi } from '@api/axios.ts';
 import { parseError } from '@utils/errorUtils.ts';
-import { DeleteEventResponse, EventPageCategory } from '@/types';
-import EventDto from '@dtos/EventDto.ts';
+import { DeleteEventResponse } from '@/types';
+import EventDto, { EventCreateUpdateDto } from '@dtos/EventDto.ts';
 
-export const getEvents = async (
-    category: EventPageCategory,
-    withDeleted: boolean = false,
-): Promise<EventDto[]> => {
+export const getEvents = async (): Promise<EventDto[]> => {
     try {
-        const { data } = await baseApi.get(
-            `/events/${category}?withDeleted=${withDeleted}`,
-        );
+        const { data } = await baseApi.get(`/events`);
         return data;
     } catch (e: unknown) {
         throw parseError(e);
@@ -18,18 +13,10 @@ export const getEvents = async (
 };
 
 export const createEvent = async (
-    title: string,
-    description: string,
-    date: Date,
-    isPublic: boolean,
+    newEvent: EventCreateUpdateDto,
 ): Promise<EventDto> => {
     try {
-        const { data } = await baseApi.post('/events', {
-            title,
-            description,
-            date,
-            isPublic,
-        });
+        const { data } = await baseApi.post('/events', newEvent);
         return data;
     } catch (e: unknown) {
         throw parseError(e);

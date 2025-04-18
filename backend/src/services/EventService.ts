@@ -17,9 +17,9 @@ class EventService {
         return this.getEvent(event.id);
     }
 
-    async getAllEvents(withDeleted: boolean): Promise<Event[]> {
+    async getAllEvents(): Promise<Event[]> {
         return await Event.findAll({
-            paranoid: !withDeleted,
+            paranoid: false,
             include: [
                 {
                     model: User,
@@ -41,9 +41,9 @@ class EventService {
         });
     }
 
-    async getUserEvents(userId: number, withDeleted: boolean): Promise<Event[]> {
+    async getUserEvents(userId: number): Promise<Event[]> {
         return await Event.findAll({
-            paranoid: !withDeleted,
+            paranoid: false,
             where: { createdBy: userId },
             include: [
                 {

@@ -3,30 +3,30 @@ import classNames from 'classnames';
 import { PlusIcon } from '@assets/icons';
 import React, { Ref } from 'react';
 import useIsScrolled from '@hooks/useIsScrolled.tsx';
-import { EventPageCategory } from '@/types';
 import CustomSwitch from '@components/Switch/CustomSwitch.tsx';
+import { setChosenCategory, setWithDeleted } from '@app/slices/uiSlice.ts';
+import { useAppDispatch, useAppSelector } from '@app/hooks.ts';
+import { EventPageCategory } from '@/types';
 
 interface EventPanelProps {
-    chosenCategory: EventPageCategory;
-    handleCategoryChange: (category: EventPageCategory) => void;
     modalButtonRef: Ref<HTMLButtonElement>;
     toggleModal: () => void;
-    withDeleted: boolean;
-    setWithDeleted: (withDeleted: boolean) => void;
 }
 
 const EventPanel: React.FC<EventPanelProps> = ({
-    chosenCategory,
-    handleCategoryChange,
     modalButtonRef,
     toggleModal,
-    withDeleted,
-    setWithDeleted,
 }) => {
+    const { chosenCategory, withDeleted } = useAppSelector((state) => state.ui);
+    const dispatch = useAppDispatch();
     const isScrolled = useIsScrolled();
 
     const handleSwitchChange = (checked: boolean) => {
-        setWithDeleted(checked);
+        dispatch(setWithDeleted(checked));
+    };
+
+    const handleSetChosenCategory = (category: EventPageCategory) => {
+        dispatch(setChosenCategory(category));
     };
 
     return (
@@ -45,7 +45,7 @@ const EventPanel: React.FC<EventPanelProps> = ({
                             ? styles.eventPanel__categoriesItem_active
                             : null,
                     )}
-                    onClick={() => handleCategoryChange('my')}
+                    onClick={() => handleSetChosenCategory('my')}
                 >
                     Личные
                 </p>
@@ -56,7 +56,7 @@ const EventPanel: React.FC<EventPanelProps> = ({
                             ? styles.eventPanel__categoriesItem_active
                             : null,
                     )}
-                    onClick={() => handleCategoryChange('public')}
+                    onClick={() => handleSetChosenCategory('public')}
                 >
                     Публичные
                 </p>

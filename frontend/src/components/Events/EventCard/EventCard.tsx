@@ -3,61 +3,27 @@ import classNames from 'classnames';
 import { CogIcon, InformationOutlineIcon } from '@assets/icons';
 import React, { useRef, useState } from 'react';
 import EventModal from '@components/modals/EventModal/EventModal.tsx';
-import { parseError } from '@utils/errorUtils.ts';
-import { showCustomToast } from '@utils/customToastUtils.ts';
-import { updateEvent } from '@api/eventService.ts';
 import EventDto from '@dtos/EventDto.ts';
 import { useAppSelector } from '@/app/hooks.ts';
+import { useNavigate } from 'react-router-dom';
 
 interface EventCardProps {
     event: EventDto;
-    onUpdate: (updatedEvent: EventDto) => void;
-    onDelete: (id: number, isHardDelete: boolean) => void;
-    onReplace: (updatedEvent: EventDto) => void;
     className?: string;
 }
 
-const EventCard: React.FC<EventCardProps> = ({
-    event,
-    onUpdate,
-    onDelete,
-    onReplace,
-    className,
-}) => {
+const EventCard: React.FC<EventCardProps> = ({ event, className }) => {
     const user = useAppSelector((state) => state.auth.user);
+
     const isCreator = event?.createdBy.id === user?.id;
 
+    const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const modalButtonRef = useRef<HTMLImageElement | null>(null);
 
     const toggleModal = () => {
         setIsModalOpen((prev) => !prev);
-    };
-
-    const handleUpdateEvent = async (
-        title: string,
-        description: string,
-        date: Date,
-        isPublic: boolean,
-    ) => {
-        if (!event?.id) {
-            return;
-        }
-
-        try {
-            const updatedEvent = await updateEvent(event.id, {
-                title,
-                description,
-                date,
-                isPublic,
-            });
-            onReplace(updatedEvent);
-            showCustomToast(`Событие ${title} успешно изменено`, 'success');
-        } catch (e: unknown) {
-            const { status, errorMessage } = parseError(e);
-            showCustomToast(errorMessage, 'error', status.toString());
-        }
     };
 
     return (
@@ -118,6 +84,7 @@ const EventCard: React.FC<EventCardProps> = ({
                 <u
                     className={styles.eventCard__creatorName}
                     title={event?.createdBy?.name}
+                    onClick={() => navigate(`/profile/${event?.createdBy?.id}`)}
                 >
                     {event?.createdBy?.name}
                 </u>
@@ -140,9 +107,6 @@ const EventCard: React.FC<EventCardProps> = ({
                     onClose={toggleModal}
                     event={event}
                     type={isCreator ? 'edit' : 'info'}
-                    onDelete={onDelete}
-                    onUpdate={onUpdate}
-                    onSave={handleUpdateEvent}
                 />
             )}
         </div>

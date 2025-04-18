@@ -4,38 +4,24 @@ import classNames from 'classnames';
 import React, { useEffect } from 'react';
 import AuthForm from '@components/AuthForm/AuthForm.tsx';
 import { useNavigate } from 'react-router-dom';
-import { login as apiLogin } from '@api/authService.ts';
-import { showCustomToast } from '@utils/customToastUtils.ts';
-import { parseError } from '@utils/errorUtils.ts';
 import { useAppDispatch, useAppSelector } from '@/app/hooks.ts';
 import { login } from '@/app/slices/authSlice.ts';
 
 const LoginPage: React.FC = () => {
     const navigate = useNavigate();
-    const user = useAppSelector((state) => state.auth.user);
     const dispatch = useAppDispatch();
+    const user = useAppSelector((state) => state.auth.user);
 
     useEffect(() => {
         if (user) {
             navigate('/events');
         }
-    }, [user]);
+    }, [navigate, user]);
 
     const handleLogin = async (email: string, password: string) => {
-        try {
-            const { token, user, message } = await apiLogin({
-                email,
-                password,
-            });
-
-            dispatch(login({ user, token }));
-
-            showCustomToast(message, 'success', '200');
-            navigate('/events');
-        } catch (e: unknown) {
-            const { status, errorMessage } = parseError(e);
-            showCustomToast(errorMessage, 'error', status.toString());
-        }
+        dispatch(login({ email, password }))
+            .unwrap()
+            .then(() => navigate('/events'));
     };
 
     return (

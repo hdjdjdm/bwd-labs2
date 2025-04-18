@@ -2,6 +2,7 @@ import User from '../models/User.js';
 import { Roles } from '../constants/Roles.js';
 import { ErrorCodes } from '@constants/Errors.js';
 import CustomError from '@utils/CustomError.js';
+import { UserDto } from '@dto/UserDto.js';
 
 class UserService {
     async getAllUsers(withDeleted: boolean = false): Promise<User[]> {
@@ -15,6 +16,13 @@ class UserService {
             paranoid: false,
             rejectOnEmpty: new CustomError(ErrorCodes.NotFoundedError, `User with ID ${id} not found`),
         });
+    }
+
+    async updateUser(id: number, updateData: Partial<UserDto>): Promise<User> {
+        const user = await this.getUser(id);
+
+        await user.update(updateData);
+        return this.getUser(user.id);
     }
 
     async deleteUser(id: number, hardDelete: boolean = false): Promise<{ message: string }> {
