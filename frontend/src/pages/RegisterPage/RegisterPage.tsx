@@ -2,16 +2,16 @@ import styles from './RegisterPage.module.scss';
 import Header from '@components/Header/Header.tsx';
 import classNames from 'classnames';
 import AuthForm from '@components/AuthForm/AuthForm.tsx';
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { register } from '@api/authService.ts';
 import { showCustomToast } from '@utils/customToastUtils.ts';
 import { parseError } from '@utils/errorUtils.ts';
-import AuthContext from '@contexts/AuthContext.tsx';
+import { useAppSelector } from '@/app/hooks.ts';
 
 const RegisterPage: React.FC = () => {
     const navigate = useNavigate();
-    const { user } = useContext(AuthContext)!;
+    const user = useAppSelector((state) => state.auth.user);
 
     useEffect(() => {
         if (user) {

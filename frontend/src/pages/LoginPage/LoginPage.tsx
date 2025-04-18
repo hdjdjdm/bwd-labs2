@@ -1,17 +1,19 @@
 import styles from './LoginPage.module.scss';
 import Header from '@components/Header/Header.tsx';
 import classNames from 'classnames';
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import AuthForm from '@components/AuthForm/AuthForm.tsx';
 import { useNavigate } from 'react-router-dom';
 import { login as apiLogin } from '@api/authService.ts';
 import { showCustomToast } from '@utils/customToastUtils.ts';
 import { parseError } from '@utils/errorUtils.ts';
-import AuthContext from '@contexts/AuthContext.tsx';
+import { useAppDispatch, useAppSelector } from '@/app/hooks.ts';
+import { login } from '@/app/slices/authSlice.ts';
 
 const LoginPage: React.FC = () => {
     const navigate = useNavigate();
-    const { user, login } = useContext(AuthContext)!;
+    const user = useAppSelector((state) => state.auth.user);
+    const dispatch = useAppDispatch();
 
     useEffect(() => {
         if (user) {
@@ -26,7 +28,7 @@ const LoginPage: React.FC = () => {
                 password,
             });
 
-            login(user, token);
+            dispatch(login({ user, token }));
 
             showCustomToast(message, 'success', '200');
             navigate('/events');

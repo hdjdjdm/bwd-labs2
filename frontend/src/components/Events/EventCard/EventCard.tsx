@@ -1,13 +1,13 @@
 import styles from './EventCard.module.scss';
 import classNames from 'classnames';
 import { CogIcon, InformationOutlineIcon } from '@assets/icons';
-import React, { useContext, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import EventModal from '@components/modals/EventModal/EventModal.tsx';
 import { parseError } from '@utils/errorUtils.ts';
 import { showCustomToast } from '@utils/customToastUtils.ts';
 import { updateEvent } from '@api/eventService.ts';
 import EventDto from '@dtos/EventDto.ts';
-import AuthContext from '@contexts/AuthContext.tsx';
+import { useAppSelector } from '@/app/hooks.ts';
 
 interface EventCardProps {
     event: EventDto;
@@ -24,7 +24,7 @@ const EventCard: React.FC<EventCardProps> = ({
     onReplace,
     className,
 }) => {
-    const { user } = useContext(AuthContext)!;
+    const user = useAppSelector((state) => state.auth.user);
     const isCreator = event?.createdBy.id === user?.id;
 
     const [isModalOpen, setIsModalOpen] = useState(false);

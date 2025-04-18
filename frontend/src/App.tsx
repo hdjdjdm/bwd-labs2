@@ -7,6 +7,7 @@ import NotFoundPage from '@pages/NotFoundPage/NotFoundPage.tsx';
 import AboutPage from '@pages/AboutPage/AboutPage.tsx';
 import React from 'react';
 import { Bounce, ToastContainer } from 'react-toastify';
+import ProfilePage from '@pages/ProfilePage/ProfilePage.tsx';
 
 const App: React.FC = () => {
     return (
@@ -18,6 +19,7 @@ const App: React.FC = () => {
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/events" element={<EventsPage />} />
                     <Route path="/about" element={<AboutPage />} />
+                    <Route path="/profile" element={<ProfilePage />} />
 
                     <Route path="*" element={<NotFoundPage />} />
                 </Routes>

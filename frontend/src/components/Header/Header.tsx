@@ -8,11 +8,12 @@ import {
     LogoIcon,
     LogoMobileIcon,
 } from '@assets/icons';
-import { useContext, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import ConfirmModal from '@components/modals/ConfirmModal/ConfirmModal.tsx';
 import NavMenu from '@components/Header/components/NavMenu/NavMenu.tsx';
 import useIsScrolled from '@hooks/useIsScrolled.tsx';
-import AuthContext from '@contexts/AuthContext.tsx';
+import { useAppDispatch, useAppSelector } from '@/app/hooks.ts';
+import { logout } from '@/app/slices/authSlice.ts';
 
 const Header = () => {
     const isScrolled = useIsScrolled();
@@ -20,7 +21,8 @@ const Header = () => {
     const logoutButtonRef = useRef<HTMLButtonElement>(null);
 
     const navigate = useNavigate();
-    const { user, logout } = useContext(AuthContext)!;
+    const user = useAppSelector((state) => state.auth.user);
+    const dispatch = useAppDispatch();
 
     const toggleConfirmModal = () => {
         setIsConfirmModalOpen(!isConfirmModalOpen);
@@ -61,6 +63,7 @@ const Header = () => {
                                 <h3
                                     className={styles.header__username}
                                     title={user.name}
+                                    onClick={() => navigate('/profile')}
                                 >
                                     {user.name}
                                 </h3>
@@ -156,7 +159,7 @@ const Header = () => {
                 <ConfirmModal
                     isOpen={isConfirmModalOpen}
                     onClose={toggleConfirmModal}
-                    onAccept={logout}
+                    onAccept={() => dispatch(logout())}
                     itemName={user!.name}
                     prefix={'Выйти из аккаунта'}
                 />

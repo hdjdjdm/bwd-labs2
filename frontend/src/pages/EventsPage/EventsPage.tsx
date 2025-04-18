@@ -1,20 +1,20 @@
 import styles from './EventsPage.module.scss';
 import Header from '@components/Header/Header.tsx';
 import classNames from 'classnames';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { PlusIcon } from '@assets/icons';
 import EventModal from '@components/modals/EventModal/EventModal.tsx';
 import { createEvent, getEvents } from '@api/eventService.ts';
 import { parseError } from '@utils/errorUtils.ts';
 import { showCustomToast } from '@utils/customToastUtils.ts';
-import EventCard from '@pages/EventsPage/components/EventCard/EventCard.tsx';
+import EventCard from '@components/Events/EventCard/EventCard.tsx';
 import { EventPageCategory } from '@/types';
-import EventPanel from '@pages/EventsPage/components/EventPanel/EventPanel.tsx';
+import EventPanel from '@components/Events/EventPanel/EventPanel.tsx';
 import EventDto from '@dtos/EventDto.ts';
-import authContext from '@contexts/AuthContext.tsx';
+import { useAppSelector } from '@/app/hooks.ts';
 
 const EventsPage = () => {
-    const { user } = useContext(authContext)!;
+    const user = useAppSelector((state) => state.auth.user);
 
     const [events, setEvents] = useState<EventDto[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
