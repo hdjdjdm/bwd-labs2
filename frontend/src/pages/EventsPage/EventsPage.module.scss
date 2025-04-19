@@ -9,11 +9,6 @@
         @include flex-center();
     }
 
-    &__eventsList {
-        width: 100%;
-        margin-top: 20px;
-    }
-
     &__addEventButton {
         @include rounded(50);
         @include flex-center();

@@ -1,15 +1,12 @@
 import Event from '@models/Event.js';
 import { EventResponseDto } from '@dto/EventDto.js';
-import UserMapper from '@mappers/UserMapper.js';
-import { Roles } from '@constants/Roles.js';
+import { UserShortDto } from '@dto/UserDto.js';
 
 class EventMapper {
     static toResponseDto(event: Event): EventResponseDto {
-        const fallbackUser = {
+        const fallbackUser: UserShortDto = {
             id: event.createdBy,
             name: 'Deleted User',
-            email: '',
-            role: Roles.USER,
         };
 
         return {
@@ -17,7 +14,12 @@ class EventMapper {
             title: event.title,
             description: event.description ?? '',
             date: event.date,
-            createdBy: event.creator ? UserMapper.toResponseDto(event.creator) : fallbackUser,
+            createdBy: event.creator
+                ? {
+                      id: event.creator.id,
+                      name: event.creator.name,
+                  }
+                : fallbackUser,
             deletedAt: event.deletedAt ?? null,
             isPublic: event.isPublic ?? false,
         };

@@ -44,26 +44,7 @@ class EventController {
 
     async getAllEvents(req: Request, res: Response, next: NextFunction) {
         try {
-            const user = req.user as User;
-            let events;
-
-            if (!user) {
-                events = await EventService.getPublicEvents();
-            } else if (user.role === 'admin') {
-                events = await EventService.getAllEvents();
-            } else {
-                const publicEvents = await EventService.getPublicEvents();
-                const userEvents = await EventService.getUserEvents(user.id);
-
-                const eventsMap = new Map();
-
-                [...publicEvents, ...userEvents].forEach((event) => {
-                    eventsMap.set(event.id, event);
-                });
-
-                events = Array.from(eventsMap.values());
-            }
-
+            const events = await EventService.getAllEvents();
             const responseData = events.map((event) => EventMapper.toResponseDto(event));
             res.status(200).json(responseData);
         } catch (e) {

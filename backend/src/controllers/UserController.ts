@@ -21,11 +21,16 @@ class UserController {
 
     async getUser(req: Request, res: Response, next: NextFunction) {
         try {
+            const requester = req.user as User;
             const id = Number(req.params.id);
+            let sendDeletedEvents = false;
 
             UserController.validateUserId(id);
 
-            const user = await UserService.getUser(id);
+            if (requester.id === id || requester.role === 'admin') {
+                sendDeletedEvents = true;
+            }
+            const user = await UserService.getUser(id, sendDeletedEvents);
             res.status(200).json(UserMapper.toResponseDto(user));
         } catch (e) {
             next(e);

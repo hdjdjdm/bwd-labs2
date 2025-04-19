@@ -6,82 +6,43 @@
 .eventPanel {
     @include flex-center();
 
-    position: sticky;
-    z-index: 25;
-    top: 160px;
+    justify-content: space-evenly;
     gap: $block-gap;
+    width: 100%;
 
     @include tablet {
         top: 130px;
     }
 
     @include mobile {
-        width: 100%;
         top: 160px;
+        gap: $block-gap-small;
     }
 
-    &__categories {
-        @include flex-center();
+    @include small-mobile {
+        flex-direction: column;
+    }
 
-        background-color: $color-light;
-        padding: $block-padding-small $block-padding;
-        gap: $block-gap-small;
+    &__withDeletedToggle {
+        display: flex;
+        justify-content: center;
         transition: all $transition-duration ease;
 
-        &_scrolled {
-            background-color: $color-secondary;
-            opacity: 0.8;
-        }
-
         @include hover {
-            opacity: 1;
-            transform: scale(105%);
+            transform: scale(110%);
             animation: $animation-glowing;
         }
     }
 
-    &__categoriesItem {
-        @include fluid-text(24, 18);
-
-        cursor: pointer;
-        padding: 0 $container-padding-x;
-        border-radius: $border-radius-large; //todo МЕГА ЭФФЕКТ СЛАЙД
-
-        &_active {
-            background-color: $color-accent;
-            color: $color-background;
-        }
-
-        @include hover {
-        }
-    }
-
-    &__withDeletedToggle {
-        position: absolute;
-        bottom: -45px;
-        z-index: -1;
-        padding-top: 30px !important;
-        display: flex;
-        justify-content: center;
-    }
-
     &__addEventButton {
-        @include rounded(50);
         @include flex-center();
 
-        background-color: $color-light;
-        padding: 0 !important;
-        z-index: 50;
-        border: none;
-
-        &_scrolled {
-            background-color: $color-secondary;
-            opacity: 0.8;
-        }
+        width: 100%;
+        padding: 0 10px !important;
+        transition: width 0s;
+        min-width: 60px;
 
         @include hover {
-            transform: scale(120%);
-            opacity: 1;
             animation: $animation-glowing;
         }
     }

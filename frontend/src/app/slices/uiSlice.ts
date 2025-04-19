@@ -1,28 +1,22 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { EventPageCategory } from '@/types';
 
 interface UIState {
-    chosenCategory: EventPageCategory;
-    withDeleted: boolean;
+    showDeleted: boolean;
 }
 
 const initialState: UIState = {
-    chosenCategory: 'my',
-    withDeleted: false,
+    showDeleted: false,
 };
 
 const uiSlice = createSlice({
     name: 'ui',
     initialState,
     reducers: {
-        setChosenCategory(state, action: PayloadAction<EventPageCategory>) {
-            state.chosenCategory = action.payload;
-        },
-        setWithDeleted(state, action: PayloadAction<boolean>) {
-            state.withDeleted = action.payload;
+        setShowDeleted(state, action: PayloadAction<boolean>) {
+            state.showDeleted = action.payload;
         },
     },
 });
 
-export const { setChosenCategory, setWithDeleted } = uiSlice.actions;
+export const { setShowDeleted } = uiSlice.actions;
 export default uiSlice.reducer;

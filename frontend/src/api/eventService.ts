@@ -2,10 +2,12 @@ import { baseApi } from '@api/axios.ts';
 import { parseError } from '@utils/errorUtils.ts';
 import { DeleteEventResponse } from '@/types';
 import EventDto, { EventCreateUpdateDto } from '@dtos/EventDto.ts';
+import { Roles } from '@constants/Roles.ts';
 
-export const getEvents = async (): Promise<EventDto[]> => {
+export const getEvents = async (userRole?: Roles): Promise<EventDto[]> => {
     try {
-        const { data } = await baseApi.get(`/events`);
+        const url = userRole === 'admin' ? '/events' : '/events/public';
+        const { data } = await baseApi.get(url);
         return data;
     } catch (e: unknown) {
         throw parseError(e);

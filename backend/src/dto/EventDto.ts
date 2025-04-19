@@ -1,4 +1,4 @@
-import { UserResponseDto } from '@dto/UserDto.js';
+import { UserShortDto } from '@dto/UserDto.js';
 
 export interface EventDto {
     id: number;
@@ -7,6 +7,7 @@ export interface EventDto {
     date: Date;
     createdBy: number;
     isPublic: boolean;
+    deletedAt?: Date;
 }
 
 export interface CreateEventDto {
@@ -30,7 +31,7 @@ export interface EventResponseDto {
     title: string;
     description?: string;
     date: Date;
-    createdBy: UserResponseDto;
+    createdBy: UserShortDto;
     isPublic: boolean;
     deletedAt?: Date | null;
 }

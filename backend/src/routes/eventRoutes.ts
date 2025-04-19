@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import EventController from '@controllers/EventController.js';
 import jwtAuthMiddleware from '@middleware/jwtAuthMiddleware.js';
+import { checkRole } from '@middleware/authMiddleware.js';
+import { Roles } from '@constants/Roles.js';
 
 const router: Router = Router();
 
@@ -34,7 +36,7 @@ const router: Router = Router();
  *       500:
  *         description: Internal server error
  */
-router.get('/', jwtAuthMiddleware, EventController.getAllEvents);
+router.get('/', jwtAuthMiddleware, checkRole(Roles.ADMIN), EventController.getAllEvents);
 
 router.get('/public', EventController.getPublicEvents);
 

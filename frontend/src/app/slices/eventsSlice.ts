@@ -10,27 +10,25 @@ import {
 import { parseError } from '@utils/errorUtils.ts';
 import { showCustomToast } from '@utils/customToastUtils.ts';
 import { RootState } from '@app/store.ts';
-import { EventPageCategory } from '@/types';
+import { Roles } from '@constants/Roles.ts';
 
 interface EventsState {
-    allEvents: EventDto[];
-    filteredEvents: EventDto[];
+    events: EventDto[];
     loading: boolean;
     error: string | null;
 }
 
 const initialState: EventsState = {
-    allEvents: [],
-    filteredEvents: [],
+    events: [],
     loading: false,
     error: null,
 };
 
-export const fetchEvents = createAsyncThunk<EventDto[]>(
+export const fetchEvents = createAsyncThunk<EventDto[], Roles | undefined>(
     'events/getEvents',
-    async (_, { rejectWithValue }) => {
+    async (userRole, { rejectWithValue }) => {
         try {
-            return await getEvents();
+            return await getEvents(userRole);
         } catch (e: unknown) {
             const { status, errorMessage } = parseError(e);
             showCustomToast(errorMessage, 'error', status.toString());
@@ -74,7 +72,6 @@ export const updateEvent = createAsyncThunk<
         return rejectWithValue(errorMessage);
     }
 });
-//todo при изменении public
 
 export const deleteEvent = createAsyncThunk(
     'events/deleteEvent',
@@ -111,23 +108,11 @@ const eventsSlice = createSlice({
     name: 'events',
     initialState,
     reducers: {
-        filterEvents(
-            state,
-            action: PayloadAction<{
-                withDeleted: boolean;
-                chosenCategory: EventPageCategory;
-                userId?: number;
-            }>,
-        ) {
-            const { withDeleted, chosenCategory, userId } = action.payload;
-            state.filteredEvents = state.allEvents.filter((event) => {
-                const isDeletedOk = withDeleted || !event.deletedAt;
-                const isCategoryOk =
-                    chosenCategory === 'public' ||
-                    (chosenCategory === 'my' && event.createdBy.id === userId);
-
-                return isDeletedOk && isCategoryOk;
-            });
+        setEvents: (state, action: PayloadAction<EventDto[]>) => {
+            state.events = action.payload;
+        },
+        clearEvents: (state) => {
+            state.events = [];
         },
     },
     extraReducers: (builder) => {
@@ -140,7 +125,7 @@ const eventsSlice = createSlice({
                 fetchEvents.fulfilled,
                 (state, action: PayloadAction<EventDto[]>) => {
                     state.loading = false;
-                    state.allEvents = action.payload;
+                    state.events = action.payload;
                 },
             )
             .addCase(fetchEvents.rejected, (state, action) => {
@@ -148,33 +133,29 @@ const eventsSlice = createSlice({
                 state.error =
                     (action.payload as string) ?? 'Ошибка при загрузке событий';
             });
+        builder.addCase(
+            addEvent.fulfilled,
+            (state, action: PayloadAction<EventDto>) => {
+                const event = action.payload;
+                state.events.push(event);
+                showCustomToast(`Событие '${event.title} добавлено`, 'success');
+            },
+        );
         builder
             .addCase(updateEvent.pending, (state) => {
                 state.loading = true;
                 state.error = null;
             })
             .addCase(
-                addEvent.fulfilled,
-                (state, action: PayloadAction<EventDto>) => {
-                    const event = action.payload;
-                    state.allEvents.push(event);
-                    showCustomToast(
-                        `Событие '${event.title} добавлено`,
-                        'success',
-                    );
-                },
-            );
-        builder
-            .addCase(
                 updateEvent.fulfilled,
                 (state, action: PayloadAction<EventDto>) => {
                     state.loading = false;
                     const updatedEvent = action.payload;
-                    const index = state.allEvents.findIndex(
+                    const index = state.events.findIndex(
                         (event) => event.id === updatedEvent.id,
                     );
                     if (index !== -1) {
-                        state.allEvents[index] = updatedEvent;
+                        state.events[index] = updatedEvent;
                         showCustomToast(
                             `Событие ${updatedEvent.title} успешно изменено`,
                             'success',
@@ -191,16 +172,16 @@ const eventsSlice = createSlice({
             .addCase(deleteEvent.fulfilled, (state, action) => {
                 const { id, isHardDelete, result } = action.payload;
                 if (isHardDelete) {
-                    state.allEvents = state.allEvents.filter(
+                    state.events = state.events.filter(
                         (event) => event.id !== id,
                     );
                 } else {
-                    const eventIndex = state.allEvents.findIndex(
+                    const eventIndex = state.events.findIndex(
                         (event) => event.id === id,
                     );
                     if (eventIndex !== -1) {
-                        state.allEvents[eventIndex].deletedAt =
-                            new Date().toISOString();
+                        state.events[eventIndex].deletedAt =
+                            result.event.deletedAt;
                     }
                 }
                 showCustomToast(
@@ -217,11 +198,11 @@ const eventsSlice = createSlice({
         builder
             .addCase(restoreEvent.fulfilled, (state, action) => {
                 const { id, result } = action.payload;
-                const eventIndex = state.allEvents.findIndex(
+                const eventIndex = state.events.findIndex(
                     (event) => event.id === id,
                 );
                 if (eventIndex !== -1) {
-                    state.allEvents[eventIndex].deletedAt = null;
+                    state.events[eventIndex].deletedAt = null;
                 }
                 showCustomToast(
                     result.message,
@@ -237,5 +218,5 @@ const eventsSlice = createSlice({
     },
 });
 
-export const { filterEvents } = eventsSlice.actions;
+export const { setEvents, clearEvents } = eventsSlice.actions;
 export default eventsSlice.reducer;

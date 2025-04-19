@@ -2,7 +2,6 @@ import { Router } from 'express';
 import UserController from '@controllers/UserController.js';
 import { checkRole } from '@middleware/authMiddleware.js';
 import { Roles } from '@constants/Roles.js';
-import jwtAuthMiddleware from '@middleware/jwtAuthMiddleware.js';
 
 const router: Router = Router();
 
@@ -29,7 +28,7 @@ router.get('/', checkRole(Roles.ADMIN), UserController.getAllUsers);
 
 router.get('/:id', UserController.getUser); //todo если не админ, то показывать только его публичные события
 
-router.put('/:id', jwtAuthMiddleware, UserController.updateUser); //todo если не сам пользователь или не админ, нельзя
+router.put('/:id', UserController.updateUser); //todo если не сам пользователь или не админ, нельзя
 
 /**
  * @swagger

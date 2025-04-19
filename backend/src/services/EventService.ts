@@ -41,19 +41,6 @@ class EventService {
         });
     }
 
-    async getUserEvents(userId: number): Promise<Event[]> {
-        return await Event.findAll({
-            paranoid: false,
-            where: { createdBy: userId },
-            include: [
-                {
-                    model: User,
-                    as: 'creator',
-                },
-            ],
-        });
-    }
-
     async getEvent(id: number): Promise<Event> {
         return await Event.findByPk(id, {
             paranoid: false,

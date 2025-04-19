@@ -1,4 +1,5 @@
 import { Roles } from '@constants/Roles.js';
+import { EventResponseDto } from '@dto/EventDto.js';
 
 export interface UserDto {
     id: number;
@@ -25,6 +26,12 @@ export interface UserResponseDto {
     name: string;
     email: string;
     role: Roles;
+    events: EventResponseDto[];
+}
+
+export interface UserShortDto {
+    id: number;
+    name: string;
 }
 
 export interface ChangeUserRoleDto {

@@ -3,6 +3,7 @@ import { Roles } from '../constants/Roles.js';
 import { ErrorCodes } from '@constants/Errors.js';
 import CustomError from '@utils/CustomError.js';
 import { UserDto } from '@dto/UserDto.js';
+import Event from '@models/Event.js';
 
 class UserService {
     async getAllUsers(withDeleted: boolean = false): Promise<User[]> {
@@ -11,10 +12,24 @@ class UserService {
         });
     }
 
-    async getUser(id: number): Promise<User> {
+    async getUser(id: number, sendDeletedEvents: boolean = false): Promise<User> {
         return await User.findByPk(id, {
             paranoid: false,
             rejectOnEmpty: new CustomError(ErrorCodes.NotFoundedError, `User with ID ${id} not found`),
+            include: [
+                {
+                    model: Event,
+                    as: 'events',
+                    paranoid: !sendDeletedEvents,
+                    include: [
+                        {
+                            model: User,
+                            as: 'creator',
+                            paranoid: false,
+                        },
+                    ],
+                },
+            ],
         });
     }
 

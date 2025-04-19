@@ -1,31 +1,20 @@
 import styles from './EventsList.module.scss';
 import classNames from 'classnames';
-import React, { useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from '@app/hooks.ts';
+import React from 'react';
 import EventCard from '@components/Events/EventCard/EventCard.tsx';
-import { fetchEvents, filterEvents } from '@app/slices/eventsSlice.ts';
+import { useAppSelector } from '@app/hooks.ts';
 
 const EventsList: React.FC = () => {
-    const dispatch = useAppDispatch();
-    const userId = useAppSelector((state) => state.auth.user?.id);
-    const { filteredEvents, allEvents } = useAppSelector(
-        (state) => state.events,
+    const { events } = useAppSelector((state) => state.events);
+    const { showDeleted } = useAppSelector((state) => state.ui);
+
+    const filteredEvents = events.filter((event) =>
+        showDeleted ? event.deletedAt !== null : event.deletedAt === null,
     );
-    const { chosenCategory, withDeleted } = useAppSelector((state) => state.ui);
-
-    useEffect(() => {
-        dispatch(fetchEvents());
-    }, []);
-
-    useEffect(() => {
-        if (allEvents.length > 0) {
-            dispatch(filterEvents({ withDeleted, chosenCategory, userId }));
-        }
-    }, [allEvents, chosenCategory, dispatch, userId, withDeleted]);
 
     return (
         <ul className={classNames(styles.eventsList, 'container', 'block')}>
-            {filteredEvents.length > 0 ? (
+            {filteredEvents && filteredEvents.length > 0 ? (
                 filteredEvents?.map((event) => (
                     <EventCard
                         key={event.id}

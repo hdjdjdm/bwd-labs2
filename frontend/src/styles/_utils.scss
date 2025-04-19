@@ -16,6 +16,10 @@
     justify-content: center;
     padding: 20px 40px;
     gap: $block-gap;
+
+    @include mobile {
+        padding: 10px;
+    }
 }
 
 .block {

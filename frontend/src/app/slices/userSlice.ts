@@ -88,7 +88,7 @@ const userSlice = createSlice({
                 updateUserProfile.fulfilled,
                 (state, action: PayloadAction<UserDto>) => {
                     state.loading = false;
-                    state.user = { ...state.user, ...action.payload }; // Обновление существующего пользователя
+                    state.user = { ...state.user, ...action.payload };
                 },
             )
             .addCase(updateUserProfile.rejected, (state, action) => {
