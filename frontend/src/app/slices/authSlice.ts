@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { jwtDecode } from 'jwt-decode';
 import {
     getFromLocalStorage,
@@ -86,6 +86,12 @@ const authSlice = createSlice({
                 authSlice.caseReducers.logout(state);
             }
         },
+        updateAuthUser(state, action: PayloadAction<Partial<UserDto>>) {
+            if (state.user) {
+                state.user = { ...state.user, ...action.payload };
+                saveToLocalStorage('user', JSON.stringify(state.user));
+            }
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -105,5 +111,5 @@ const authSlice = createSlice({
     },
 });
 
-export const { logout, checkTokenValidity } = authSlice.actions;
+export const { logout, checkTokenValidity, updateAuthUser } = authSlice.actions;
 export default authSlice.reducer;

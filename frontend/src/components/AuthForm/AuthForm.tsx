@@ -11,8 +11,8 @@ import {
 } from '@assets/icons';
 import { showCustomToast } from '@utils/customToastUtils.ts';
 import { useForm } from 'react-hook-form';
-import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { loginSchema, registerSchema } from '@validation/user.ts';
 
 type AuthFormProps =
     | { type: 'login'; onSubmit: (email: string, password: string) => void }
@@ -26,40 +26,6 @@ interface AuthFormData {
     password: string;
     username?: string;
 }
-
-const registerSchema = yup.object().shape({
-    username: yup
-        .string()
-        .required('Имя пользователя обязательно')
-        .min(3, 'Минимум 3 символа')
-        .max(20, 'Максимум 20 символов')
-        .matches(/^[a-zA-Z0-9_]+$/, 'Только буквы, цифры и подчеркивания'),
-    email: yup
-        .string()
-        .required('Email обязателен')
-        .matches(
-            /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-            'Некорректный email',
-        ),
-    password: yup
-        .string()
-        .required('Пароль обязателен')
-        .min(6, 'Минимум 6 символов'),
-});
-
-const loginSchema = yup.object().shape({
-    email: yup
-        .string()
-        .required('Email обязателен')
-        .matches(
-            /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-            'Некорректный email',
-        ),
-    password: yup
-        .string()
-        .required('Пароль обязателен')
-        .min(6, 'Минимум 6 символов'),
-});
 
 const AuthForm: React.FC<AuthFormProps> = ({ type, onSubmit }) => {
     const navigate = useNavigate();
@@ -101,7 +67,6 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSubmit }) => {
             {type === 'register' && (
                 <div className={styles.authForm__input}>
                     <InputField
-                        type="text"
                         label="Имя пользователя"
                         iconSrc={AccountIcon}
                         alt="usernameFieldIcon"

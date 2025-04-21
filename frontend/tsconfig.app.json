@@ -64,6 +64,9 @@
       "@utils/*": [
         "src/utils/*"
       ],
+      "@validation/*": [
+        "src/validation/*"
+      ]
     }
   },
   "include": [

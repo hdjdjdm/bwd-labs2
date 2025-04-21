@@ -4,19 +4,41 @@ import classNames from 'classnames';
 import EventsList from '@components/Events/EventsList/EventsList.tsx';
 import InputField from '@components/InputField/InputField.tsx';
 import { useAppDispatch, useAppSelector } from '@app/hooks.ts';
-import { FormEvent, useEffect } from 'react';
-import { clearUser, fetchUserProfile } from '@app/slices/userSlice.ts';
+import { useEffect } from 'react';
+import {
+    clearUser,
+    fetchUserProfile,
+    updateUserProfile,
+} from '@app/slices/userSlice.ts';
 import { useParams } from 'react-router-dom';
-import { updateUser } from '@api/userService.ts';
 import EventPanel from '@components/Events/EventPanel/EventPanel.tsx';
 import { clearEvents, setEvents } from '@app/slices/eventsSlice.ts';
 import { setShowDeleted } from '@app/slices/uiSlice.ts';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { updateUserSchema } from '@validation/user.ts';
+import { updateAuthUser } from '@app/slices/authSlice.ts';
+
+interface ProfileFormData {
+    username: string;
+    email: string;
+}
 
 const ProfilePage = () => {
     const dispatch = useAppDispatch();
     const { id } = useParams<{ id: string }>();
     const { user } = useAppSelector((state) => state.user);
     const { user: authUser } = useAppSelector((state) => state.auth);
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        setValue,
+    } = useForm<ProfileFormData>({
+        resolver: yupResolver(updateUserSchema),
+        mode: 'onBlur',
+    });
 
     useEffect(() => {
         dispatch(fetchUserProfile(Number(id)));
@@ -29,6 +51,13 @@ const ProfilePage = () => {
     }, [dispatch, id]);
 
     useEffect(() => {
+        if (user) {
+            setValue('username', user.name || '');
+            setValue('email', user.email || '');
+        }
+    }, [user, setValue]);
+
+    useEffect(() => {
         if (user?.events) {
             dispatch(setEvents(user.events));
         }
@@ -36,9 +65,29 @@ const ProfilePage = () => {
 
     const isUserProfile = authUser?.id === Number(id);
 
-    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        dispatch(updateUser(id));
+    const onSubmit = async (data: ProfileFormData) => {
+        try {
+            const updatedUser = await dispatch(
+                updateUserProfile({
+                    userId: Number(id),
+                    updatedUserData: {
+                        name: data.username,
+                        email: data.email,
+                    },
+                }),
+            ).unwrap();
+
+            dispatch(fetchUserProfile(Number(id)));
+
+            dispatch(
+                updateAuthUser({
+                    name: updatedUser.name,
+                    email: updatedUser.email,
+                }),
+            );
+        } catch (e) {
+            console.error('Ошибка при обновлении профиля:', e);
+        }
     };
 
     return (
@@ -47,13 +96,12 @@ const ProfilePage = () => {
             <div
                 className={classNames(styles.profilePage__inner, 'page__inner')}
             >
-                <h1>Профиль</h1>
                 <form
-                    className={styles.profilePage__form}
-                    onSubmit={(e) => {
-                        handleSubmit(e);
-                    }}
+                    className={classNames(styles.profilePage__form, 'block')}
+                    onSubmit={handleSubmit(onSubmit)}
+                    noValidate
                 >
+                    <h1>Профиль</h1>
                     <span
                         className={classNames(
                             styles.profilePage__input,
@@ -61,25 +109,43 @@ const ProfilePage = () => {
                         )}
                     >
                         <InputField
-                            type="text"
-                            value={user?.name || ''}
-                            onChange={(e) => console.log(e.target.value)}
                             label="Имя профиля"
-                            required
+                            {...register('username')}
+                            errorMessage={errors.username?.message}
+                            autoComplete="username"
+                            disabled={!isUserProfile}
                         />
                     </span>
 
-                    <button
+                    <span
                         className={classNames(
-                            styles.profilePage__button,
-                            'button',
-                            'button_accent',
+                            styles.profilePage__input,
+                            styles.profilePage__input_email,
                         )}
-                        type="submit"
-                        onClick={() => handleSubmit}
                     >
-                        Сохранить
-                    </button>
+                        <InputField
+                            type="email"
+                            label="Почта"
+                            {...register('email')}
+                            errorMessage={errors.email?.message}
+                            autoComplete="email"
+                            disabled={!isUserProfile}
+                        />
+                    </span>
+
+                    {isUserProfile && (
+                        <button
+                            className={classNames(
+                                styles.profilePage__saveButton,
+                                'button',
+                                'button_accent',
+                            )}
+                            type="submit"
+                            onClick={() => handleSubmit}
+                        >
+                            Сохранить
+                        </button>
+                    )}
                 </form>
                 {isUserProfile && <EventPanel showWithDeleted={true} />}
                 <EventsList />

@@ -16,6 +16,7 @@
         color: $color-text;
         border-radius: $border-radius;
         transition: all $transition-duration ease, background-color 0s;
+        white-space: nowrap;
     }
 
     &__input {
@@ -72,6 +73,17 @@
 
         &_warning ~ .inputField__inputIcon {
             filter: $svg-color-warning !important;
+        }
+
+        &:disabled {
+
+            color: $color-text;
+            background-color: $color-background;
+            border: none;
+            border-bottom: $border-large;
+            border-radius: 0;
+            text-overflow: ellipsis;
+            padding-right: 0;
         }
     }
 

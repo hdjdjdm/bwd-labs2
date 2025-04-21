@@ -1,5 +1,5 @@
 import styles from './EventModal.module.scss';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
     AccountLockIcon,
@@ -12,7 +12,7 @@ import InputField from '@components/InputField/InputField.tsx';
 import { useAutoResizeTextarea } from '@/hooks/useAutoResizeTextarea.tsx';
 import Modal from '@components/modals/Modal/Modal.tsx';
 import CustomSwitch from '@components/Switch/CustomSwitch.tsx';
-import EventDto, { EventCreateUpdateDto } from '@dtos/EventDto.ts';
+import EventDto, { EventFormDto } from '@dtos/EventDto.ts';
 import { EventModalType } from '@/types';
 import ConfirmModal from '@components/modals/ConfirmModal/ConfirmModal.tsx';
 import {
@@ -24,32 +24,14 @@ import {
 import { useAppDispatch, useAppSelector } from '@app/hooks.ts';
 import { closeModal, openModal } from '@app/slices/uiSlice.ts';
 import { useForm } from 'react-hook-form';
-import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { getEventSchema } from '@validation/event.ts';
 
 interface ModalProps {
     modalKey: string;
     event?: EventDto;
     type: EventModalType;
 }
-
-interface EventFormData {
-    title: string;
-    description?: string;
-    date: string;
-    isPublic: boolean;
-}
-
-const eventSchema: yup.ObjectSchema<EventFormData> = yup.object({
-    title: yup
-        .string()
-        .required('Название обязательно')
-        .min(3, 'Минимум 3 символа')
-        .max(100, 'Максимум 100 символов'),
-    description: yup.string().max(200, 'Максимум 200 символов').optional(),
-    date: yup.string().required('Дата обязательна'),
-    isPublic: yup.boolean().required('Укажите публичность события'),
-});
 
 const EventModal: React.FC<ModalProps> = ({
     modalKey,
@@ -61,6 +43,15 @@ const EventModal: React.FC<ModalProps> = ({
     const [confirmAction, setConfirmAction] = useState<() => void>(() => {});
     const [confirmPrefix, setConfirmPrefix] = useState<string>('');
 
+    const today = new Date().toISOString().split('T')[0];
+    const minDate =
+        type === 'create'
+            ? today
+            : event?.date
+              ? new Date(event.date).toISOString().split('T')[0]
+              : today;
+    const eventSchema = getEventSchema(minDate);
+
     const {
         register,
         handleSubmit,
@@ -68,22 +59,28 @@ const EventModal: React.FC<ModalProps> = ({
         setValue,
         watch,
         trigger,
-    } = useForm<EventFormData>({
+    } = useForm<EventFormDto>({
         resolver: yupResolver(eventSchema),
         mode: 'onBlur',
-        defaultValues: {
-            title: event?.title ?? '',
-            description: event?.description ?? '',
-            date: event?.date
-                ? new Date(event.date).toISOString().split('T')[0]
-                : new Date().toISOString().split('T')[0],
-            isPublic: event?.isPublic ?? true,
-        },
     });
+
+    useEffect(() => {
+        if (event) {
+            setValue('title', event.title ?? '');
+            setValue('description', event.description ?? '');
+            setValue(
+                'date',
+                event.date
+                    ? new Date(event.date).toISOString().split('T')[0]
+                    : today,
+            );
+            setValue('isPublic', event.isPublic ?? true);
+        }
+    }, [event, setValue]);
 
     const confirmModalButtonRef = useRef<HTMLButtonElement>(null);
     const textareaRef = useAutoResizeTextarea(watch('description'));
-    const isPublic = watch('isPublic');
+    const isPublic = watch('isPublic') ?? true;
 
     const toggleConfirmModal = (
         action?: () => void,
@@ -119,8 +116,8 @@ const EventModal: React.FC<ModalProps> = ({
         dispatch(closeModal(modalKey));
     };
 
-    const onSubmit = async (data: EventFormData) => {
-        const eventData: EventCreateUpdateDto = {
+    const onSubmit = async (data: EventFormDto) => {
+        const eventData: EventFormDto = {
             title: data.title,
             description: data.description,
             date: new Date(data.date).toString(),
@@ -177,6 +174,7 @@ const EventModal: React.FC<ModalProps> = ({
                                 maxLength: 100,
                             })}
                             errorMessage={errors.title?.message}
+                            autoComplete="off"
                             disabled={type === 'info'}
                         />
                     </span>
@@ -191,6 +189,8 @@ const EventModal: React.FC<ModalProps> = ({
                             label="Дата"
                             {...register('date', { required: true })}
                             errorMessage={errors.date?.message}
+                            min={minDate}
+                            autoComplete="off"
                             disabled={type === 'info'}
                         />
                     </span>
@@ -214,6 +214,7 @@ const EventModal: React.FC<ModalProps> = ({
                         }
                     }}
                     disabled={type === 'info'}
+                    autoComplete="off"
                     placeholder="Описание"
                 />
 

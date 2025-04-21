@@ -3,10 +3,21 @@
 @use '@styles/media' as *;
 @use '@styles/animations' as *;
 
-.eventsPage {
+.profilePage {
 
     &__inner {
-        @include flex-center();
 
+    }
+
+    &__form {
+        padding: 20px !important;
+        display: flex;
+        flex-direction: column;
+        gap: $block-gap-small;
+        transition: width $transition-duration ease;
+    }
+
+    &__saveButton {
+        margin-right: auto;
     }
 }

@@ -3,7 +3,6 @@ import { parseError } from '@utils/errorUtils';
 import { showCustomToast } from '@utils/customToastUtils';
 import UserDto from '@dtos/UserDto';
 import { getUser, updateUser } from '@api/userService.ts';
-import { RootState } from '@app/store.ts';
 
 interface UserState {
     user: UserDto | null;
@@ -33,16 +32,10 @@ export const fetchUserProfile = createAsyncThunk<
 
 export const updateUserProfile = createAsyncThunk<
     UserDto,
-    { updatedUserData: Partial<UserDto> },
+    { userId: number; updatedUserData: Partial<UserDto> },
     { rejectValue: string }
->('user/update', async ({ updatedUserData }, { getState, rejectWithValue }) => {
+>('user/update', async ({ userId, updatedUserData }, { rejectWithValue }) => {
     try {
-        const state = getState() as RootState;
-        const userId = state.user?.user?.id;
-        if (!userId) {
-            throw new Error('Не удалось получить id пользователя');
-        }
-
         return await updateUser(userId, updatedUserData);
     } catch (e: unknown) {
         const { status, errorMessage } = parseError(e);

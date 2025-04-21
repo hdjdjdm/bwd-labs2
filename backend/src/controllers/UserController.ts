@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import UserService from '@services/UserService.js';
 import { Roles } from '@constants/Roles.js';
 import CustomError from '@utils/CustomError.js';
-import { ErrorCodes } from '@constants/Errors.js';
+import { ErrorCodes, ErrorMessages } from '@constants/Errors.js';
 import { ChangeUserRoleDto, UserDto } from '@dto/UserDto.js';
 import UserMapper from '@mappers/UserMapper.js';
 import User from '@models/User.js';
@@ -47,9 +47,7 @@ class UserController {
             UserController.validateUserData(userData);
 
             if (user.id !== id) {
-                return next(
-                    new CustomError(ErrorCodes.ForbiddenError, 'You do not have permission to access this resource.'),
-                );
+                return next(new CustomError(ErrorCodes.ForbiddenError, ErrorMessages.ForbiddenError));
             }
 
             const updatedUser = await UserService.updateUser(id, userData);
@@ -61,9 +59,15 @@ class UserController {
 
     async deleteUser(req: Request, res: Response, next: NextFunction) {
         try {
+            const requester = req.user as User;
             const id = Number(req.params.id);
             const hardDelete = req.query.hardDelete === 'true' || req.query.hardDelete === '1';
 
+            UserController.validateUserId(id);
+
+            if (requester.id !== id || requester.role !== 'admin') {
+                return next(new CustomError(ErrorCodes.ForbiddenError, ErrorMessages.ForbiddenError));
+            }
             UserController.validateUserId(id);
 
             const result = await UserService.deleteUser(id, hardDelete);
@@ -75,9 +79,14 @@ class UserController {
 
     async restoreUser(req: Request, res: Response, next: NextFunction) {
         try {
+            const requester = req.user as User;
             const id = Number(req.params.id);
 
             UserController.validateUserId(id);
+
+            if (requester.id !== id || requester.role !== 'admin') {
+                return next(new CustomError(ErrorCodes.ForbiddenError, ErrorMessages.ForbiddenError));
+            }
 
             const result = await UserService.restoreUser(id);
             res.status(200).json(result);

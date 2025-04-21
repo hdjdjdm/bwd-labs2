@@ -16,7 +16,7 @@ export const updateUser = async (
     updatedFields: Partial<UserDto>,
 ): Promise<UserDto> => {
     try {
-        const { data } = await baseApi.put(`/events/${userId}`, updatedFields);
+        const { data } = await baseApi.put(`/users/${userId}`, updatedFields);
         return data;
     } catch (e: unknown) {
         throw parseError(e);

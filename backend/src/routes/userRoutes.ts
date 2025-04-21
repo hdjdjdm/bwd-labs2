@@ -26,9 +26,9 @@ const router: Router = Router();
  */
 router.get('/', checkRole(Roles.ADMIN), UserController.getAllUsers);
 
-router.get('/:id', UserController.getUser); //todo если не админ, то показывать только его публичные события
+router.get('/:id', UserController.getUser);
 
-router.put('/:id', UserController.updateUser); //todo если не сам пользователь или не админ, нельзя
+router.put('/:id', UserController.updateUser);
 
 /**
  * @swagger
@@ -56,7 +56,7 @@ router.put('/:id', UserController.updateUser); //todo если не сам по�
  *       500:
  *         description: Internal server error
  */
-router.delete('/:id', UserController.deleteUser); //todo если не админ, то нельзя удалить чужой профиль
+router.delete('/:id', UserController.deleteUser);
 
 /**
  * @swagger
@@ -79,7 +79,7 @@ router.delete('/:id', UserController.deleteUser); //todo если не адми�
  *       500:
  *         description: Internal server error
  */
-router.patch('/:id/restore', UserController.restoreUser); //todo аналогично
+router.patch('/:id/restore', UserController.restoreUser);
 
 /**
  * @swagger
