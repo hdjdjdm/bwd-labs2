@@ -1,24 +1,23 @@
 import styles from './EventPanel.module.scss';
 import classNames from 'classnames';
 import { PlusIcon } from '@assets/icons';
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import CustomSwitch from '@components/Switch/CustomSwitch.tsx';
 import { useAppDispatch, useAppSelector } from '@app/hooks.ts';
 import EventModal from '@components/modals/EventModal/EventModal.tsx';
-import { setShowDeleted } from '@app/slices/uiSlice.ts';
+import { openModal, setShowDeleted } from '@app/slices/uiSlice.ts';
 
 interface EventPanelProps {
     showWithDeleted?: boolean;
 }
 
 const EventPanel: React.FC<EventPanelProps> = ({ showWithDeleted }) => {
-    const { showDeleted } = useAppSelector((state) => state.ui);
+    const { showDeletedEvents } = useAppSelector((state) => state.ui);
     const dispatch = useAppDispatch();
     const modalButtonRef = useRef(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const toggleModal = () => {
-        setIsModalOpen((prev) => !prev);
+        dispatch(openModal('createEventModal'));
     };
 
     const handleSwitchChange = (checked: boolean) => {
@@ -59,18 +58,12 @@ const EventPanel: React.FC<EventPanelProps> = ({ showWithDeleted }) => {
                 >
                     Удаленные?&nbsp;
                     <CustomSwitch
-                        checked={showDeleted}
+                        checked={showDeletedEvents}
                         onChange={handleSwitchChange}
                     />
                 </div>
             )}
-            {isModalOpen && (
-                <EventModal
-                    isOpen={isModalOpen}
-                    onClose={toggleModal}
-                    type={'create'}
-                />
-            )}
+            <EventModal modalKey={'createEventModal'} type={'create'} />
         </div>
     );
 };

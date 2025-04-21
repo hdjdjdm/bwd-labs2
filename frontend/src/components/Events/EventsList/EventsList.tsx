@@ -6,10 +6,10 @@ import { useAppSelector } from '@app/hooks.ts';
 
 const EventsList: React.FC = () => {
     const { events } = useAppSelector((state) => state.events);
-    const { showDeleted } = useAppSelector((state) => state.ui);
+    const { showDeletedEvents } = useAppSelector((state) => state.ui);
 
     const filteredEvents = events.filter((event) =>
-        showDeleted ? event.deletedAt !== null : event.deletedAt === null,
+        showDeletedEvents ? event.deletedAt !== null : event.deletedAt === null,
     );
 
     return (

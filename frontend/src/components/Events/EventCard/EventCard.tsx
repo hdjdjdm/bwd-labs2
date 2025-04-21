@@ -1,11 +1,12 @@
 import styles from './EventCard.module.scss';
 import classNames from 'classnames';
 import { CogIcon, InformationOutlineIcon } from '@assets/icons';
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import EventModal from '@components/modals/EventModal/EventModal.tsx';
 import EventDto from '@dtos/EventDto.ts';
-import { useAppSelector } from '@/app/hooks.ts';
+import { useAppDispatch, useAppSelector } from '@/app/hooks.ts';
 import { useNavigate } from 'react-router-dom';
+import { openModal } from '@app/slices/uiSlice.ts';
 
 interface EventCardProps {
     event: EventDto;
@@ -13,17 +14,17 @@ interface EventCardProps {
 }
 
 const EventCard: React.FC<EventCardProps> = ({ event, className }) => {
+    const dispatch = useAppDispatch();
     const user = useAppSelector((state) => state.auth.user);
 
     const isCreator = event?.createdBy.id === user?.id;
 
     const navigate = useNavigate();
-    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const modalButtonRef = useRef<HTMLImageElement | null>(null);
 
     const toggleModal = () => {
-        setIsModalOpen((prev) => !prev);
+        dispatch(openModal(`eventModal_${event.id}`));
     };
 
     return (
@@ -63,7 +64,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, className }) => {
                             'svg-accent',
                         )}
                         alt="openSettingsIcon"
-                        onClick={() => toggleModal()}
+                        onClick={toggleModal}
                     />
                 ) : (
                     <img
@@ -75,7 +76,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, className }) => {
                             'svg-accent',
                         )}
                         alt="openInfoIcon"
-                        onClick={() => toggleModal()}
+                        onClick={toggleModal}
                     />
                 )}
             </div>
@@ -101,14 +102,11 @@ const EventCard: React.FC<EventCardProps> = ({ event, className }) => {
                 </h4>
             </div>
 
-            {isModalOpen && (
-                <EventModal
-                    isOpen={isModalOpen}
-                    onClose={toggleModal}
-                    event={event}
-                    type={isCreator ? 'edit' : 'info'}
-                />
-            )}
+            <EventModal
+                modalKey={`eventModal_${event.id}`}
+                event={event}
+                type={isCreator ? 'edit' : 'info'}
+            />
         </div>
     );
 };

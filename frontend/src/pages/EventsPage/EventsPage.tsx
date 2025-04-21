@@ -21,7 +21,7 @@ const EventsPage = () => {
             <div
                 className={classNames(styles.eventsPage__inner, 'page__inner')}
             >
-                <EventPanel />
+                {user && <EventPanel />}
                 <EventsList />
             </div>
         </div>

@@ -21,39 +21,80 @@ import {
     restoreEvent,
     updateEvent,
 } from '@app/slices/eventsSlice.ts';
-import { useAppDispatch } from '@app/hooks.ts';
+import { useAppDispatch, useAppSelector } from '@app/hooks.ts';
+import { closeModal, openModal } from '@app/slices/uiSlice.ts';
+import { useForm } from 'react-hook-form';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 interface ModalProps {
-    isOpen: boolean;
-    onClose: () => void;
+    modalKey: string;
     event?: EventDto;
     type: EventModalType;
 }
 
+interface EventFormData {
+    title: string;
+    description?: string;
+    date: string;
+    isPublic: boolean;
+}
+
+const eventSchema: yup.ObjectSchema<EventFormData> = yup.object({
+    title: yup
+        .string()
+        .required('Название обязательно')
+        .min(3, 'Минимум 3 символа')
+        .max(100, 'Максимум 100 символов'),
+    description: yup.string().max(200, 'Максимум 200 символов').optional(),
+    date: yup.string().required('Дата обязательна'),
+    isPublic: yup.boolean().required('Укажите публичность события'),
+});
+
 const EventModal: React.FC<ModalProps> = ({
-    isOpen,
-    onClose,
+    modalKey,
     event,
     type = 'info',
 }) => {
+    const isOpen = useAppSelector((state) => state.ui.modals[modalKey]);
     const dispatch = useAppDispatch();
-    const [title, setTitle] = useState(event?.title ?? '');
-    const [description, setDescription] = useState(event?.description ?? '');
-    const [date, setDate] = useState(event?.date ?? new Date());
-    const [isPublic, setIsPublic] = useState<boolean>(event?.isPublic ?? true);
-    const [isConfirmModalOpen, setIsConfirmModalOpen] =
-        useState<boolean>(false);
     const [confirmAction, setConfirmAction] = useState<() => void>(() => {});
     const [confirmPrefix, setConfirmPrefix] = useState<string>('');
 
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        setValue,
+        watch,
+        trigger,
+    } = useForm<EventFormData>({
+        resolver: yupResolver(eventSchema),
+        mode: 'onBlur',
+        defaultValues: {
+            title: event?.title ?? '',
+            description: event?.description ?? '',
+            date: event?.date
+                ? new Date(event.date).toISOString().split('T')[0]
+                : new Date().toISOString().split('T')[0],
+            isPublic: event?.isPublic ?? true,
+        },
+    });
+
     const confirmModalButtonRef = useRef<HTMLButtonElement>(null);
-    const textareaRef = useAutoResizeTextarea(description);
+    const textareaRef = useAutoResizeTextarea(watch('description'));
+    const isPublic = watch('isPublic');
 
     const toggleConfirmModal = (
         action?: () => void,
         actionType?: 'restore' | 'softDelete' | 'hardDelete',
     ) => {
-        setConfirmAction(() => action);
+        if (!action) return;
+
+        setConfirmAction(() => () => {
+            action();
+            setConfirmAction(() => {});
+        });
 
         switch (actionType) {
             case 'restore':
@@ -65,30 +106,31 @@ const EventModal: React.FC<ModalProps> = ({
             default:
                 setConfirmPrefix('Переместить в удаленные');
         }
-        setIsConfirmModalOpen((prev) => !prev);
+
+        dispatch(openModal('confirmDelete'));
     };
 
-    const handleSwitchChange = (checked: boolean) => {
-        setIsPublic(checked);
+    const handleSwitchChange = async (checked: boolean) => {
+        setValue('isPublic', checked);
+        await trigger('isPublic');
     };
 
-    const handleSave = (e: React.FormEvent) => {
-        e.preventDefault();
+    const onClose = () => {
+        dispatch(closeModal(modalKey));
+    };
+
+    const onSubmit = async (data: EventFormData) => {
         const eventData: EventCreateUpdateDto = {
-            title,
-            description,
-            date: date.toString(),
-            isPublic,
+            title: data.title,
+            description: data.description,
+            date: new Date(data.date).toString(),
+            isPublic: data.isPublic,
         };
 
         if (type === 'create') {
-            dispatch(addEvent(eventData));
-        } else if (type === 'edit') {
-            if (!event) {
-                return;
-            }
-
-            dispatch(updateEvent({ id: event.id, eventData }));
+            await dispatch(addEvent(eventData));
+        } else if (type === 'edit' && event) {
+            await dispatch(updateEvent({ id: event.id, eventData }));
         }
         onClose();
     };
@@ -99,226 +141,230 @@ const EventModal: React.FC<ModalProps> = ({
     ) => {
         if (!event) return;
 
-        dispatch(deleteEvent({ id, isHardDelete }));
+        await dispatch(deleteEvent({ id, isHardDelete }));
         onClose();
     };
 
     const handleRestoreEvent = async (id: number) => {
         if (!event) return;
 
-        dispatch(restoreEvent({ id }));
+        await dispatch(restoreEvent({ id }));
         onClose();
     };
 
     return (
-        <>
-            <Modal
-                isOpen={isOpen}
-                onClose={onClose}
-                title={
-                    type === 'create' ? 'Добавить событие' : 'Данные события'
-                }
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title={type === 'create' ? 'Добавить событие' : 'Данные события'}
+        >
+            <form
+                className={styles.eventModal__form}
+                onSubmit={handleSubmit(onSubmit)}
+                noValidate
             >
-                <form className={styles.eventModal__form} onSubmit={handleSave}>
-                    <div className={styles.eventModal__mainInfo}>
-                        <span
-                            className={classNames(
-                                styles.eventModal__input,
-                                styles.eventModal__input_title,
-                            )}
-                        >
-                            <InputField
-                                type="text"
-                                value={title}
-                                onChange={(e) => setTitle(e.target.value)}
-                                label="Название"
-                                maxLength={100}
-                                required
-                                disabled={type === 'info'}
-                            />
-                        </span>
-                        <span
-                            className={classNames(
-                                styles.eventModal__input,
-                                styles.eventModal__input_date,
-                            )}
-                        >
-                            <InputField
-                                type="date"
-                                value={new Date(date)}
-                                onChange={(e) =>
-                                    setDate(new Date(e.target.value))
-                                }
-                                label="Дата"
-                                required
-                                disabled={type === 'info'}
-                            />
-                        </span>
-                    </div>
-                    <textarea
-                        className={classNames(styles.eventModal__description)}
-                        ref={textareaRef}
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        maxLength={200}
-                        placeholder={'Описание'}
-                        disabled={type === 'info'}
-                    />
-
-                    <span className={styles.eventModal__publicField}>
-                        {type === 'info' ? (
-                            <>
-                                <h5
-                                    className={classNames(
-                                        styles.eventModal__publicValue,
-                                        styles.eventModal__publicValue_active,
-                                    )}
-                                >
-                                    {isPublic ? 'Публичное' : 'Приватное'}
-                                </h5>
-                                <img
-                                    src={
-                                        isPublic
-                                            ? AccountLockOpenIcon
-                                            : AccountLockIcon
-                                    }
-                                    alt="publicEventIcon"
-                                    className={classNames(
-                                        styles.eventModal__publicIcon,
-                                        'svg',
-                                        'svg-accent',
-                                    )}
-                                />
-                            </>
-                        ) : (
-                            <>
-                                <h5
-                                    className={classNames(
-                                        styles.eventModal__publicValue,
-                                        !isPublic &&
-                                            styles.eventModal__publicValue_active,
-                                    )}
-                                >
-                                    Приватное
-                                </h5>
-                                <CustomSwitch
-                                    checked={isPublic}
-                                    onChange={handleSwitchChange}
-                                    checkedIcon={AccountLockOpenIcon}
-                                    nonCheckedIcon={AccountLockIcon}
-                                />
-                                <h5
-                                    className={classNames(
-                                        styles.eventModal__publicValue,
-                                        isPublic &&
-                                            styles.eventModal__publicValue_active,
-                                    )}
-                                >
-                                    Публичное
-                                </h5>
-                            </>
+                <div className={styles.eventModal__mainInfo}>
+                    <span
+                        className={classNames(
+                            styles.eventModal__input,
+                            styles.eventModal__input_title,
                         )}
+                    >
+                        <InputField
+                            label="Название"
+                            {...register('title', {
+                                required: true,
+                                maxLength: 100,
+                            })}
+                            errorMessage={errors.title?.message}
+                            disabled={type === 'info'}
+                        />
                     </span>
-                    {type === 'edit' && (
-                        <div className={styles.eventModal__deleteButtons}>
-                            {event?.deletedAt ? (
-                                <button
-                                    ref={confirmModalButtonRef}
-                                    onClick={() =>
-                                        toggleConfirmModal(
-                                            () => handleRestoreEvent(event.id),
-                                            'restore',
-                                        )
-                                    }
-                                    type="button"
-                                    className={classNames(
-                                        styles.eventModal__button_delete,
-                                        styles.eventModal__button,
-                                        'button',
-                                    )}
-                                >
-                                    Восстановить
-                                    <img
-                                        src={DeleteRestoreIcon}
-                                        alt="restoreIcon"
-                                        className="svg-small"
-                                    />
-                                </button>
-                            ) : (
-                                <button
-                                    ref={confirmModalButtonRef}
-                                    onClick={() =>
-                                        toggleConfirmModal(
-                                            () => handleDeleteEvent(event!.id),
-                                            'softDelete',
-                                        )
-                                    }
-                                    type="button"
-                                    className={classNames(
-                                        styles.eventModal__button_delete,
-                                        styles.eventModal__button,
-                                        'button',
-                                    )}
-                                >
-                                    Удалить
-                                    <img
-                                        src={DeleteIcon}
-                                        alt="softDeleteIcon"
-                                        className="svg-small"
-                                    />
-                                </button>
-                            )}
+                    <span
+                        className={classNames(
+                            styles.eventModal__input,
+                            styles.eventModal__input_date,
+                        )}
+                    >
+                        <InputField
+                            type="date"
+                            label="Дата"
+                            {...register('date', { required: true })}
+                            errorMessage={errors.date?.message}
+                            disabled={type === 'info'}
+                        />
+                    </span>
+                </div>
+                <textarea
+                    className={classNames(
+                        styles.eventModal__description,
+                        errors.description &&
+                            styles.eventModal__description_error,
+                    )}
+                    {...register('description')}
+                    ref={(e) => {
+                        textareaRef.current = e;
+                        register('description').ref(e);
+                    }}
+                    onChange={(e) => {
+                        register('description').onChange(e);
+                        if (textareaRef.current) {
+                            textareaRef.current.style.height = 'auto';
+                            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+                        }
+                    }}
+                    disabled={type === 'info'}
+                    placeholder="Описание"
+                />
+
+                <span className={styles.eventModal__publicField}>
+                    {type === 'info' ? (
+                        <>
+                            <h5
+                                className={classNames(
+                                    styles.eventModal__publicValue,
+                                    styles.eventModal__publicValue_active,
+                                )}
+                            >
+                                {isPublic ? 'Публичное' : 'Приватное'}
+                            </h5>
+                            <img
+                                src={
+                                    isPublic
+                                        ? AccountLockOpenIcon
+                                        : AccountLockIcon
+                                }
+                                alt="publicEventIcon"
+                                className={classNames(
+                                    styles.eventModal__publicIcon,
+                                    'svg',
+                                    'svg-accent',
+                                )}
+                            />
+                        </>
+                    ) : (
+                        <>
+                            <h5
+                                className={classNames(
+                                    styles.eventModal__publicValue,
+                                    !isPublic &&
+                                        styles.eventModal__publicValue_active,
+                                )}
+                            >
+                                Приватное
+                            </h5>
+                            <CustomSwitch
+                                checked={isPublic}
+                                onChange={handleSwitchChange}
+                                checkedIcon={AccountLockOpenIcon}
+                                nonCheckedIcon={AccountLockIcon}
+                            />
+                            <h5
+                                className={classNames(
+                                    styles.eventModal__publicValue,
+                                    isPublic &&
+                                        styles.eventModal__publicValue_active,
+                                )}
+                            >
+                                Публичное
+                            </h5>
+                        </>
+                    )}
+                </span>
+                {type === 'edit' && (
+                    <div className={styles.eventModal__deleteButtons}>
+                        {event?.deletedAt ? (
                             <button
                                 ref={confirmModalButtonRef}
                                 onClick={() =>
                                     toggleConfirmModal(
-                                        () =>
-                                            handleDeleteEvent(event!.id, true),
-                                        'hardDelete',
+                                        () => handleRestoreEvent(event.id),
+                                        'restore',
                                     )
                                 }
                                 type="button"
                                 className={classNames(
-                                    styles.eventModal__button,
                                     styles.eventModal__button_delete,
+                                    styles.eventModal__button,
                                     'button',
                                 )}
                             >
-                                Удалить навсегда
+                                Восстановить
                                 <img
-                                    src={DeleteAlertIcon}
-                                    alt="hardDeleteIcon"
+                                    src={DeleteRestoreIcon}
+                                    alt="restoreIcon"
                                     className="svg-small"
                                 />
                             </button>
-                        </div>
-                    )}
-                    {type !== 'info' && (
+                        ) : (
+                            <button
+                                ref={confirmModalButtonRef}
+                                onClick={() =>
+                                    toggleConfirmModal(
+                                        () => handleDeleteEvent(event!.id),
+                                        'softDelete',
+                                    )
+                                }
+                                type="button"
+                                className={classNames(
+                                    styles.eventModal__button_delete,
+                                    styles.eventModal__button,
+                                    'button',
+                                )}
+                            >
+                                Удалить
+                                <img
+                                    src={DeleteIcon}
+                                    alt="softDeleteIcon"
+                                    className="svg-small"
+                                />
+                            </button>
+                        )}
                         <button
+                            ref={confirmModalButtonRef}
+                            onClick={() =>
+                                toggleConfirmModal(
+                                    () => handleDeleteEvent(event!.id, true),
+                                    'hardDelete',
+                                )
+                            }
+                            type="button"
                             className={classNames(
                                 styles.eventModal__button,
+                                styles.eventModal__button_delete,
                                 'button',
-                                'button_accent',
                             )}
-                            type="submit"
-                            onClick={handleSave}
                         >
-                            {type === 'create' ? 'Добавить' : 'Сохранить'}
+                            Удалить навсегда
+                            <img
+                                src={DeleteAlertIcon}
+                                alt="hardDeleteIcon"
+                                className="svg-small"
+                            />
                         </button>
-                    )}
-                </form>
-
-                {isConfirmModalOpen && event && (
-                    <ConfirmModal
-                        isOpen={isConfirmModalOpen}
-                        onClose={() => setIsConfirmModalOpen(false)}
-                        onAccept={confirmAction}
-                        itemName={title}
-                        prefix={confirmPrefix}
-                    />
+                    </div>
                 )}
-            </Modal>
-        </>
+                {type !== 'info' && (
+                    <button
+                        className={classNames(
+                            styles.eventModal__button,
+                            'button',
+                            'button_accent',
+                        )}
+                        type="submit"
+                    >
+                        {type === 'create' ? 'Добавить' : 'Сохранить'}
+                    </button>
+                )}
+            </form>
+
+            <ConfirmModal
+                modalKey="confirmDelete"
+                onAccept={confirmAction}
+                itemName={watch('title')}
+                prefix={confirmPrefix}
+            />
+        </Modal>
     );
 };
 

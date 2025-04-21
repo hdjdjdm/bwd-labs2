@@ -8,16 +8,16 @@ import {
     LogoIcon,
     LogoMobileIcon,
 } from '@assets/icons';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import ConfirmModal from '@components/modals/ConfirmModal/ConfirmModal.tsx';
 import NavMenu from '@components/Header/components/NavMenu/NavMenu.tsx';
 import useIsScrolled from '@hooks/useIsScrolled.tsx';
 import { useAppDispatch, useAppSelector } from '@/app/hooks.ts';
 import { logout } from '@/app/slices/authSlice.ts';
+import { openModal } from '@app/slices/uiSlice.ts';
 
 const Header = () => {
     const isScrolled = useIsScrolled();
-    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const logoutButtonRef = useRef<HTMLButtonElement>(null);
 
     const navigate = useNavigate();
@@ -25,7 +25,7 @@ const Header = () => {
     const dispatch = useAppDispatch();
 
     const toggleConfirmModal = () => {
-        setIsConfirmModalOpen(!isConfirmModalOpen);
+        dispatch(openModal('confirmLogout'));
     };
 
     return (
@@ -157,15 +157,12 @@ const Header = () => {
                 <NavMenu mobile={true} />
             </div>
 
-            {isConfirmModalOpen && (
-                <ConfirmModal
-                    isOpen={isConfirmModalOpen}
-                    onClose={toggleConfirmModal}
-                    onAccept={() => dispatch(logout())}
-                    itemName={user!.name}
-                    prefix={'Выйти из аккаунта'}
-                />
-            )}
+            <ConfirmModal
+                modalKey="confirmLogout"
+                onAccept={() => dispatch(logout())}
+                itemName={user?.name || ''}
+                prefix={'Выйти из аккаунта'}
+            />
         </header>
     );
 };

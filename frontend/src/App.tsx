@@ -10,6 +10,7 @@ import { Bounce, ToastContainer } from 'react-toastify';
 import ProfilePage from '@pages/ProfilePage/ProfilePage.tsx';
 import { useAppDispatch } from '@/app/hooks.ts';
 import { checkTokenValidity } from '@/app/slices/authSlice.ts';
+import Loader from '@components/Loader/Loader.tsx';
 
 const App: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -23,6 +24,7 @@ const App: React.FC = () => {
 
         return () => clearInterval(interval);
     }, [dispatch]);
+    //todo поверх модалок
 
     return (
         <>
@@ -38,6 +40,7 @@ const App: React.FC = () => {
                     <Route path="*" element={<NotFoundPage />} />
                 </Routes>
             </BrowserRouter>
+            <Loader />
             <ToastContainer
                 position="bottom-right"
                 autoClose={5000}
