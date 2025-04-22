@@ -1,0 +1,9 @@
+@use '@styles/variables' as *;
+
+.customToast {
+    z-index: 11000;
+
+    &__title {
+        color: $color-accent;
+    }
+}

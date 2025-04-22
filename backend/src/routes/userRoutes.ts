@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import UserController from '@controllers/UserController.js';
+import { checkRole } from '@middleware/authMiddleware.js';
+import { Roles } from '@constants/Roles.js';
 
 const router: Router = Router();
 
@@ -22,9 +24,11 @@ const router: Router = Router();
  *       500:
  *         description: Server error
  */
-router.get('/', UserController.getAllUsers);
+router.get('/', checkRole(Roles.ADMIN), UserController.getAllUsers);
 
 router.get('/:id', UserController.getUser);
+
+router.put('/:id', UserController.updateUser);
 
 /**
  * @swagger
@@ -152,6 +156,6 @@ router.get('/:id/role', UserController.getUserRole);
  *       500:
  *         description: Internal server error
  */
-router.post('/:id/role', UserController.setUserRole);
+router.post('/:id/role', checkRole(Roles.ADMIN), UserController.setUserRole);
 
 export default router;

@@ -9,9 +9,9 @@ async function start() {
         await setupAssociations();
         await sequelize.sync({ force: false });
 
-        app.listen(config.server.port, (): void => console.log(`Server run on ${config.server.port}`));
+        app.listen(config.server.port, (): void => console.log(`Сервер запущен на порте ${config.server.port}`));
     } catch (e: unknown) {
-        console.error('Error starting the server: ', e);
+        console.error('Ошибка запуска сервера: ', e);
     }
 }
 

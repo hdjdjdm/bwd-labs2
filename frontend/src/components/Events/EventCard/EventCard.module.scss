@@ -13,7 +13,7 @@
     gap: 10px;
     transition: all $transition-duration ease;
 
-    &_my:after {
+    &_public:after {
         content: '';
         position: absolute;
         background-color: $color-accent;
@@ -22,6 +22,8 @@
         top: 0;
         left: 20%;
         z-index: 1;
+        border-bottom-left-radius: $border-radius-large;
+        border-bottom-right-radius: $border-radius-large;
     }
 
     @include hover {
@@ -101,5 +103,6 @@
     &__creatorName {
         font-family: $font-family-light;
         color: $color-accent;
+        cursor: pointer;
     }
 }

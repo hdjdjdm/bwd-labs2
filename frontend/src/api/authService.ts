@@ -1,5 +1,10 @@
 import { baseApi } from '@api/axios.ts';
-import { LoginRequest, LoginResponse, RegisterResponse } from '@/types';
+import {
+    LoginRequest,
+    LoginResponse,
+    RegisterRequest,
+    RegisterResponse,
+} from '@/types';
 import { parseError } from '@utils/errorUtils.ts';
 
 export const login = async (
@@ -18,16 +23,13 @@ export const login = async (
 };
 
 export const register = async (
-    email: string,
-    password: string,
-    username: string,
+    credentials: RegisterRequest,
 ): Promise<RegisterResponse> => {
     try {
-        const { status, data } = await baseApi.post('/auth/register', {
-            email,
-            password,
-            name: username,
-        });
+        const { status, data } = await baseApi.post(
+            '/auth/register',
+            credentials,
+        );
 
         const message = data.message;
 

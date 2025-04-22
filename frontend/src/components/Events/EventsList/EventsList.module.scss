@@ -1,0 +1,24 @@
+@use '@styles/variables' as *;
+@use '@styles/mixins' as *;
+@use '@styles/media' as *;
+@use '@styles/animations' as *;
+
+.eventsList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $block-gap-small;
+    background-color: $color-light;
+    padding: 20px;
+
+    &__eventCard {
+        flex: 0 1 calc(33% - $block-gap-small);
+
+        @include tablet {
+            flex: 0 1 calc(50% - $block-gap-small);
+        }
+
+        @include mobile {
+            flex: 0 1 100%;
+        }
+    }
+}

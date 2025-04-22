@@ -1,0 +1,49 @@
+@use '@styles/variables' as *;
+@use '@styles/mixins' as *;
+@use '@styles/media' as *;
+@use '@styles/animations' as *;
+
+.eventPanel {
+    @include flex-center();
+
+    justify-content: space-evenly;
+    gap: $block-gap;
+    width: 100%;
+
+    @include tablet {
+        top: 130px;
+    }
+
+    @include mobile {
+        top: 160px;
+        gap: $block-gap-small;
+    }
+
+    @include small-mobile {
+        flex-direction: column;
+    }
+
+    &__withDeletedToggle {
+        display: flex;
+        justify-content: center;
+        transition: all $transition-duration ease;
+
+        @include hover {
+            transform: scale(110%);
+            animation: $animation-glowing;
+        }
+    }
+
+    &__addEventButton {
+        @include flex-center();
+
+        width: 100%;
+        padding: 0 10px !important;
+        transition: width 0s;
+        min-width: 60px;
+
+        @include hover {
+            animation: $animation-glowing;
+        }
+    }
+}

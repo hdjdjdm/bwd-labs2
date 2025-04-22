@@ -36,11 +36,9 @@ const router: Router = Router();
  *       500:
  *         description: Internal server error
  */
-router.get('/all', jwtAuthMiddleware, checkRole(Roles.ADMIN), EventController.getAllEvents);
+router.get('/', jwtAuthMiddleware, checkRole(Roles.ADMIN), EventController.getAllEvents);
 
 router.get('/public', EventController.getPublicEvents);
-
-router.get('/my', jwtAuthMiddleware, EventController.getUserEvents);
 
 /**
  * @swagger

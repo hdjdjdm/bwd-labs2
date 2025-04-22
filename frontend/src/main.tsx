@@ -2,12 +2,13 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import '@styles/main.scss';
-import { AuthProvider } from '@contexts/AuthContext.tsx';
+import { store } from '@/app/store.ts';
+import { Provider } from 'react-redux';
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
-        <AuthProvider>
+        <Provider store={store}>
             <App />
-        </AuthProvider>
+        </Provider>
     </StrictMode>,
 );

@@ -8,12 +8,12 @@ enum ErrorCodes {
 }
 
 enum ErrorMessages {
-    BadRequest = 'Bad request',
-    UnauthorizedError = 'Unauthorized access. No valid token provided',
-    ForbiddenError = 'You do not have permission to access this resource.',
-    ConflictError = 'Conflict error, resource already exists',
-    NotFoundedError = 'Resource not found',
-    ServerError = 'Internal Server Error',
+    BadRequest = 'Плохой запрос',
+    UnauthorizedError = 'Несанкционированный доступ. Не предоставлен действительный токен',
+    ForbiddenError = 'У вас нет разрешения на доступ к этому ресурсу.',
+    ConflictError = 'Ошибка конфликта, ресурс уже существует',
+    NotFoundedError = 'Ресурс не найден',
+    ServerError = 'Внутренняя ошибка сервера',
 }
 
 export { ErrorCodes, ErrorMessages };

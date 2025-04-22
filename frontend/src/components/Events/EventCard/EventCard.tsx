@@ -1,63 +1,42 @@
 import styles from './EventCard.module.scss';
 import classNames from 'classnames';
 import { CogIcon, InformationOutlineIcon } from '@assets/icons';
-import React, { useContext, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import EventModal from '@components/modals/EventModal/EventModal.tsx';
-import { parseError } from '@utils/errorUtils.ts';
-import { showCustomToast } from '@utils/customToastUtils.ts';
-import { updateEvent } from '@api/eventService.ts';
 import EventDto from '@dtos/EventDto.ts';
-import AuthContext from '@contexts/AuthContext.tsx';
+import { useAppDispatch, useAppSelector } from '@/app/hooks.ts';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { openModal } from '@app/slices/uiSlice.ts';
 
 interface EventCardProps {
     event: EventDto;
-    onUpdate: (updatedEvent: EventDto) => void;
-    onDelete: (id: number, isHardDelete: boolean) => void;
-    onReplace: (updatedEvent: EventDto) => void;
     className?: string;
 }
 
-const EventCard: React.FC<EventCardProps> = ({
-    event,
-    onUpdate,
-    onDelete,
-    onReplace,
-    className,
-}) => {
-    const { user } = useContext(AuthContext)!;
+const EventCard: React.FC<EventCardProps> = ({ event, className }) => {
+    const dispatch = useAppDispatch();
+    const user = useAppSelector((state) => state.auth.user);
+    const [searchParams, setSearchParams] = useSearchParams();
+
     const isCreator = event?.createdBy.id === user?.id;
+    const isUserAdmin = user?.role === 'admin';
+    const hasAccess = isCreator || isUserAdmin;
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
-
+    const navigate = useNavigate();
     const modalButtonRef = useRef<HTMLImageElement | null>(null);
 
+    useEffect(() => {
+        const eventId = searchParams.get('eventId');
+        if (eventId) {
+            dispatch(openModal(`eventModal_${eventId}`));
+        }
+    }, []);
+
     const toggleModal = () => {
-        setIsModalOpen((prev) => !prev);
-    };
+        dispatch(openModal(`eventModal_${event.id}`));
 
-    const handleUpdateEvent = async (
-        title: string,
-        description: string,
-        date: Date,
-        isPublic: boolean,
-    ) => {
-        if (!event?.id) {
-            return;
-        }
-
-        try {
-            const updatedEvent = await updateEvent(event.id, {
-                title,
-                description,
-                date,
-                isPublic,
-            });
-            onReplace(updatedEvent);
-            showCustomToast(`Событие ${title} успешно изменено`, 'success');
-        } catch (e: unknown) {
-            const { status, errorMessage } = parseError(e);
-            showCustomToast(errorMessage, 'error', status.toString());
-        }
+        searchParams.set('eventId', event.id.toString());
+        setSearchParams(searchParams);
     };
 
     return (
@@ -66,7 +45,7 @@ const EventCard: React.FC<EventCardProps> = ({
                 styles.eventCard,
                 'block',
                 className,
-                isCreator && styles.eventCard_my,
+                event.isPublic && styles.eventCard_public,
             )}
         >
             <div className={styles.eventCard__head}>
@@ -86,7 +65,7 @@ const EventCard: React.FC<EventCardProps> = ({
                         {new Date(event.deletedAt).toLocaleDateString('ru-RU')}
                     </h6>
                 )}
-                {isCreator ? (
+                {hasAccess ? (
                     <img
                         ref={modalButtonRef}
                         src={CogIcon}
@@ -97,7 +76,7 @@ const EventCard: React.FC<EventCardProps> = ({
                             'svg-accent',
                         )}
                         alt="openSettingsIcon"
-                        onClick={() => toggleModal()}
+                        onClick={toggleModal}
                     />
                 ) : (
                     <img
@@ -109,7 +88,7 @@ const EventCard: React.FC<EventCardProps> = ({
                             'svg-accent',
                         )}
                         alt="openInfoIcon"
-                        onClick={() => toggleModal()}
+                        onClick={toggleModal}
                     />
                 )}
             </div>
@@ -117,9 +96,10 @@ const EventCard: React.FC<EventCardProps> = ({
                 by&nbsp;
                 <u
                     className={styles.eventCard__creatorName}
-                    title={event?.createdBy?.name}
+                    title={event?.createdBy?.username}
+                    onClick={() => navigate(`/profile/${event?.createdBy?.id}`)}
                 >
-                    {event?.createdBy?.name}
+                    {event?.createdBy?.username}
                 </u>
             </h4>
             <div className={styles.eventCard__info}>
@@ -134,17 +114,7 @@ const EventCard: React.FC<EventCardProps> = ({
                 </h4>
             </div>
 
-            {isModalOpen && (
-                <EventModal
-                    isOpen={isModalOpen}
-                    onClose={toggleModal}
-                    event={event}
-                    type={isCreator ? 'edit' : 'info'}
-                    onDelete={onDelete}
-                    onUpdate={onUpdate}
-                    onSave={handleUpdateEvent}
-                />
-            )}
+            <EventModal modalKey={`eventModal_${event.id}`} event={event} />
         </div>
     );
 };

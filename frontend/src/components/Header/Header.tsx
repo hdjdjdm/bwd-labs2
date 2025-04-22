@@ -8,22 +8,24 @@ import {
     LogoIcon,
     LogoMobileIcon,
 } from '@assets/icons';
-import { useContext, useRef, useState } from 'react';
+import { useRef } from 'react';
 import ConfirmModal from '@components/modals/ConfirmModal/ConfirmModal.tsx';
 import NavMenu from '@components/Header/components/NavMenu/NavMenu.tsx';
 import useIsScrolled from '@hooks/useIsScrolled.tsx';
-import AuthContext from '@contexts/AuthContext.tsx';
+import { useAppDispatch, useAppSelector } from '@/app/hooks.ts';
+import { logout } from '@/app/slices/authSlice.ts';
+import { openModal } from '@app/slices/uiSlice.ts';
 
 const Header = () => {
     const isScrolled = useIsScrolled();
-    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const logoutButtonRef = useRef<HTMLButtonElement>(null);
 
     const navigate = useNavigate();
-    const { user, logout } = useContext(AuthContext)!;
+    const user = useAppSelector((state) => state.auth.user);
+    const dispatch = useAppDispatch();
 
     const toggleConfirmModal = () => {
-        setIsConfirmModalOpen(!isConfirmModalOpen);
+        dispatch(openModal('confirmLogout'));
     };
 
     return (
@@ -36,7 +38,7 @@ const Header = () => {
             <div className={classNames(styles.header__inner, 'container')}>
                 <div className={styles.header__top}>
                     <img
-                        src={isScrolled ? LogoMobileIcon : LogoIcon}
+                        src={LogoIcon}
                         alt="logo"
                         className={classNames(
                             styles.header__logo,
@@ -60,9 +62,12 @@ const Header = () => {
                             <>
                                 <h3
                                     className={styles.header__username}
-                                    title={user.name}
+                                    title={user.username}
+                                    onClick={() =>
+                                        navigate(`/profile/${user.id}`)
+                                    }
                                 >
-                                    {user.name}
+                                    {user.username}
                                 </h3>
                                 <button
                                     ref={logoutButtonRef}
@@ -152,15 +157,12 @@ const Header = () => {
                 <NavMenu mobile={true} />
             </div>
 
-            {isConfirmModalOpen && (
-                <ConfirmModal
-                    isOpen={isConfirmModalOpen}
-                    onClose={toggleConfirmModal}
-                    onAccept={logout}
-                    itemName={user!.name}
-                    prefix={'Выйти из аккаунта'}
-                />
-            )}
+            <ConfirmModal
+                modalKey="confirmLogout"
+                onAccept={() => dispatch(logout())}
+                itemName={user?.username || ''}
+                prefix={'Выйти из аккаунта'}
+            />
         </header>
     );
 };

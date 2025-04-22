@@ -37,6 +37,11 @@
         padding: $block-padding-small;
         overflow-y: auto;
         max-height: 30lvh;
+
+        &:disabled {
+            border: none;
+            background-color: $color-background;
+        }
     }
 
     &__input {

@@ -57,6 +57,8 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        cursor: pointer;
+        position: relative;
 
         @include tablet {
             @include fluid-text(24, 20);
@@ -68,6 +70,24 @@
             @include fluid-text(20, 18);
 
             max-width: 80px;
+        }
+
+        &:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            height: 2px;
+            width: 0;
+            background-color: $color-accent;
+            transform: translateX(-50%);
+            transition: all $transition-duration ease;
+        }
+
+        @include hover {
+            &:after {
+                width: 100%;
+            }
         }
     }
 

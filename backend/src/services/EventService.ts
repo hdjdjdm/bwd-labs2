@@ -2,10 +2,10 @@ import Event from '@models/Event.js';
 import User from '@models/User.js';
 import CustomError from '@utils/CustomError.js';
 import { ErrorCodes } from '@constants/Errors.js';
-import { CreateEventDto, UpdateEventDto } from '@dto/EventDto.js';
+import { CreateEventInput, UpdateEventInput } from '@validation/event.js';
 
 class EventService {
-    async createEvent(data: CreateEventDto): Promise<Event> {
+    async createEvent(data: CreateEventInput): Promise<Event> {
         const event = await Event.create({
             title: data.title,
             description: data.description,
@@ -17,9 +17,9 @@ class EventService {
         return this.getEvent(event.id);
     }
 
-    async getAllEvents(withDeleted: boolean): Promise<Event[]> {
+    async getAllEvents(): Promise<Event[]> {
         return await Event.findAll({
-            paranoid: !withDeleted,
+            paranoid: false,
             include: [
                 {
                     model: User,
@@ -41,23 +41,10 @@ class EventService {
         });
     }
 
-    async getUserEvents(userId: number, withDeleted: boolean): Promise<Event[]> {
-        return await Event.findAll({
-            paranoid: !withDeleted,
-            where: { createdBy: userId },
-            include: [
-                {
-                    model: User,
-                    as: 'creator',
-                },
-            ],
-        });
-    }
-
     async getEvent(id: number): Promise<Event> {
         return await Event.findByPk(id, {
             paranoid: false,
-            rejectOnEmpty: new CustomError(ErrorCodes.NotFoundedError, `Event with ID ${id} not found.`),
+            rejectOnEmpty: new CustomError(ErrorCodes.NotFoundedError, `Событие с id "${id}" не найдено.`),
             include: [
                 {
                     model: User,
@@ -71,11 +58,14 @@ class EventService {
         const event = await this.getEvent(id);
 
         return await User.findByPk(event.createdBy, {
-            rejectOnEmpty: new CustomError(ErrorCodes.NotFoundedError, `User with ID ${event.createdBy} not found.`),
+            rejectOnEmpty: new CustomError(
+                ErrorCodes.NotFoundedError,
+                `Пользователь с id "${event.createdBy}" не найден.`,
+            ),
         });
     }
 
-    async updateEvent(id: number, updateData: Partial<UpdateEventDto>): Promise<Event> {
+    async updateEvent(id: number, updateData: UpdateEventInput): Promise<Event> {
         const event = await this.getEvent(id);
 
         await event.update(updateData);
@@ -96,7 +86,7 @@ class EventService {
         }
 
         return {
-            message: `Event ${eventTitle} ${hardDelete ? 'permanently deleted' : 'move to deleted'}`,
+            message: `Событие ${eventTitle} ${hardDelete ? 'удалено' : 'перемещено в удаленные'}`,
             event: updatedEvent as Event | null,
         };
     }
@@ -107,7 +97,7 @@ class EventService {
 
         await event.restore();
         return {
-            message: `Event ${eventTitle} restored successfully`,
+            message: `Событие ${eventTitle} восстановлено`,
             event: event,
         };
     }

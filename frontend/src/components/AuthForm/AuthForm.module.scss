@@ -27,6 +27,16 @@
         }
     }
 
+    &__registerFields {
+        display: flex;
+        flex-direction: column;
+        gap: $block-gap-small;
+        width: 100%;
+        position: relative;
+        padding-top: $block-gap-small;
+        border-top: $border-large;
+    }
+
     &__input {
         width: 100%;
     }

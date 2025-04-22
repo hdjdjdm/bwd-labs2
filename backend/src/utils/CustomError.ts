@@ -5,7 +5,7 @@ export default class CustomError extends Error {
 
     constructor(errorCode: ErrorCodes, customMessage?: string) {
         const errorKey = ErrorCodes[errorCode] as keyof typeof ErrorMessages;
-        const message = customMessage || ErrorMessages[errorKey] || 'An unexpected error occurred';
+        const message = customMessage || ErrorMessages[errorKey] || 'Произошла неожиданная ошибка';
         super(message);
         this.name = 'CustomError';
         this.statusCode = errorCode;
