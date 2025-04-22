@@ -1,11 +1,11 @@
 import styles from './EventCard.module.scss';
 import classNames from 'classnames';
 import { CogIcon, InformationOutlineIcon } from '@assets/icons';
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import EventModal from '@components/modals/EventModal/EventModal.tsx';
 import EventDto from '@dtos/EventDto.ts';
 import { useAppDispatch, useAppSelector } from '@/app/hooks.ts';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { openModal } from '@app/slices/uiSlice.ts';
 
 interface EventCardProps {
@@ -16,15 +16,27 @@ interface EventCardProps {
 const EventCard: React.FC<EventCardProps> = ({ event, className }) => {
     const dispatch = useAppDispatch();
     const user = useAppSelector((state) => state.auth.user);
+    const [searchParams, setSearchParams] = useSearchParams();
 
     const isCreator = event?.createdBy.id === user?.id;
+    const isUserAdmin = user?.role === 'admin';
+    const hasAccess = isCreator || isUserAdmin;
 
     const navigate = useNavigate();
-
     const modalButtonRef = useRef<HTMLImageElement | null>(null);
+
+    useEffect(() => {
+        const eventId = searchParams.get('eventId');
+        if (eventId) {
+            dispatch(openModal(`eventModal_${eventId}`));
+        }
+    }, []);
 
     const toggleModal = () => {
         dispatch(openModal(`eventModal_${event.id}`));
+
+        searchParams.set('eventId', event.id.toString());
+        setSearchParams(searchParams);
     };
 
     return (
@@ -33,7 +45,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, className }) => {
                 styles.eventCard,
                 'block',
                 className,
-                isCreator && styles.eventCard_my,
+                event.isPublic && styles.eventCard_public,
             )}
         >
             <div className={styles.eventCard__head}>
@@ -53,7 +65,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, className }) => {
                         {new Date(event.deletedAt).toLocaleDateString('ru-RU')}
                     </h6>
                 )}
-                {isCreator ? (
+                {hasAccess ? (
                     <img
                         ref={modalButtonRef}
                         src={CogIcon}
@@ -84,10 +96,10 @@ const EventCard: React.FC<EventCardProps> = ({ event, className }) => {
                 by&nbsp;
                 <u
                     className={styles.eventCard__creatorName}
-                    title={event?.createdBy?.name}
+                    title={event?.createdBy?.username}
                     onClick={() => navigate(`/profile/${event?.createdBy?.id}`)}
                 >
-                    {event?.createdBy?.name}
+                    {event?.createdBy?.username}
                 </u>
             </h4>
             <div className={styles.eventCard__info}>
@@ -102,11 +114,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, className }) => {
                 </h4>
             </div>
 
-            <EventModal
-                modalKey={`eventModal_${event.id}`}
-                event={event}
-                type={isCreator ? 'edit' : 'info'}
-            />
+            <EventModal modalKey={`eventModal_${event.id}`} event={event} />
         </div>
     );
 };

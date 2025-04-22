@@ -8,17 +8,16 @@ import {
 import { showCustomToast } from '@utils/customToastUtils';
 import UserDto from '@dtos/UserDto';
 import { parseError } from '@utils/errorUtils.ts';
-import { login as apiLogin } from '@api/authService.ts';
+import {
+    login as apiLogin,
+    register as apiRegister,
+} from '@api/authService.ts';
+import { LoginRequest, RegisterRequest } from '@/types';
 
 interface AuthState {
     user: UserDto | null;
     loading: boolean;
     error: string | null;
-}
-
-interface LoginPayload {
-    email: string;
-    password: string;
 }
 
 const initialState: AuthState = {
@@ -29,18 +28,42 @@ const initialState: AuthState = {
 
 export const login = createAsyncThunk(
     'auth/login',
-    async ({ email, password }: LoginPayload, { rejectWithValue }) => {
+    async (data: LoginRequest, { rejectWithValue }) => {
         try {
-            const { token, user, message } = await apiLogin({
-                email,
-                password,
-            });
+            const { token, user, message } = await apiLogin(data);
 
             saveToLocalStorage('token', token);
             saveToLocalStorage('user', JSON.stringify(user));
             showCustomToast(message, 'success', '200');
 
             return { user, token };
+        } catch (e: unknown) {
+            const { status, errorMessage } = parseError(e);
+            showCustomToast(errorMessage, 'error', status.toString());
+            return rejectWithValue(errorMessage);
+        }
+    },
+);
+
+export const register = createAsyncThunk(
+    'auth/register',
+    async (data: RegisterRequest, { rejectWithValue }) => {
+        try {
+            const result = await apiRegister(data);
+
+            if (result.status === 201) {
+                showCustomToast(
+                    result.message,
+                    'success',
+                    result.status.toString(),
+                );
+            } else {
+                showCustomToast(
+                    result.message,
+                    'warning',
+                    result.status.toString(),
+                );
+            }
         } catch (e: unknown) {
             const { status, errorMessage } = parseError(e);
             showCustomToast(errorMessage, 'error', status.toString());
@@ -105,6 +128,19 @@ const authSlice = createSlice({
                 state.error = null;
             })
             .addCase(login.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload as string;
+            });
+        builder
+            .addCase(register.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(register.fulfilled, (state) => {
+                state.loading = false;
+                state.error = null;
+            })
+            .addCase(register.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload as string;
             });

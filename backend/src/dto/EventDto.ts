@@ -10,22 +10,6 @@ export interface EventDto {
     deletedAt?: Date;
 }
 
-export interface CreateEventDto {
-    title: string;
-    description?: string;
-    date?: Date;
-    createdBy: number;
-    isPublic?: boolean;
-}
-//todo мб переделать с утилитарными классами
-
-export interface UpdateEventDto {
-    title?: string;
-    description?: string;
-    date?: Date;
-    isPublic?: boolean;
-}
-
 export interface EventResponseDto {
     id: number;
     title: string;

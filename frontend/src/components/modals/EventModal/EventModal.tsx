@@ -12,8 +12,7 @@ import InputField from '@components/InputField/InputField.tsx';
 import { useAutoResizeTextarea } from '@/hooks/useAutoResizeTextarea.tsx';
 import Modal from '@components/modals/Modal/Modal.tsx';
 import CustomSwitch from '@components/Switch/CustomSwitch.tsx';
-import EventDto, { EventFormDto } from '@dtos/EventDto.ts';
-import { EventModalType } from '@/types';
+import EventDto, { EventCreateDto, EventFormDto } from '@dtos/EventDto.ts';
 import ConfirmModal from '@components/modals/ConfirmModal/ConfirmModal.tsx';
 import {
     addEvent,
@@ -26,30 +25,35 @@ import { closeModal, openModal } from '@app/slices/uiSlice.ts';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { getEventSchema } from '@validation/event.ts';
+import { useSearchParams } from 'react-router-dom';
+import { showCustomToast } from '@utils/customToastUtils.ts';
+import getLocalDateString from '@utils/getLocalDateString.ts';
 
 interface ModalProps {
     modalKey: string;
     event?: EventDto;
-    type: EventModalType;
 }
 
-const EventModal: React.FC<ModalProps> = ({
-    modalKey,
-    event,
-    type = 'info',
-}) => {
+const EventModal: React.FC<ModalProps> = ({ modalKey, event }) => {
     const isOpen = useAppSelector((state) => state.ui.modals[modalKey]);
     const dispatch = useAppDispatch();
+
+    const user = useAppSelector((state) => state.auth.user);
+    const isCreator = event?.createdBy.id === user?.id;
+    const isUserAdmin = user?.role === 'admin';
+    const hasAccess = isCreator || isUserAdmin;
+    const isEditable = !event || hasAccess;
+
+    const [searchParams, setSearchParams] = useSearchParams();
     const [confirmAction, setConfirmAction] = useState<() => void>(() => {});
     const [confirmPrefix, setConfirmPrefix] = useState<string>('');
 
-    const today = new Date().toISOString().split('T')[0];
-    const minDate =
-        type === 'create'
-            ? today
-            : event?.date
-              ? new Date(event.date).toISOString().split('T')[0]
-              : today;
+    const today = getLocalDateString(new Date());
+    const minDate = !event
+        ? today
+        : event?.date
+          ? new Date(event.date).toISOString().split('T')[0]
+          : today;
     const eventSchema = getEventSchema(minDate);
 
     const {
@@ -65,18 +69,14 @@ const EventModal: React.FC<ModalProps> = ({
     });
 
     useEffect(() => {
-        if (event) {
-            setValue('title', event.title ?? '');
-            setValue('description', event.description ?? '');
-            setValue(
-                'date',
-                event.date
-                    ? new Date(event.date).toISOString().split('T')[0]
-                    : today,
-            );
-            setValue('isPublic', event.isPublic ?? true);
-        }
-    }, [event, setValue]);
+        setValue('title', event?.title ?? '');
+        setValue('description', event?.description ?? '');
+        setValue(
+            'date',
+            event?.date ? getLocalDateString(new Date(event.date)) : today,
+        );
+        setValue('isPublic', event?.isPublic ?? true);
+    }, [event, setValue, today]);
 
     const confirmModalButtonRef = useRef<HTMLButtonElement>(null);
     const textareaRef = useAutoResizeTextarea(watch('description'));
@@ -112,24 +112,37 @@ const EventModal: React.FC<ModalProps> = ({
         await trigger('isPublic');
     };
 
-    const onClose = () => {
+    const handleClose = () => {
         dispatch(closeModal(modalKey));
+        setValue('title', '');
+        setValue('description', '');
+        setValue('date', today);
+        setValue('isPublic', true);
+
+        searchParams.delete('eventId');
+        setSearchParams(searchParams);
     };
 
     const onSubmit = async (data: EventFormDto) => {
-        const eventData: EventFormDto = {
-            title: data.title,
-            description: data.description,
-            date: new Date(data.date).toString(),
-            isPublic: data.isPublic,
+        if (!user?.id) {
+            showCustomToast(
+                'Войдите в аккаунт для добавления событий',
+                'error',
+            );
+            return;
+        }
+
+        const eventData: EventCreateDto = {
+            ...data,
+            createdBy: String(user.id),
         };
 
-        if (type === 'create') {
+        if (!event) {
             await dispatch(addEvent(eventData));
-        } else if (type === 'edit' && event) {
+        } else if (hasAccess && event) {
             await dispatch(updateEvent({ id: event.id, eventData }));
         }
-        onClose();
+        handleClose();
     };
 
     const handleDeleteEvent = async (
@@ -139,21 +152,21 @@ const EventModal: React.FC<ModalProps> = ({
         if (!event) return;
 
         await dispatch(deleteEvent({ id, isHardDelete }));
-        onClose();
+        handleClose();
     };
 
     const handleRestoreEvent = async (id: number) => {
         if (!event) return;
 
         await dispatch(restoreEvent({ id }));
-        onClose();
+        handleClose();
     };
 
     return (
         <Modal
             isOpen={isOpen}
-            onClose={onClose}
-            title={type === 'create' ? 'Добавить событие' : 'Данные события'}
+            onClose={handleClose}
+            title={!event ? 'Добавить событие' : 'Данные события'}
         >
             <form
                 className={styles.eventModal__form}
@@ -175,7 +188,7 @@ const EventModal: React.FC<ModalProps> = ({
                             })}
                             errorMessage={errors.title?.message}
                             autoComplete="off"
-                            disabled={type === 'info'}
+                            disabled={!isEditable}
                         />
                     </span>
                     <span
@@ -191,7 +204,7 @@ const EventModal: React.FC<ModalProps> = ({
                             errorMessage={errors.date?.message}
                             min={minDate}
                             autoComplete="off"
-                            disabled={type === 'info'}
+                            disabled={!isEditable}
                         />
                     </span>
                 </div>
@@ -213,13 +226,13 @@ const EventModal: React.FC<ModalProps> = ({
                             textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
                         }
                     }}
-                    disabled={type === 'info'}
+                    disabled={!isEditable}
                     autoComplete="off"
                     placeholder="Описание"
                 />
 
                 <span className={styles.eventModal__publicField}>
-                    {type === 'info' ? (
+                    {!isEditable ? (
                         <>
                             <h5
                                 className={classNames(
@@ -272,7 +285,7 @@ const EventModal: React.FC<ModalProps> = ({
                         </>
                     )}
                 </span>
-                {type === 'edit' && (
+                {hasAccess && (
                     <div className={styles.eventModal__deleteButtons}>
                         {event?.deletedAt ? (
                             <button
@@ -345,7 +358,7 @@ const EventModal: React.FC<ModalProps> = ({
                         </button>
                     </div>
                 )}
-                {type !== 'info' && (
+                {isEditable && (
                     <button
                         className={classNames(
                             styles.eventModal__button,
@@ -354,7 +367,7 @@ const EventModal: React.FC<ModalProps> = ({
                         )}
                         type="submit"
                     >
-                        {type === 'create' ? 'Добавить' : 'Сохранить'}
+                        {event ? 'Сохранить' : 'Добавить'}
                     </button>
                 )}
             </form>

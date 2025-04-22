@@ -38,7 +38,7 @@ const Header = () => {
             <div className={classNames(styles.header__inner, 'container')}>
                 <div className={styles.header__top}>
                     <img
-                        src={isScrolled ? LogoMobileIcon : LogoIcon}
+                        src={LogoIcon}
                         alt="logo"
                         className={classNames(
                             styles.header__logo,
@@ -62,12 +62,12 @@ const Header = () => {
                             <>
                                 <h3
                                     className={styles.header__username}
-                                    title={user.name}
+                                    title={user.username}
                                     onClick={() =>
                                         navigate(`/profile/${user.id}`)
                                     }
                                 >
-                                    {user.name}
+                                    {user.username}
                                 </h3>
                                 <button
                                     ref={logoutButtonRef}
@@ -160,7 +160,7 @@ const Header = () => {
             <ConfirmModal
                 modalKey="confirmLogout"
                 onAccept={() => dispatch(logout())}
-                itemName={user?.name || ''}
+                itemName={user?.username || ''}
                 prefix={'Выйти из аккаунта'}
             />
         </header>

@@ -1,39 +1,22 @@
 import { Roles } from '@constants/Roles.js';
 import { EventResponseDto } from '@dto/EventDto.js';
+import { Genders } from '@constants/Genders.js';
 
 export interface UserDto {
     id: number;
-    name: string;
     email: string;
     password: string;
+    username: string;
+    firstName?: string;
+    middleName?: string;
+    lastName?: string;
+    gender: Genders;
+    dateOfBirth: Date;
     role: Roles;
 }
 
-export interface CreateUserDto {
-    name: string;
-    email: string;
-    password: string;
-    role?: Roles;
-}
+export type UserShortDto = Pick<UserDto, 'id' | 'username'>;
 
-export interface LoginUserDto {
-    email: string;
-    password: string;
-}
-
-export interface UserResponseDto {
-    id: number;
-    name: string;
-    email: string;
-    role: Roles;
+export type UserResponseDto = Omit<UserDto, 'password'> & {
     events: EventResponseDto[];
-}
-
-export interface UserShortDto {
-    id: number;
-    name: string;
-}
-
-export interface ChangeUserRoleDto {
-    role: Roles;
-}
+};

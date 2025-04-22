@@ -13,7 +13,7 @@ const EventsPage = () => {
 
     useEffect(() => {
         dispatch(fetchEvents(user?.role));
-    }, []);
+    }, [dispatch, user?.role]);
 
     return (
         <div className={styles.eventsPage}>

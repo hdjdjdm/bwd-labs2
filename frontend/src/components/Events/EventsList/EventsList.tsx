@@ -13,19 +13,21 @@ const EventsList: React.FC = () => {
     );
 
     return (
-        <ul className={classNames(styles.eventsList, 'container', 'block')}>
-            {filteredEvents && filteredEvents.length > 0 ? (
-                filteredEvents?.map((event) => (
-                    <EventCard
-                        key={event.id}
-                        event={event}
-                        className={styles.eventsList__eventCard}
-                    />
-                ))
-            ) : (
-                <p>Нет событий:(</p>
-            )}
-        </ul>
+        events.length > 0 && (
+            <ul className={classNames(styles.eventsList, 'container', 'block')}>
+                {filteredEvents && filteredEvents.length > 0 ? (
+                    filteredEvents?.map((event) => (
+                        <EventCard
+                            key={event.id}
+                            event={event}
+                            className={styles.eventsList__eventCard}
+                        />
+                    ))
+                ) : (
+                    <p>Нет событий:(</p>
+                )}
+            </ul>
+        )
     );
 };
 

@@ -2,8 +2,8 @@ import User from '../models/User.js';
 import { Roles } from '../constants/Roles.js';
 import { ErrorCodes } from '@constants/Errors.js';
 import CustomError from '@utils/CustomError.js';
-import { UserDto } from '@dto/UserDto.js';
 import Event from '@models/Event.js';
+import { UpdateUserInput } from '@validation/user.js';
 
 class UserService {
     async getAllUsers(withDeleted: boolean = false): Promise<User[]> {
@@ -15,7 +15,7 @@ class UserService {
     async getUser(id: number, sendDeletedEvents: boolean = false): Promise<User> {
         return await User.findByPk(id, {
             paranoid: false,
-            rejectOnEmpty: new CustomError(ErrorCodes.NotFoundedError, `User with ID ${id} not found`),
+            rejectOnEmpty: new CustomError(ErrorCodes.NotFoundedError, `Пользователь с id "${id}" не найден`),
             include: [
                 {
                     model: Event,
@@ -33,7 +33,7 @@ class UserService {
         });
     }
 
-    async updateUser(id: number, updateData: Partial<UserDto>): Promise<User> {
+    async updateUser(id: number, updateData: UpdateUserInput): Promise<User> {
         const user = await this.getUser(id);
 
         await user.update(updateData);
@@ -43,26 +43,26 @@ class UserService {
     async deleteUser(id: number, hardDelete: boolean = false): Promise<{ message: string }> {
         const user = await User.findByPk(id, {
             paranoid: !hardDelete,
-            rejectOnEmpty: new CustomError(ErrorCodes.NotFoundedError, `User with id ${id} not found`),
+            rejectOnEmpty: new CustomError(ErrorCodes.NotFoundedError, `Пользователь с id "${id}" не найден`),
         });
 
         await user.destroy({
             force: hardDelete,
         });
         return {
-            message: `User with id ${id} ${hardDelete ? 'permanently deleted' : 'deleted successfully'}`,
+            message: `Пользователь с id "${id}" ${hardDelete ? 'удален' : 'перемещен в удаленные'}`,
         };
     }
 
     async restoreUser(id: number): Promise<{ message: string }> {
         const user = await User.findByPk(id, {
             paranoid: false,
-            rejectOnEmpty: new CustomError(ErrorCodes.NotFoundedError, `User with id ${id} not found`),
+            rejectOnEmpty: new CustomError(ErrorCodes.NotFoundedError, `Пользователь с id "${id}" не найден`),
         });
 
         await user.restore();
         return {
-            message: `User with id ${id} restored successfully`,
+            message: `Пользователь с id "${id}" восстановлен`,
         };
     }
 
@@ -79,7 +79,7 @@ class UserService {
         await user.save();
 
         return {
-            message: `User with id ${id} role updated to ${newRole} successfully`,
+            message: `Роль пользователя с id "${id}" обновлена до "${newRole}"`,
         };
     }
 }

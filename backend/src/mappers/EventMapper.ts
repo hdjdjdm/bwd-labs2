@@ -6,7 +6,7 @@ class EventMapper {
     static toResponseDto(event: Event): EventResponseDto {
         const fallbackUser: UserShortDto = {
             id: event.createdBy,
-            name: 'Deleted User',
+            username: 'Deleted User',
         };
 
         return {
@@ -17,7 +17,7 @@ class EventMapper {
             createdBy: event.creator
                 ? {
                       id: event.creator.id,
-                      name: event.creator.name,
+                      username: event.creator.username,
                   }
                 : fallbackUser,
             deletedAt: event.deletedAt ?? null,

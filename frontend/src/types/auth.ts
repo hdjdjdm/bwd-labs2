@@ -6,12 +6,20 @@ export interface LoginResponse {
     message: string;
 }
 
-export interface LoginRequest {
-    email: string;
-    password: string;
-}
+export type LoginRequest = Pick<UserDto, 'email'> & { password: string };
 
 export interface RegisterResponse {
     status: number;
     message: string;
 }
+
+export type RegisterRequest = Pick<
+    UserDto,
+    | 'email'
+    | 'username'
+    | 'firstName'
+    | 'middleName'
+    | 'lastName'
+    | 'gender'
+    | 'dateOfBirth'
+> & { password: string };

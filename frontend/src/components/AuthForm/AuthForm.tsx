@@ -10,72 +10,60 @@ import {
     EyeOutlineIcon,
 } from '@assets/icons';
 import { showCustomToast } from '@utils/customToastUtils.ts';
-import { useForm } from 'react-hook-form';
+import { FieldErrors, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { loginSchema, registerSchema } from '@validation/user.ts';
+import { login, register as registerThunk } from '@app/slices/authSlice.ts';
+import { useAppDispatch } from '@app/hooks.ts';
+import { LoginRequest, RegisterRequest } from '@/types';
+import { Genders } from '@constants/Genders.ts';
 
-type AuthFormProps =
-    | { type: 'login'; onSubmit: (email: string, password: string) => void }
-    | {
-          type: 'register';
-          onSubmit: (email: string, password: string, username: string) => void;
-      };
-
-interface AuthFormData {
-    email: string;
-    password: string;
-    username?: string;
+interface AuthFormProps {
+    type: 'login' | 'register';
 }
 
-const AuthForm: React.FC<AuthFormProps> = ({ type, onSubmit }) => {
+type FormData = LoginRequest | RegisterRequest;
+
+const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
     const navigate = useNavigate();
+    const dispatch = useAppDispatch();
     const [isPasswordShow, setIsPasswordShow] = useState(false);
 
     const {
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm<AuthFormData>({
+    } = useForm<FormData>({
         resolver: yupResolver(
             type === 'register' ? registerSchema : loginSchema,
         ),
-        mode: 'onBlur',
+        mode: 'onSubmit',
     });
 
     const togglePasswordVisibility = () => {
         setIsPasswordShow((prev) => !prev);
     };
 
-    const onFormSubmit = (data: AuthFormData) => {
+    const onSubmit = async (data: FormData) => {
         if (type === 'register') {
-            onSubmit(data.email, data.password, data.username || '');
+            await dispatch(registerThunk(data as RegisterRequest)).unwrap();
+            showCustomToast('Регистрация прошла успешно!', 'success');
+            navigate('/login');
         } else {
-            onSubmit(data.email, data.password);
+            await dispatch(login(data as LoginRequest)).unwrap();
+            navigate('/events');
         }
     };
 
     return (
         <form
             className={classNames(styles.authForm, 'block')}
-            onSubmit={handleSubmit(onFormSubmit)}
+            onSubmit={handleSubmit(onSubmit)}
             noValidate
         >
             <h2 className={styles.authForm__title}>
                 {type === 'login' ? 'Войти в аккаунт' : 'Создать аккаунт'}
             </h2>
-
-            {type === 'register' && (
-                <div className={styles.authForm__input}>
-                    <InputField
-                        label="Имя пользователя"
-                        iconSrc={AccountIcon}
-                        alt="usernameFieldIcon"
-                        {...register('username')}
-                        errorMessage={errors.username?.message}
-                        autoComplete="username"
-                    />
-                </div>
-            )}
 
             <div className={styles.authForm__input}>
                 <InputField
@@ -106,11 +94,86 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSubmit }) => {
                 />
             </div>
 
+            {type === 'register' && (
+                <div className={styles.authForm__registerFields}>
+                    <div className={styles.authForm__input}>
+                        <InputField
+                            label="Никнейм"
+                            iconSrc={AccountIcon}
+                            alt="usernameFieldIcon"
+                            {...register('username')}
+                            errorMessage={
+                                (errors as FieldErrors<RegisterRequest>)
+                                    .username?.message
+                            }
+                            autoComplete="username"
+                        />
+                    </div>
+                    <div className={styles.authForm__input}>
+                        <InputField
+                            label="Имя"
+                            {...register('firstName')}
+                            errorMessage={
+                                (errors as FieldErrors<RegisterRequest>)
+                                    .firstName?.message
+                            }
+                            autoComplete="given-name"
+                        />
+                    </div>
+                    <div className={styles.authForm__input}>
+                        <InputField
+                            label="Фамилия"
+                            {...register('middleName')}
+                            errorMessage={
+                                (errors as FieldErrors<RegisterRequest>)
+                                    .middleName?.message
+                            }
+                            autoComplete="family-name"
+                        />
+                    </div>
+                    <div className={styles.authForm__input}>
+                        <InputField
+                            label="Отчество"
+                            {...register('lastName')}
+                            errorMessage={
+                                (errors as FieldErrors<RegisterRequest>)
+                                    .lastName?.message
+                            }
+                            autoComplete="additional-name"
+                        />
+                    </div>
+                    <div className={styles.authForm__input}>
+                        <InputField
+                            type="date"
+                            label="Дата рождения"
+                            {...register('dateOfBirth', { required: true })}
+                            errorMessage={
+                                (errors as FieldErrors<RegisterRequest>)
+                                    .dateOfBirth?.message
+                            }
+                            max={new Date().toISOString().split('T')[0]}
+                            autoComplete="off"
+                        />
+                    </div>
+                    <div className={styles.authForm__input}>
+                        <label>Пол</label>
+                        <select
+                            {...register('gender')}
+                            className={styles.authForm__select}
+                            defaultValue={Genders.MALE}
+                        >
+                            <option value={Genders.MALE}>Мужской</option>
+                            <option value={Genders.FEMALE}>Женский</option>
+                        </select>
+                    </div>
+                </div>
+            )}
+
             {type === 'login' && (
                 <a
                     type="button"
                     onClick={() =>
-                        showCustomToast('Функция в разработке', 'info')
+                        showCustomToast('АХХАХАХАХАХАХАХХАХА', 'info')
                     }
                     className={styles.authForm__link}
                 >

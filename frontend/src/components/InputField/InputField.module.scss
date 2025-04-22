@@ -92,9 +92,11 @@
         right: 10px;
         transition: all $transition-duration ease;
         filter: none;
+        pointer-events: none;
 
         &_clickable {
             cursor: pointer;
+            pointer-events: auto;
         }
     }
 }

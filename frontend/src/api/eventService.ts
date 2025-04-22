@@ -1,7 +1,7 @@
 import { baseApi } from '@api/axios.ts';
 import { parseError } from '@utils/errorUtils.ts';
 import { DeleteEventResponse } from '@/types';
-import EventDto, { EventCreateUpdateDto } from '@dtos/EventDto.ts';
+import EventDto, { EventCreateDto } from '@dtos/EventDto.ts';
 import { Roles } from '@constants/Roles.ts';
 
 export const getEvents = async (userRole?: Roles): Promise<EventDto[]> => {
@@ -15,7 +15,7 @@ export const getEvents = async (userRole?: Roles): Promise<EventDto[]> => {
 };
 
 export const createEvent = async (
-    newEvent: EventCreateUpdateDto,
+    newEvent: EventCreateDto,
 ): Promise<EventDto> => {
     try {
         const { data } = await baseApi.post('/events', newEvent);

@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import EventDto, { EventCreateUpdateDto } from '@dtos/EventDto.ts';
+import EventDto, { EventCreateDto, EventFormDto } from '@dtos/EventDto.ts';
 import {
     createEvent,
     deleteEvent as deleteEventApi,
@@ -39,29 +39,21 @@ export const fetchEvents = createAsyncThunk<EventDto[], Roles | undefined>(
 
 export const addEvent = createAsyncThunk<
     EventDto,
-    EventCreateUpdateDto,
+    EventCreateDto,
     { rejectValue: string }
->(
-    'events/addEvent',
-    async ({ title, description, date, isPublic }, { rejectWithValue }) => {
-        try {
-            return await createEvent({
-                title,
-                description,
-                date,
-                isPublic,
-            });
-        } catch (e) {
-            const { status, errorMessage } = parseError(e);
-            showCustomToast(errorMessage, 'error', status.toString());
-            return rejectWithValue(errorMessage);
-        }
-    },
-);
+>('events/addEvent', async (newEvent, { rejectWithValue }) => {
+    try {
+        return await createEvent(newEvent);
+    } catch (e) {
+        const { status, errorMessage } = parseError(e);
+        showCustomToast(errorMessage, 'error', status.toString());
+        return rejectWithValue(errorMessage);
+    }
+});
 
 export const updateEvent = createAsyncThunk<
     EventDto,
-    { id: number; eventData: Partial<EventDto> },
+    { id: number; eventData: Partial<EventFormDto> },
     { state: RootState; rejectValue: string }
 >('events/updateEvent', async ({ id, eventData }, { rejectWithValue }) => {
     try {

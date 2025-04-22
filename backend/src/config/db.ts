@@ -2,7 +2,7 @@ import { Sequelize } from 'sequelize-typescript';
 import config from './config.js';
 
 if (!config.db.dbName || !config.db.user || !config.db.password || !config.db.host || !config.db.port) {
-    throw new Error('Missing database configuration');
+    throw new Error('Отсутствие конфигурации базы данных');
 }
 
 const sequelize = new Sequelize(config.db.dbName, config.db.user, config.db.password, {
@@ -15,9 +15,9 @@ const sequelize = new Sequelize(config.db.dbName, config.db.user, config.db.pass
 const authenticate: () => Promise<void> = async (): Promise<void> => {
     try {
         await sequelize.authenticate();
-        console.log('Connection to DB successful');
+        console.log('Связь с DB установлена');
     } catch (e) {
-        console.error('Error connection to DB: ', e);
+        console.error('Ошибка соединения с БД: ', e);
     }
 };
 

@@ -3,43 +3,26 @@ import EventService from '@services/EventService.js';
 import { Roles } from '@constants/Roles.js';
 import User from '@models/User.js';
 import CustomError from '@utils/CustomError.js';
-import { ErrorCodes } from '@constants/Errors.js';
-import { CreateEventDto, EventDto, UpdateEventDto } from '@dto/EventDto.js';
+import { ErrorCodes, ErrorMessages } from '@constants/Errors.js';
 import EventMapper from '@mappers/EventMapper.js';
+import { CreateEventInput, createEventSchema, getUpdateEventSchema, UpdateEventInput } from '@validation/event.js';
+import { idSchema } from '@validation/user.js';
 
 class EventController {
     async createEvent(req: Request, res: Response, next: NextFunction): Promise<void> {
-        const { title, description, date, isPublic } = req.body as CreateEventDto;
-
-        if (!title) {
-            return next(new CustomError(ErrorCodes.BadRequest, 'Title are required'));
-        }
-
-        const eventDate = date ? new Date(date) : undefined;
-        if (eventDate && isNaN(eventDate.getTime())) {
-            return next(new CustomError(ErrorCodes.BadRequest, 'Invalid date format'));
-        }
-
         try {
-            EventController.validateEventData({ title, description, date: eventDate });
-        } catch (e: unknown) {
+            const data: CreateEventInput = createEventSchema.parse(req.body);
+            const user = req.user as User;
+            const createdBy = user.id;
+            if (!createdBy) {
+                return next(new CustomError(ErrorCodes.BadRequest, `Пользователь с id "${data.createdBy}" не найден`));
+            }
+
+            const event = await EventService.createEvent(data);
+            res.status(201).json(EventMapper.toResponseDto(event));
+        } catch (e) {
             return next(e);
         }
-
-        const user = req.user as User;
-        const createdBy = user.id;
-        if (!createdBy) {
-            return next(new CustomError(ErrorCodes.BadRequest, `User with the ID ${createdBy} not found`));
-        }
-
-        const event = await EventService.createEvent({
-            title,
-            description,
-            date: eventDate,
-            createdBy,
-            isPublic,
-        });
-        res.status(201).json(EventMapper.toResponseDto(event));
     }
 
     async getAllEvents(req: Request, res: Response, next: NextFunction) {
@@ -64,9 +47,7 @@ class EventController {
 
     async getEvent(req: Request, res: Response, next: NextFunction) {
         try {
-            const id = Number(req.params.id);
-
-            EventController.validateEventId(id);
+            const id = idSchema.parse(req.params.id);
 
             const event = await EventService.getEvent(id);
             res.status(200).json(EventMapper.toResponseDto(event));
@@ -77,16 +58,14 @@ class EventController {
 
     async updateEvent(req: Request, res: Response, next: NextFunction) {
         try {
-            const id = Number(req.params.id);
-            const eventData: Partial<UpdateEventDto> = req.body;
-
-            EventController.validateEventId(id);
-            EventController.validateEventData(eventData);
+            const id = idSchema.parse(req.params.id);
+            const event = await EventService.getEvent(id);
+            const minDate = event.date.toISOString();
+            const updateEventSchema = getUpdateEventSchema(minDate);
+            const eventData: UpdateEventInput = updateEventSchema.parse(req.body);
 
             if (!(await EventController.checkAccessToEvent(id, req.user as User))) {
-                return next(
-                    new CustomError(ErrorCodes.ForbiddenError, 'You do not have permission to access this resource.'),
-                );
+                return next(new CustomError(ErrorCodes.ForbiddenError, ErrorMessages.ForbiddenError));
             }
 
             const updatedEvent = await EventService.updateEvent(id, eventData);
@@ -98,16 +77,11 @@ class EventController {
 
     async deleteEvent(req: Request, res: Response, next: NextFunction) {
         try {
-            const id = Number(req.params.id);
-
+            const id = idSchema.parse(req.params.id);
             const hardDelete = ['true', '1', 'yes'].includes(String(req.query.hardDelete).toLowerCase());
 
-            EventController.validateEventId(id);
-
             if (!(await EventController.checkAccessToEvent(id, req.user as User))) {
-                return next(
-                    new CustomError(ErrorCodes.ForbiddenError, 'You do not have permission to access this resource.'),
-                );
+                return next(new CustomError(ErrorCodes.ForbiddenError, ErrorMessages.ForbiddenError));
             }
 
             const { message, event } = await EventService.deleteEvent(id, hardDelete);
@@ -119,14 +93,10 @@ class EventController {
 
     async restoreEvent(req: Request, res: Response, next: NextFunction) {
         try {
-            const id = Number(req.params.id);
-
-            EventController.validateEventId(id);
+            const id = idSchema.parse(req.params.id);
 
             if (!(await EventController.checkAccessToEvent(id, req.user as User))) {
-                return next(
-                    new CustomError(ErrorCodes.ForbiddenError, 'You do not have permission to access this resource.'),
-                );
+                return next(new CustomError(ErrorCodes.ForbiddenError, ErrorMessages.ForbiddenError));
             }
 
             const { message, event } = await EventService.restoreEvent(id);
@@ -148,49 +118,6 @@ class EventController {
 
         const creator: User = await EventService.getEventCreator(id);
         return creator.id === user.id;
-    }
-
-    private static validateEventId(id: number): void {
-        if (!Number.isInteger(id) || id <= 0) {
-            throw new CustomError(ErrorCodes.BadRequest, 'Invalid event ID. It must be a positive integer.');
-        }
-    }
-
-    private static validateEventData(data: Partial<EventDto>): void {
-        if (data.createdBy !== undefined) {
-            if (!Number.isInteger(data.createdBy) || data.createdBy <= 0) {
-                throw new CustomError(ErrorCodes.BadRequest, 'Creator ID must be a positive integer.');
-            }
-        }
-
-        if (typeof data.title === 'string') {
-            data.title = data.title.trim();
-
-            if (data.title === '') {
-                throw new CustomError(ErrorCodes.BadRequest, 'Title must be a non-empty string.');
-            }
-
-            if (data.title.length > 100) {
-                throw new CustomError(ErrorCodes.BadRequest, 'Title must not exceed 100 characters.');
-            }
-        }
-
-        if (typeof data.description === 'string') {
-            data.description = data.description.trim();
-
-            if (data.description.length > 200) {
-                throw new CustomError(ErrorCodes.BadRequest, 'Description must not exceed 200 characters.');
-            }
-        }
-
-        if (data.date !== undefined) {
-            const parsedDate = new Date(data.date);
-
-            if (isNaN(parsedDate.getTime())) {
-                throw new CustomError(ErrorCodes.BadRequest, 'Invalid date format.');
-            }
-            data.date = parsedDate;
-        }
     }
 }
 

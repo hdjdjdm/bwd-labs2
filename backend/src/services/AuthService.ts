@@ -4,32 +4,37 @@ import config from '@config/config.js';
 import User from '@models/User.js';
 import CustomError from '@utils/CustomError.js';
 import { ErrorCodes } from '@constants/Errors.js';
-import { CreateUserDto } from '@dto/UserDto.js';
+import { LoginInput, RegisterInput } from '@validation/user.js';
 
 class AuthService {
-    async registerUser(data: CreateUserDto): Promise<{ user: User; token: string }> {
+    async registerUser(data: RegisterInput): Promise<{ user: User; token: string }> {
         const user = await User.create({
-            name: data.name,
             email: data.email,
             password: data.password,
+            username: data.username,
+            firstName: data.firstName ?? '',
+            middleName: data.middleName ?? '',
+            lastName: data.lastName ?? '',
+            gender: data.gender,
+            dateOfBirth: new Date(data.dateOfBirth),
         });
 
         const token = AuthService.generateToken(user);
         return { user, token };
     }
 
-    async loginUser(email: string, password: string): Promise<{ user: User; token: string }> {
+    async loginUser(data: LoginInput): Promise<{ user: User; token: string }> {
         const user = await User.findOne({
-            where: { email },
+            where: { email: data.email },
         });
 
         if (!user) {
-            throw new CustomError(ErrorCodes.BadRequest, 'User with this email does not exist.');
+            throw new CustomError(ErrorCodes.BadRequest, 'Пользователя с этой почтой не существует.');
         }
 
-        const isPasswordValid = await bcrypt.compare(password, user.password);
+        const isPasswordValid = await bcrypt.compare(data.password, user.password);
         if (!isPasswordValid) {
-            throw new CustomError(ErrorCodes.BadRequest, 'Invalid password.');
+            throw new CustomError(ErrorCodes.BadRequest, 'Неверный пароль.');
         }
 
         const token = AuthService.generateToken(user);
@@ -39,13 +44,13 @@ class AuthService {
     private static generateToken(user: User): string {
         const jwtSecret = config.auth.jwtSecret;
         if (!jwtSecret) {
-            throw new Error('Missing jwt secret');
+            throw new Error('Отсутствует JWT Secret');
         }
 
         const jwtExpiresIn = config.auth.jwtExpiresIn;
 
         if (!jwtExpiresIn) {
-            throw new Error('Missing jwt expiration time');
+            throw new Error('Отсутствует время истечения срока действия JWT');
         }
 
         return jwt.sign({ id: user.id }, jwtSecret, {

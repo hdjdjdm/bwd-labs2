@@ -4,9 +4,6 @@ import classNames from 'classnames';
 import AuthForm from '@components/AuthForm/AuthForm.tsx';
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { register } from '@api/authService.ts';
-import { showCustomToast } from '@utils/customToastUtils.ts';
-import { parseError } from '@utils/errorUtils.ts';
 import { useAppSelector } from '@/app/hooks.ts';
 
 const RegisterPage: React.FC = () => {
@@ -19,34 +16,6 @@ const RegisterPage: React.FC = () => {
         }
     }, [navigate, user]);
 
-    const handleRegister = async (
-        email: string,
-        password: string,
-        username: string,
-    ) => {
-        try {
-            const result = await register(email, password, username);
-
-            if (result.status === 201) {
-                showCustomToast(
-                    result.message,
-                    'success',
-                    result.status.toString(),
-                );
-                navigate('/login');
-            } else {
-                showCustomToast(
-                    result.message,
-                    'warning',
-                    result.status.toString(),
-                );
-            }
-        } catch (e: unknown) {
-            const { status, errorMessage } = parseError(e);
-            showCustomToast(errorMessage, 'error', status.toString());
-        }
-    };
-
     return (
         <div className={styles.registerPage}>
             <Header />
@@ -56,7 +25,7 @@ const RegisterPage: React.FC = () => {
                     'page__inner',
                 )}
             >
-                <AuthForm onSubmit={handleRegister} type="register" />
+                <AuthForm type="register" />
             </div>
         </div>
     );

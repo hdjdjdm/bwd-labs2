@@ -4,12 +4,10 @@ import classNames from 'classnames';
 import React, { useEffect } from 'react';
 import AuthForm from '@components/AuthForm/AuthForm.tsx';
 import { useNavigate } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '@/app/hooks.ts';
-import { login } from '@/app/slices/authSlice.ts';
+import { useAppSelector } from '@/app/hooks.ts';
 
 const LoginPage: React.FC = () => {
     const navigate = useNavigate();
-    const dispatch = useAppDispatch();
     const user = useAppSelector((state) => state.auth.user);
 
     useEffect(() => {
@@ -18,17 +16,11 @@ const LoginPage: React.FC = () => {
         }
     }, [navigate, user]);
 
-    const handleLogin = async (email: string, password: string) => {
-        dispatch(login({ email, password }))
-            .unwrap()
-            .then(() => navigate('/events'));
-    };
-
     return (
         <div className={styles.loginPage}>
             <Header />
             <div className={classNames(styles.loginPage__inner, 'page__inner')}>
-                <AuthForm onSubmit={handleLogin} type="login" />
+                <AuthForm type="login" />
             </div>
         </div>
     );

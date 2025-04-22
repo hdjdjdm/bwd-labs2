@@ -14,3 +14,5 @@ export type EventFormDto = Pick<
     EventDto,
     'title' | 'description' | 'date' | 'isPublic'
 >;
+
+export type EventCreateDto = EventFormDto & { createdBy: string };

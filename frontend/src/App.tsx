@@ -11,6 +11,7 @@ import ProfilePage from '@pages/ProfilePage/ProfilePage.tsx';
 import { useAppDispatch } from '@/app/hooks.ts';
 import { checkTokenValidity } from '@/app/slices/authSlice.ts';
 import Loader from '@components/Loader/Loader.tsx';
+import { ProtectedRoute } from '@components/ProtectedRoute.tsx';
 
 const App: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -35,11 +36,15 @@ const App: React.FC = () => {
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/events" element={<EventsPage />} />
                     <Route path="/about" element={<AboutPage />} />
-                    <Route path="/profile/:id" element={<ProfilePage />} />
+
+                    <Route element={<ProtectedRoute />}>
+                        <Route path="/profile/:id" element={<ProfilePage />} />
+                    </Route>
 
                     <Route path="*" element={<NotFoundPage />} />
                 </Routes>
             </BrowserRouter>
+
             <Loader />
             <ToastContainer
                 position="bottom-right"

@@ -19,7 +19,8 @@
             "@routes/*": ["routes/*"],
             "@services/*": ["services/*"],
             "@types/*": ["types/*"],
-            "@utils/*": ["utils/*"]
+            "@utils/*": ["utils/*"],
+            "@validation/*": ["validation/*"]
         },
         "resolveJsonModule": true,
         "outDir": "./dist",

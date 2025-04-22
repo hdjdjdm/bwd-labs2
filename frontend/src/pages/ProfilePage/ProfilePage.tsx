@@ -14,15 +14,13 @@ import { useParams } from 'react-router-dom';
 import EventPanel from '@components/Events/EventPanel/EventPanel.tsx';
 import { clearEvents, setEvents } from '@app/slices/eventsSlice.ts';
 import { setShowDeleted } from '@app/slices/uiSlice.ts';
-import { useForm } from 'react-hook-form';
+import { FieldErrors, Resolver, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { updateUserSchema } from '@validation/user.ts';
+import { updateUserSchema, UserUpdateInput } from '@validation/user.ts';
 import { updateAuthUser } from '@app/slices/authSlice.ts';
-
-interface ProfileFormData {
-    username: string;
-    email: string;
-}
+import { RegisterRequest } from '@/types';
+import { Genders } from '@constants/Genders.ts';
+import getLocalDateString from '@utils/getLocalDateString.ts';
 
 const ProfilePage = () => {
     const dispatch = useAppDispatch();
@@ -35,9 +33,9 @@ const ProfilePage = () => {
         handleSubmit,
         formState: { errors },
         setValue,
-    } = useForm<ProfileFormData>({
-        resolver: yupResolver(updateUserSchema),
-        mode: 'onBlur',
+    } = useForm<UserUpdateInput>({
+        resolver: yupResolver(updateUserSchema) as Resolver<UserUpdateInput>,
+        mode: 'onSubmit',
     });
 
     useEffect(() => {
@@ -52,8 +50,16 @@ const ProfilePage = () => {
 
     useEffect(() => {
         if (user) {
-            setValue('username', user.name || '');
             setValue('email', user.email || '');
+            setValue('username', user.username || '');
+            setValue('firstName', user.firstName || '');
+            setValue('middleName', user.middleName || '');
+            setValue('lastName', user.lastName || '');
+            setValue(
+                'dateOfBirth',
+                getLocalDateString(new Date(user.dateOfBirth)),
+            );
+            setValue('gender', user.gender || '');
         }
     }, [user, setValue]);
 
@@ -64,27 +70,21 @@ const ProfilePage = () => {
     }, [user, dispatch]);
 
     const isUserProfile = authUser?.id === Number(id);
+    const isUserAdmin = authUser?.role === 'admin';
+    const hasAccess = isUserProfile || isUserAdmin;
 
-    const onSubmit = async (data: ProfileFormData) => {
+    const onSubmit = async (data: UserUpdateInput) => {
         try {
             const updatedUser = await dispatch(
                 updateUserProfile({
                     userId: Number(id),
-                    updatedUserData: {
-                        name: data.username,
-                        email: data.email,
-                    },
+                    updatedUserData: data,
                 }),
             ).unwrap();
 
             dispatch(fetchUserProfile(Number(id)));
 
-            dispatch(
-                updateAuthUser({
-                    name: updatedUser.name,
-                    email: updatedUser.email,
-                }),
-            );
+            dispatch(updateAuthUser(updatedUser));
         } catch (e) {
             console.error('Ошибка при обновлении профиля:', e);
         }
@@ -102,38 +102,93 @@ const ProfilePage = () => {
                     noValidate
                 >
                     <h1>Профиль</h1>
-                    <span
-                        className={classNames(
-                            styles.profilePage__input,
-                            styles.profilePage__input_username,
-                        )}
-                    >
-                        <InputField
-                            label="Имя профиля"
-                            {...register('username')}
-                            errorMessage={errors.username?.message}
-                            autoComplete="username"
-                            disabled={!isUserProfile}
-                        />
-                    </span>
-
-                    <span
-                        className={classNames(
-                            styles.profilePage__input,
-                            styles.profilePage__input_email,
-                        )}
-                    >
+                    <div className={styles.profilePage__input}>
                         <InputField
                             type="email"
                             label="Почта"
                             {...register('email')}
                             errorMessage={errors.email?.message}
                             autoComplete="email"
-                            disabled={!isUserProfile}
+                            disabled={!hasAccess}
                         />
-                    </span>
+                    </div>
 
-                    {isUserProfile && (
+                    <div className={styles.profilePage__input}>
+                        <InputField
+                            label="Никнейм"
+                            {...register('username')}
+                            errorMessage={
+                                (errors as FieldErrors<RegisterRequest>)
+                                    .username?.message
+                            }
+                            autoComplete="username"
+                            disabled={!hasAccess}
+                        />
+                    </div>
+                    <div className={styles.profilePage__input}>
+                        <InputField
+                            label="Имя"
+                            {...register('firstName')}
+                            errorMessage={
+                                (errors as FieldErrors<RegisterRequest>)
+                                    .firstName?.message
+                            }
+                            autoComplete="given-name"
+                            disabled={!hasAccess}
+                        />
+                    </div>
+                    <div className={styles.profilePage__input}>
+                        <InputField
+                            label="Фамилия"
+                            {...register('middleName')}
+                            errorMessage={
+                                (errors as FieldErrors<RegisterRequest>)
+                                    .middleName?.message
+                            }
+                            autoComplete="family-name"
+                            disabled={!hasAccess}
+                        />
+                    </div>
+                    <div className={styles.profilePage__input}>
+                        <InputField
+                            label="Отчество"
+                            {...register('lastName')}
+                            errorMessage={
+                                (errors as FieldErrors<RegisterRequest>)
+                                    .lastName?.message
+                            }
+                            autoComplete="additional-name"
+                            disabled={!hasAccess}
+                        />
+                    </div>
+                    <div className={styles.profilePage__input}>
+                        <InputField
+                            type="date"
+                            label="Дата рождения"
+                            {...register('dateOfBirth', { required: true })}
+                            errorMessage={
+                                (errors as FieldErrors<RegisterRequest>)
+                                    .dateOfBirth?.message
+                            }
+                            max={new Date().toISOString().split('T')[0]}
+                            autoComplete="off"
+                            disabled={!hasAccess}
+                        />
+                    </div>
+                    <div className={styles.profilePage__input}>
+                        <label>Пол</label>
+                        <select
+                            {...register('gender')}
+                            className={styles.profilePage__select}
+                            defaultValue={Genders.MALE}
+                            disabled={!hasAccess}
+                        >
+                            <option value={Genders.MALE}>Мужской</option>
+                            <option value={Genders.FEMALE}>Женский</option>
+                        </select>
+                    </div>
+
+                    {hasAccess && (
                         <button
                             className={classNames(
                                 styles.profilePage__saveButton,
@@ -147,7 +202,7 @@ const ProfilePage = () => {
                         </button>
                     )}
                 </form>
-                {isUserProfile && <EventPanel showWithDeleted={true} />}
+                {hasAccess && <EventPanel showWithDeleted={true} />}
                 <EventsList />
             </div>
         </div>
